@@ -1,5 +1,13 @@
 // Importar React y varios hooks de React
 import React, { useCallback, useEffect, useState } from "react";
+import { Input } from "@material-tailwind/react";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  Typography,
+  Button,
+} from "@material-tailwind/react";
 // Importar funciones asincrónicas para obtener datos de la API
 import { getUser } from "./components/getUserApi";
 import { getPost } from "./components/getPostApi";
@@ -45,12 +53,16 @@ const App = () => {
 
   // Renderizar el componente
   return (
-    <div className="flex flex-col justify-center items-center h-screen">
-      <form>
-        <div>
+    <div className="flex flex-col justify-center items-center h-screen w-full bg-gray-100 pb-5 pt-5">
+      <form className="w-full flex flex-col justify-center items-center">
+        <div className="w-3/4 lg:w-2/4  text-center">
           <label htmlFor="">Ingresa id user : </label>
-          <input
-            type="text"
+
+          <Input
+            size="lg"
+            color="blue"
+            label="Entre [1-10]"
+            type="number"
             name="numberId"
             value={numberId}
             onChange={(e) => onChangeNumber(e)}
@@ -58,25 +70,40 @@ const App = () => {
         </div>
       </form>
       <br />
+
       {/* Condición de renderizado basada en 'user.id' */}
-      {user.id === 0 ? null : (
-        <div className="border-4 border-red-500 text-center">
-          <hr />
-          <div>
-            <p>Name : {user.name}</p>
-            <p>Email : {user.email}</p>
-            <p>Phone : {user.phone}</p>
-          </div>
-          <hr />
+
+      {numberId === 0 || numberId > 10 || numberId < 0 ? (
+        <div>
+          <Card className="mt-2 w-full">
+            <CardBody>
+              <Typography>no existe usario</Typography>
+            </CardBody>
+          </Card>
+        </div>
+      ) : (
+        <div className="flex flex-col justify-center items-center  text-center w-3/4 lg:w-2/4">
+          <Card className="mt-2 w-full">
+            <CardBody>
+              <Typography>Name : {user.name}</Typography>
+              <Typography>Email : {user.email}</Typography>
+              <Typography>Phone : {user.phone}</Typography>
+            </CardBody>
+          </Card>
+
           <br />
-          <h5>Post User</h5>
+
           <br />
           {/* Renderizar lista de posts */}
-          <ul className="">
-            {post.map((item) => (
-              <li key={item.id}>{item.title}</li>
-            ))}
-          </ul>
+          <Card className="mt-2 w-full">
+            <CardBody>
+              <ul className="">
+                {post.map((item) => (
+                  <Typography key={item.id}>{item.title}</Typography>
+                ))}
+              </ul>
+            </CardBody>
+          </Card>
         </div>
       )}
     </div>
