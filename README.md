@@ -6,17 +6,17 @@
   npm i --save-dev gh-pages
 - ir a package.json predeply y deploy
 
-[js] '''
+```javascript
 "scripts": {
 "dev": "vite",
 "build": "vite build",
 "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
 "preview": "vite preview",
 "predeploy":"npm run build",
-"deploy" : "gh-pages -d -dist"
-
+"deploy" : "gh-pages -d dist"
 },
-'''
+
+```
 
 - y ejecutar en terminal
 
