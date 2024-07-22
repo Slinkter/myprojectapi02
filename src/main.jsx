@@ -6,7 +6,7 @@ import "./index.css";
 import { ThemeProvider } from "@material-tailwind/react";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <ThemeProvider>
-    <App />
-  </ThemeProvider>
+    <ThemeProvider>
+        <App />
+    </ThemeProvider>
 );
