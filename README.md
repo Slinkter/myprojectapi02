@@ -1,10 +1,10 @@
-# React + Vite
+# Project API 02
 
-- se agrega [] en vite.config
-  base: "https://slinkter.github.io/myprojectapi02",
-- se instala paquete de github
-  npm i --save-dev gh-pages
-- ir a package.json predeply y deploy
+-   se agrega [] en vite.config
+    base: "https://slinkter.github.io/myprojectapi0x",
+-   se instala paquete de github
+    npm i --save-dev gh-pages
+-   ir a package.json predeply y deploy
 
 ```javascript
 "scripts": {
@@ -18,6 +18,10 @@
 
 ```
 
-- y ejecutar en terminal
+-   y ejecutar en terminal
 
 npm run deploy
+
+##
+
+![alt text](./api02.png)
