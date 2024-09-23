@@ -1,5 +1,14 @@
+/*  
 @import url("https://fonts.googleapis.com/css2?family=Playwrite+CU:wght@100..400&display=swap");
-
+ */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.container-custom {
+    @apply flex flex-col  items-center h-screen w-full bg-gray-200 gap-2 py-8;
+}
+
+.container-input {
+    @apply flex flex-col justify-center items-center md:w-3/4  m-0 p-0;
+}

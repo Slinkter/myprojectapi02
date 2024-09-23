@@ -1,15 +1,13 @@
 const getUser = async (id) => {
-  //
-  const url = "https://jsonplaceholder.typicode.com/users/" + id;
-  //
-  const res = await fetch(url);
-  const data = await res.json();
-  return data; //{}
+    const url = "https://jsonplaceholder.typicode.com/users/" + id;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data;
 };
 export { getUser };
 
 /* 
-
+return data =
 {
     "id": 1,
     "name": "Leanne Graham",

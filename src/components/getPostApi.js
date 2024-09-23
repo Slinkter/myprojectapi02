@@ -1,9 +1,8 @@
 const getPost = async (userId) => {
-  const url = "https://jsonplaceholder.typicode.com/posts?userId=" + userId;
-  //
-  const res = await fetch(url);
-  const data = await res.json();
-  return data; // [{},{}]
+    const url = "https://jsonplaceholder.typicode.com/posts?userId=" + userId;
+    const res = await fetch(url);
+    const data = await res.json();
+    return data; // [{},{}]
 };
 export { getPost };
 
