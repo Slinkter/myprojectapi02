@@ -97,7 +97,7 @@ const App = () => {
                     ) : (
                         <>
                             {numberId <= 0 || numberId > 10 ? (
-                                <CardNotFound />
+                                <CardNotFound numberId={numberId} />
                             ) : (
                                 <div className="flex flex-col justify-center gap-6 w-full">
                                     <CardUser user={user} />
@@ -112,12 +112,12 @@ const App = () => {
     );
 };
 
-const CardNotFound = () => {
+const CardNotFound = (props) => {
     return (
         <Card className="mt-2 w-full">
             <CardBody>
                 <Typography variant="h5" color="red">
-                    No existe usuario
+                    No existe usuario {props?.numberId}
                 </Typography>
                 <Typography variant="lead" color="red">
                     Debes escoger entre [1-10]
