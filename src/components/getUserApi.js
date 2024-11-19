@@ -7,8 +7,7 @@ const getUser = async (id) => {
 export { getUser };
 
 /* 
-return data =
-{
+return user = {
     "id": 1,
     "name": "Leanne Graham",
     "username": "Bret",

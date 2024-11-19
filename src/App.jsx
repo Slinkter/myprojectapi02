@@ -10,18 +10,19 @@ import { getUser } from "./components/getUserApi";
 import { getPost } from "./components/getPostApi";
 
 const App = () => {
+    const [isError, setIsError] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [numberId, setNumberId] = useState(1);
     const [user, setUser] = useState({});
     const [post, setPost] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isError, setIsError] = useState(null);
 
     // Función para obtener el usuario
     const fetchUser = useCallback(async () => {
-        setIsLoading(true);
         try {
-            const data = await getUser(numberId);
-            setUser(data);
+            setIsLoading(true);
+            const dataUser = await getUser(numberId);
+            setUser(dataUser);
+            console.log(dataUser);
         } catch (err) {
             setIsError("Error fetching user");
         } finally {
@@ -34,6 +35,7 @@ const App = () => {
         try {
             const data = await getPost(user.id);
             setPost(data);
+            console.log(data);
         } catch (err) {
             setIsError("Error fetching posts");
         }
@@ -44,8 +46,11 @@ const App = () => {
     }, [numberId, fetchUser]);
 
     useEffect(() => {
-        if (user.id) fetchPost();
-        else setPost([]);
+        if (!user.id) {
+            setPost([]);
+        } else {
+            fetchPost();
+        }
     }, [user, fetchPost]);
 
     // Memorizar la lista de posts
@@ -59,65 +64,77 @@ const App = () => {
         [post]
     );
 
+    if (isError) {
+        return (
+            <div className="error-message">An error occurred: {isError}</div>
+        );
+    }
+
     return (
         <div className="container-custom">
-            {isLoading ? (
-                <Spinner className="h-24 w-24" />
-            ) : isError ? (
-                <div className="error-message">
-                    An error occurred: {isError}
-                </div>
-            ) : (
-                <>
-                    <Typography variant="h1" color="blue-gray">
-                        Fake API
-                    </Typography>
-                    <Typography variant="lead" color="blue-gray">
-                        jsonplaceholder + tailwind css
-                    </Typography>
-                    <div className="w-3/4 text-center ">
-                        <Input
-                            size="lg"
-                            color="blue"
-                            label="Entre [1-10]"
-                            name="numberId"
-                            value={numberId}
-                            onChange={(e) =>
-                                setNumberId(Number(e.target.value))
-                            }
-                        />
-                    </div>
-
-                    {numberId <= 0 || numberId > 10 ? (
-                        <Card className="mt-2 w-3/4">
-                            <CardBody>
-                                <Typography variant="h5" color="red">
-                                    No existe usuario
-                                </Typography>
-                                <Typography variant="lead" color="red">
-                                    Debes escoger entre [1-10]
-                                </Typography>
-                            </CardBody>
-                        </Card>
-                    ) : (
-                        <div className="flex flex-col justify-center gap-6 w-3/4">
-                            <CardUser user={user} />
-                            <CardPostUser postList={postList} />
+            <>
+                <Typography variant="h2" color="blue-gray text-center">
+                    JSON Placeholder Fake API
+                </Typography>
+                <Typography variant="lead" color="blue-gray">
+                    React + Material-Tailwind
+                </Typography>
+                <div className="w-3/4 md:w-2/4 flex flex-col justify-center items-center ">
+                    <Input
+                        className="2/4"
+                        size="lg"
+                        color="blue"
+                        label="Entre [1-10]"
+                        name="numberId"
+                        value={numberId}
+                        onChange={(e) => setNumberId(Number(e.target.value))}
+                    />
+                    {isLoading ? (
+                        <div className="flex flex-col justify-center items-center gap-6 w-full">
+                            {/*    <Spinner className="h-24 w-24 mt-5" /> */}
+                            <CardPlaceholder />
                         </div>
+                    ) : (
+                        <>
+                            {numberId <= 0 || numberId > 10 ? (
+                                <CardNotFound />
+                            ) : (
+                                <div className="flex flex-col justify-center gap-6 w-full">
+                                    <CardUser user={user} />
+                                    <CardPostUser postList={postList} />
+                                </div>
+                            )}
+                        </>
                     )}
-                </>
-            )}
+                </div>
+            </>
         </div>
     );
 };
 
-const CardPostUser = ({ postList }) => (
+const CardNotFound = () => {
+    return (
+        <Card className="mt-2 w-full">
+            <CardBody>
+                <Typography variant="h5" color="red">
+                    No existe usuario
+                </Typography>
+                <Typography variant="lead" color="red">
+                    Debes escoger entre [1-10]
+                </Typography>
+            </CardBody>
+        </Card>
+    );
+};
+
+const CardPostUser = memo(({ postList }) => (
     <Card className="w-full">
         <CardBody>
             <ul className="text-left">{postList}</ul>
         </CardBody>
     </Card>
-);
+));
+CardPostUser.displayName = "CardPostUser";
 
 // Componente memoizado para evitar renderizados innecesarios
 const CardUser = memo(({ user }) => (
@@ -126,10 +143,19 @@ const CardUser = memo(({ user }) => (
             <Typography>{user.name}</Typography>
             <Typography>{user.email}</Typography>
             <Typography>{user.phone}</Typography>
+            <Typography>{user.website}</Typography>
         </CardBody>
     </Card>
 ));
-
 CardUser.displayName = "CardUser";
+
+const CardPlaceholder = () => (
+    <Card className="mt-2 w-full p-5">
+        <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4"></div>
+        <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+        <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+        <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
+    </Card>
+);
 
 export default App;
