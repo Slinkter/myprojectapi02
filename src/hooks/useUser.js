@@ -17,7 +17,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserAndPosts as thunkFetch } from "../redux/slices/userSlice";
+import { fetchUserAndPosts as getData } from "../redux/slices/userSlice";
 
 export const useUser = (initialUserId = 1) => {
     const [inputValue, setInputValue] = useState(initialUserId.toString());
@@ -35,7 +35,7 @@ export const useUser = (initialUserId = 1) => {
      */
     useEffect(() => {
         if (initialUserId) {
-            dispatch(thunkFetch(initialUserId));
+            dispatch(getData(initialUserId));
             setSearchId(initialUserId.toString());
         }
     }, [dispatch, initialUserId]);
@@ -57,7 +57,7 @@ export const useUser = (initialUserId = 1) => {
     const handleSearch = useCallback(() => {
         if (inputValue) {
             setSearchId(inputValue);
-            dispatch(thunkFetch(Number(inputValue)));
+            dispatch(getData(Number(inputValue)));
         }
     }, [dispatch, inputValue]);
 
@@ -66,7 +66,7 @@ export const useUser = (initialUserId = 1) => {
      */
     const handleRetry = useCallback(() => {
         if (searchId) {
-            dispatch(thunkFetch(Number(searchId)));
+            dispatch(getData(Number(searchId)));
         }
     }, [dispatch, searchId]);
 
