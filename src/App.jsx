@@ -14,7 +14,9 @@ function App() {
     const [userId, setUserId] = useState(1);
     const [searchId, setSearchId] = useState(null);
     const dispatch = useDispatch();
-    const { user, posts, isLoading, error } = useSelector((state) => state.user);
+    const { user, posts, isLoading, error } = useSelector(
+        (state) => state.user
+    );
 
     const handleInputChange = (e) => {
         const value = e.target.value;
@@ -75,10 +77,7 @@ function App() {
                 )}
 
                 {error && (
-                    <ErrorMessage
-                        message={error}
-                        onRetry={handleRetry}
-                    />
+                    <ErrorMessage message={error} onRetry={handleRetry} />
                 )}
 
                 {!isLoading && !error && user && (

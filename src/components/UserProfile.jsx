@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
     Card,
     CardBody,
@@ -38,10 +38,7 @@ const UserProfile = React.memo(({ user }) => {
                 >
                     {user.name}
                 </Typography>
-                <Typography
-                    color="gray"
-                    className="text-lg font-medium mb-6"
-                >
+                <Typography color="gray" className="text-lg font-medium mb-6">
                     @{user.username}
                 </Typography>
 
@@ -97,7 +94,7 @@ const UserProfile = React.memo(({ user }) => {
     );
 });
 
-UserProfile.displayName = 'UserProfile';
+UserProfile.displayName = "UserProfile";
 
 UserProfile.propTypes = {
     user: PropTypes.shape({
