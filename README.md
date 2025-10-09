@@ -21,6 +21,78 @@ El objetivo es demostrar una arquitectura limpia y moderna en React, ideal para 
 
 ---
 
+## Arquitectura y Flujo de Datos
+
+El proyecto sigue una arquitectura de capas bien definida para separar responsabilidades, lo que facilita el mantenimiento, la escalabilidad y las pruebas.
+
+-   **Capa de Vista (Componentes React):** Se encarga únicamente de renderizar la UI y capturar eventos del usuario. Son componentes "tontos" que reciben datos y funciones a través de props.
+-   **Capa de Lógica de UI (Hook `useUser`):** Actúa como un controlador o intermediario. Conecta la vista con el estado global, despacha acciones y maneja la lógica de la interfaz sin ensuciar los componentes.
+-   **Capa de Estado (Redux):** Centraliza todo el estado de la aplicación (`user`, `posts`, `isLoading`, `error`). El "thunk" `fetchUserAndPosts` maneja la lógica asíncrona de las llamadas a la API.
+-   **Capa de Acceso a Datos (`api.js`):** Abstrae y centraliza toda la comunicación con servicios externos (la API de JSONPlaceholder), manteniendo el resto de la aplicación agnóstica sobre el origen de los datos.
+
+### Diagrama de Flujo
+
+```mermaid
+graph LR
+    %% --- Capas y Nodos ---
+
+    subgraph "📱 Vista (React)"
+        direction LR
+        A[1. Usuario busca ID] --> B[App.jsx];
+        B --> C{useUser Hook};
+        C --> D[11. Renderiza UI<br/>(Perfil, Posts, Error, Skeletons)];
+    end
+
+    subgraph "🧠 Lógica (Hook + Redux Thunk)"
+        direction TB
+        C -- "2. Llama a handleSearch()" --> E["3. dispatch(fetchUserAndPosts)"];
+        E --> F[4. Thunk se ejecuta];
+        F -- "5. Llama a la capa de API" --> G[api.js];
+        F -- "6. Estado: 'pending'" --> H[7. userSlice: isLoading = true];
+    end
+
+    subgraph "🌐 Datos (API)"
+        direction TB
+        G -- "8. Petición HTTP" --> API[(API Externa)];
+        API -- "9a. Éxito" --> I{Resultado};
+        API -- "9b. Error" --> I;
+    end
+
+    subgraph "📦 Estado (Redux Store)"
+        direction TB
+        I -- "10. Thunk recibe resultado" --> J["11. userSlice actualiza estado<br/>(datos o error)"];
+        J --> K[12. Store notifica a suscriptores];
+    end
+
+    %% --- Conexiones entre capas ---
+    K --> C;
+
+    %% --- Estilos ---
+    style A fill:#e6f7ff,stroke:#91d5ff
+    style D fill:#e6f7ff,stroke:#91d5ff
+    style API fill:#f6e58d,stroke:#f9ca24,stroke-width:2px
+    classDef redux fill:#f9f0ff,stroke:#d3adf7
+    class H,J,K redux
+```
+
+### Explicación Detallada del Flujo
+
+1.  **Interacción del Usuario:** El usuario introduce un ID en `App.jsx` y hace clic en "Buscar".
+2.  **Llamada al Hook:** El evento `onClick` llama a la función `handleSearch` del hook `useUser`.
+3.  **Despacho de Acción:** `handleSearch` despacha el thunk asíncrono `fetchUserAndPosts(id)` a Redux.
+4.  **Ejecución del Thunk:** Redux ejecuta el thunk, que inmediatamente despacha una acción `pending`.
+5.  **Actualización de Carga:** El `userSlice` recibe la acción `pending` y actualiza el estado: `isLoading = true`. Esto hace que la UI muestre los componentes de esqueleto (Skeletons).
+6.  **Llamada a la API:** El thunk llama a las funciones `getUser` y `getPostsByUser` del archivo `api.js`.
+7.  **Petición HTTP:** `api.js` realiza las peticiones `fetch` a la API externa de `jsonplaceholder`.
+8.  **Recepción de Respuesta:**
+    -   **Éxito:** Si las peticiones son exitosas, el thunk despacha la acción `fulfilled` con los datos del usuario y los posts.
+    -   **Error:** Si algo falla, despacha la acción `rejected` con un mensaje de error.
+9.  **Actualización del Estado Final:** El `userSlice` recibe la acción `fulfilled` o `rejected` y actualiza el store con los datos (`user`, `posts`) o el `error`, y establece `isLoading = false`.
+10. **Notificación a la Vista:** El store de Redux notifica al hook `useUser` (que está suscrito vía `useSelector`) que el estado ha cambiado.
+11. **Renderizado Condicional:** El hook `useUser` recibe el nuevo estado y lo pasa al componente `App.jsx`, que se vuelve a renderizar para mostrar `UserProfile` y `PostList`, el `ErrorMessage`, o la tarjeta `NotFoundCard` según corresponda.
+
+---
+
 ## 3. Construcción del Proyecto Paso a Paso
 
 ### Paso 1: Configuración Inicial del Proyecto

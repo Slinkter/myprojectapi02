@@ -19,7 +19,7 @@ function App() {
         handleInputChange,
         handleSearch,
         handleRetry,
-    } = useUser(1); // Inicializamos con el ID de usuario 1
+    } = useUser(1);
 
     return (
         <MainLayout>
