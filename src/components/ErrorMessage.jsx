@@ -1,8 +1,4 @@
-/**
- * @file Componente para mostrar un mensaje de error con un diseño mejorado.
- * @author Tu Nombre
- */
-
+import React from 'react';
 import { Alert, Button, Typography } from "@material-tailwind/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import PropTypes from "prop-types";
@@ -14,12 +10,12 @@ import PropTypes from "prop-types";
  * @param {Function} props.onRetry - La función a ejecutar cuando se hace clic en el botón de reintento.
  * @returns {JSX.Element}
  */
-function ErrorMessage({ message, onRetry }) {
+const ErrorMessage = React.memo(({ message, onRetry }) => {
     return (
         <Alert
             variant="ghost"
             color="red"
-            className="p-6 rounded-2xl border border-red-200"
+            className="p-6 rounded-2xl border border-red-200 bg-red-50/50"
         >
             <div className="flex items-center gap-4">
                 <ExclamationTriangleIcon className="h-8 w-8 text-red-500" />
@@ -33,19 +29,22 @@ function ErrorMessage({ message, onRetry }) {
                 </div>
             </div>
             {onRetry && (
-                <Button
-                    onClick={onRetry}
-                    color="red"
-                    size="sm"
-                    variant="filled"
-                    className="mt-6 w-full sm:w-auto"
-                >
-                    Reintentar
-                </Button>
+                <div className="mt-6 flex justify-end">
+                    <Button
+                        onClick={onRetry}
+                        color="red"
+                        size="sm"
+                        variant="filled"
+                    >
+                        Reintentar
+                    </Button>
+                </div>
             )}
         </Alert>
     );
-}
+});
+
+ErrorMessage.displayName = 'ErrorMessage';
 
 ErrorMessage.propTypes = {
     message: PropTypes.string.isRequired,

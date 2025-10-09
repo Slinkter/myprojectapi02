@@ -1,8 +1,4 @@
-/**
- * @file Componente para mostrar el perfil de un usuario con un diseño mejorado.
- * @author Tu Nombre
- */
-
+import React from 'react';
 import {
     Card,
     CardBody,
@@ -19,24 +15,27 @@ import {
 import PropTypes from "prop-types";
 
 /**
- * Muestra una tarjeta de perfil de usuario con un diseño profesional y atractivo.
+ * Muestra una tarjeta de perfil de usuario
  * @param {object} props - Propiedades del componente.
  * @param {object} props.user - El objeto de usuario con sus datos.
  * @returns {JSX.Element}
  */
-function UserProfile({ user }) {
+const UserProfile = React.memo(({ user }) => {
     return (
-        <Card className="w-full shadow-xl rounded-2xl overflow-hidden">
+        <Card className="w-full shadow-lg rounded-2xl overflow-hidden bg-white">
             <CardBody className="p-6 text-center">
-                {/* Avatar y Nombre */}
                 <Avatar
                     src={`https://i.pravatar.cc/150?u=${user.id}`}
                     alt={user.name}
                     size="xl"
                     variant="circular"
-                    className="mx-auto mb-4 border-4 border-blue-500"
+                    className="mx-auto mb-4 border-4 border-blue-500 shadow-lg"
                 />
-                <Typography variant="h4" color="blue-gray" className="font-bold">
+                <Typography
+                    variant="h4"
+                    color="blue-gray"
+                    className="font-bold"
+                >
                     {user.name}
                 </Typography>
                 <Typography
@@ -46,7 +45,6 @@ function UserProfile({ user }) {
                     @{user.username}
                 </Typography>
 
-                {/* Información de la Compañía */}
                 <div className="flex items-center justify-center gap-2 mb-4">
                     <BriefcaseIcon className="h-6 w-6 text-gray-500" />
                     <Typography className="font-semibold text-gray-700">
@@ -57,14 +55,13 @@ function UserProfile({ user }) {
                     color="gray"
                     className="italic text-sm max-w-md mx-auto mb-8"
                 >
-                    "{user.company.catchPhrase}"
+                    &ldquo;{user.company.catchPhrase}&rdquo;
                 </Typography>
 
-                {/* Detalles de Contacto */}
                 <div className="flex flex-wrap justify-center gap-6 text-left">
                     <Tooltip content="Dirección">
-                        <div className="flex items-center gap-2 cursor-pointer">
-                            <MapPinIcon className="h-5 w-5 text-blue-500" />
+                        <div className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-blue-500 transition-colors">
+                            <MapPinIcon className="h-5 w-5" />
                             <Typography color="blue-gray">
                                 {user.address.city}
                             </Typography>
@@ -73,9 +70,9 @@ function UserProfile({ user }) {
                     <Tooltip content="Email">
                         <a
                             href={`mailto:${user.email}`}
-                            className="flex items-center gap-2 cursor-pointer"
+                            className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-blue-500 transition-colors"
                         >
-                            <EnvelopeIcon className="h-5 w-5 text-blue-500" />
+                            <EnvelopeIcon className="h-5 w-5" />
                             <Typography color="blue-gray">
                                 {user.email}
                             </Typography>
@@ -86,9 +83,9 @@ function UserProfile({ user }) {
                             href={`http://${user.website}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 cursor-pointer"
+                            className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-blue-500 transition-colors"
                         >
-                            <GlobeAltIcon className="h-5 w-5 text-blue-500" />
+                            <GlobeAltIcon className="h-5 w-5" />
                             <Typography color="blue-gray">
                                 {user.website}
                             </Typography>
@@ -98,7 +95,9 @@ function UserProfile({ user }) {
             </CardBody>
         </Card>
     );
-}
+});
+
+UserProfile.displayName = 'UserProfile';
 
 UserProfile.propTypes = {
     user: PropTypes.shape({

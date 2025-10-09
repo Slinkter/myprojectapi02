@@ -1,8 +1,4 @@
-/**
- * @file Componente para renderizar una lista de publicaciones con estilo mejorado.
- * @author Tu Nombre
- */
-
+import React, { useState } from "react";
 import {
     Card,
     CardBody,
@@ -13,7 +9,6 @@ import {
 } from "@material-tailwind/react";
 import { NewspaperIcon } from "@heroicons/react/24/solid";
 import PropTypes from "prop-types";
-import { useState } from "react";
 
 /**
  * Muestra una lista de publicaciones en formato de acordeón.
@@ -21,7 +16,7 @@ import { useState } from "react";
  * @param {Array<object>} props.posts - Array de objetos de publicación.
  * @returns {JSX.Element}
  */
-function PostList({ posts }) {
+const PostList = React.memo(({ posts }) => {
     const [open, setOpen] = useState(0);
 
     const handleOpen = (value) => {
@@ -29,23 +24,27 @@ function PostList({ posts }) {
     };
 
     return (
-        <Card className="w-full shadow-xl rounded-2xl">
+        <Card className="w-full shadow-xl rounded-2xl bg-white">
             <CardBody>
-                <div className="flex items-center gap-3 mb-4">
-                    <NewspaperIcon className="h-8 w-8 text-gray-700" />
-                    <Typography variant="h5" color="blue-gray" className="font-bold">
+                <div className="flex items-center gap-3 mb-6">
+                    <NewspaperIcon className="h-8 w-8 text-blue-500" />
+                    <Typography
+                        variant="h5"
+                        color="blue-gray"
+                        className="font-bold"
+                    >
                         Publicaciones Recientes
                     </Typography>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                     {posts.map((post, index) => (
                         <Accordion
                             key={post.id}
                             open={open === index + 1}
                             onClick={() => handleOpen(index + 1)}
-                            className="border border-blue-gray-100 rounded-lg"
+                            className="border border-gray-200 rounded-lg transition-shadow shadow-sm hover:shadow-md"
                         >
-                            <AccordionHeader className="px-4 text-left">
+                            <AccordionHeader className="px-4 text-left text-blue-gray-800 hover:text-blue-600">
                                 <Typography
                                     variant="h6"
                                     color="blue-gray"
@@ -54,7 +53,7 @@ function PostList({ posts }) {
                                     {post.title}
                                 </Typography>
                             </AccordionHeader>
-                            <AccordionBody className="px-4 pt-0 text-base font-normal">
+                            <AccordionBody className="px-4 pt-0 text-base font-normal text-gray-700">
                                 {post.body}
                             </AccordionBody>
                         </Accordion>
@@ -63,7 +62,9 @@ function PostList({ posts }) {
             </CardBody>
         </Card>
     );
-}
+});
+
+PostList.displayName = 'PostList';
 
 PostList.propTypes = {
     posts: PropTypes.arrayOf(

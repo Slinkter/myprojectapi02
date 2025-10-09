@@ -1,8 +1,4 @@
-/**
- * @file Componente para mostrar cuando un usuario no es encontrado.
- * @author Tu Nombre
- */
-
+import React from 'react';
 import {
     Card,
     CardBody,
@@ -17,9 +13,9 @@ import PropTypes from 'prop-types';
  * @param {string|number} props.numberId - El ID del usuario que no se encontró.
  * @returns {JSX.Element}
  */
-const NotFoundCard = ({ numberId }) => {
+const NotFoundCard = React.memo(({ numberId }) => {
     return (
-        <Card className="mt-2 w-full shadow-lg rounded-2xl bg-yellow-50 border border-yellow-200">
+        <Card className="mt-2 w-full shadow-lg rounded-2xl bg-yellow-50/50 border border-yellow-200">
             <CardBody className="p-6 text-center">
                 <UserCircleIcon className="h-16 w-16 mx-auto text-yellow-600 mb-4" />
                 <Typography variant="h5" color="blue-gray" className="font-bold mb-2">
@@ -35,7 +31,9 @@ const NotFoundCard = ({ numberId }) => {
             </CardBody>
         </Card>
     );
-};
+});
+
+NotFoundCard.displayName = 'NotFoundCard';
 
 NotFoundCard.propTypes = {
     numberId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

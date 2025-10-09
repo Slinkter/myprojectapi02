@@ -1,10 +1,7 @@
-/**
- * @file Componente de layout principal para la aplicación.
- * @author Tu Nombre
- */
-
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Typography } from "@material-tailwind/react";
+
+const currentYear = new Date().getFullYear();
 
 /**
  * Proporciona una estructura de página consistente con un encabezado, contenido principal y pie de página.
@@ -14,18 +11,16 @@ import { Link } from "react-router-dom";
  */
 function MainLayout({ children }) {
     return (
-        <div className="flex flex-col min-h-screen bg-gray-100">
-            {/* Encabezado */}
-            <header className="bg-white shadow-lg">
+        <div className="flex flex-col min-h-screen bg-gray-50">
+            <header className="bg-white shadow-md">
                 <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center">
-                        <Link to="/" className="flex items-center gap-2">
-                            <img src="/api02.png" alt="Logo" className="h-8 w-auto" />
-                            <h1 className="text-2xl font-bold text-gray-800">
-                                Visor de Perfiles
-                            </h1>
-                        </Link>
-                    </div>
+                    <Typography
+                        variant="h4"
+                        color="blue-gray"
+                        className="font-bold text-center"
+                    >
+                        My Project API
+                    </Typography>
                 </div>
             </header>
 
@@ -34,10 +29,11 @@ function MainLayout({ children }) {
                 <div className="max-w-4xl mx-auto space-y-8">{children}</div>
             </main>
 
-            {/* Pie de Página */}
-            <footer className="bg-white shadow-t mt-auto">
-                <div className="container mx-auto px-4 py-4 text-center text-gray-600">
-                    <p>&copy; 2025 - Un proyecto de Gemini. Todos los derechos reservados.</p>
+            <footer className="bg-white mt-auto py-4 shadow-md">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <Typography color="blue-gray" className="text-sm">
+                        &copy; {currentYear} My Project API. Todos los derechos reservados.
+                    </Typography>
                 </div>
             </footer>
         </div>
