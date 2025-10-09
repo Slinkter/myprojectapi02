@@ -1,132 +1,346 @@
-# Proyecto: Visor de Perfil de Usuario
+# Tutorial: Creando un Visor de Perfiles con React, Redux y Hooks
 
 ---
 
 ## 1. Descripción General
 
-Esta es una aplicación web de página única (SPA) desarrollada con React que consume una API externa para obtener y mostrar el perfil de un usuario junto con sus publicaciones. La aplicación permite al usuario buscar un perfil introduciendo un ID de usuario (del 1 al 10).
+Este documento es un tutorial detallado para construir una aplicación de visualización de perfiles de usuario desde cero. La aplicación permite buscar usuarios por ID, muestra su perfil y publicaciones, y maneja estados de carga y error de forma elegante.
 
-El proyecto está diseñado siguiendo las mejores prácticas de React, con un enfoque en un código limpio y mantenible a través de la encapsulación de la lógica en hooks personalizados.
-
----
-
-## 2. Características Principales
-
--   **Búsqueda de Usuario por ID:** Permite al usuario introducir un ID (1-10) para buscar y cargar un perfil.
--   **Visualización de Perfil y Publicaciones:** Carga y muestra los datos de un usuario y una lista de sus publicaciones desde una API.
--   **Carga Asíncrona Optimizada:** Muestra esqueletos de carga mientras se obtienen los datos de la API, mejorando la experiencia de usuario.
--   **Manejo de Errores:** Presenta un mensaje de error claro en caso de que la petición a la API falle o el usuario no sea encontrado.
--   **Lógica Reutilizable:** Utiliza un hook personalizado (`useUser`) para encapsular toda la lógica de obtención de datos, manejo de estados de carga y errores.
--   **Diseño Moderno:** Interfaz de usuario construida con Tailwind CSS y la librería de componentes Material Tailwind.
--   **Desarrollo Eficiente:** Construido sobre React y Vite para un rendimiento óptimo en desarrollo y producción.
+El objetivo es demostrar una arquitectura limpia y moderna en React, ideal para portafolios y preparación de entrevistas técnicas.
 
 ---
 
-## 3. Arquitectura y Estructura del Proyecto
-
-La arquitectura de este proyecto se centra en la simplicidad y la reutilización del código, siguiendo patrones modernos de desarrollo en React.
-
-### a. Arquitectura Basada en Componentes
-
-La aplicación sigue una **arquitectura basada en componentes**, que es el pilar fundamental de React. Esto permite construir la interfaz a partir de piezas pequeñas, aisladas y reutilizables.
-
-### b. Lógica de Estado con Hooks Personalizados
-
-Para el manejo del estado y la lógica de obtención de datos, se utiliza un **Hook Personalizado (`useUser`)**. Esta elección se justifica por:
-
--   **Encapsulación:** El hook agrupa toda la lógica relacionada con la obtención de datos del usuario (estados de `isLoading`, `error`, `user`, `posts`) en un solo lugar.
--   **Reutilización:** El hook `useUser(userId)` puede ser utilizado por cualquier componente que necesite obtener datos de un usuario sin reescribir la lógica de `fetch`.
--   **Simplicidad:** Para el alcance de este proyecto, un hook personalizado es una solución más simple y con menos código repetitivo que librerías de estado global.
-
----
-
-## 4. Tecnologías Utilizadas
+## 2. Tecnologías Utilizadas
 
 -   **React 18:** Para la construcción de la interfaz de usuario.
 -   **Vite:** Como herramienta de empaquetado y servidor de desarrollo.
+-   **Redux Toolkit:** Para un manejo de estado global predecible y eficiente.
 -   **Tailwind CSS:** Para un desarrollo de estilos rápido y personalizable.
 -   **Material Tailwind:** Como librería de componentes base para la UI.
 -   **ESLint:** Para mantener un código limpio y consistente.
 
 ---
 
-## 5. Estructura de Archivos y Roles
+## 3. Construcción del Proyecto Paso a Paso
 
-A continuación se detalla la estructura del proyecto y el propósito de cada directorio clave:
+### Paso 1: Configuración Inicial del Proyecto
+
+1.  **Crear el proyecto con Vite:**
+
+    ```bash
+    npm create vite@latest my-profile-viewer -- --template react
+    cd my-profile-viewer
+    ```
+
+2.  **Instalar dependencias:**
+
+    ```bash
+    # Manejo de estado
+    npm install @reduxjs/toolkit react-redux
+
+    # Estilos y componentes UI
+    npm install -D tailwindcss postcss autoprefixer
+    npm install @material-tailwind/react @heroicons/react
+
+    # Validación de props (buena práctica)
+    npm install prop-types
+    ```
+
+3.  **Configurar Tailwind CSS:**
+
+    -   Genera los archivos de configuración:
+        ```bash
+        npx tailwindcss init -p
+        ```
+    -   Modifica `tailwind.config.js` para integrar Material Tailwind:
+
+        ```javascript
+        const withMT = require("@material-tailwind/react/utils/withMT");
+
+        module.exports = withMT({
+            content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+            theme: {
+                extend: {},
+            },
+            plugins: [],
+        });
+        ```
+
+    -   Añade las directivas de Tailwind a `src/index.css`:
+        ```css
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+        ```
+
+### Paso 2: Estructura de Carpetas
+
+Crea la siguiente estructura dentro de `src/` para organizar el código de forma lógica:
 
 ```
 /src
-├── api/
-│   ├── user.js          # Contiene la función para obtener datos del usuario.
-│   └── post.js          # Contiene la función para obtener las publicaciones.
-├── assets/              # Contiene assets estáticos como imágenes o SVGs.
-├── components/
-│   ├── UserProfile.jsx  # Componente que muestra el perfil del usuario.
-│   ├── PostList.jsx     # Componente que muestra la lista de posts.
-│   └── ...              # Otros componentes y esqueletos de carga.
-├── hooks/
-│   └── useUser.js       # Hook personalizado para la lógica de obtención de datos.
-├── App.jsx              # Componente principal que orquesta la aplicación.
-└── main.jsx             # Punto de entrada de la aplicación.
+├── api/              # Lógica de comunicación con la API externa.
+├── components/       # Componentes de UI reutilizables.
+│   ├── layout/       # Componentes de estructura (Header, Footer).
+│   └── skeletons/    # Componentes para estados de carga.
+├── hooks/            # Hooks personalizados.
+├── redux/            # Configuración de Redux (store y slices).
+│   └── slices/
+└── App.jsx
+└── main.jsx
 ```
 
--   **`main.jsx`**: Es el punto de entrada. Renderiza el componente `App`.
--   **`App.jsx`**: Actúa como el componente contenedor principal. Es responsable de gestionar la entrada del usuario, invocar el hook `useUser` y pasar los datos a los componentes de presentación.
--   **`api/`**: Este directorio aísla la lógica de comunicación con la API externa.
--   **`hooks/useUser.js`**: El corazón de la lógica de la aplicación. Este hook se encarga de realizar las llamadas a la API, gestionar los estados de carga y error, y devolver los datos.
--   **`components/`**: Contiene todos los componentes de React, que son principalmente "presentacionales".
+### Paso 3: Capa de API
 
----
+Centralizamos todas las llamadas a la API en un único lugar para facilitar su mantenimiento.
 
-## 6. Cómo Ejecutar el Proyecto Localmente
+**`src/api/api.js`**:
 
-1.  Clona el repositorio:
+```javascript
+const API_BASE_URL = "https://jsonplaceholder.typicode.com";
 
-    ```bash
-    git clone https://github.com/Slinkter/myprojectapi02.git
-    cd myprojectapi02
-    ```
+// Función genérica para manejar respuestas de la API
+const handleResponse = async (response) => {
+    if (!response.ok) {
+        throw new Error(response.statusText || `HTTP error ${response.status}`);
+    }
+    return response.json();
+};
 
-2.  Instala las dependencias:
+// Función genérica para realizar peticiones
+export const fetchFromApi = async (endpoint) => {
+    const response = await fetch(`${API_BASE_URL}/${endpoint}`);
+    return handleResponse(response);
+};
 
-    ```bash
-    npm install
-    ```
+// Funciones específicas por recurso
+export const getUser = (userId) => fetchFromApi(`users/${userId}`);
+export const getPostsByUser = (userId) =>
+    fetchFromApi(`posts?userId=${userId}`);
+```
 
-3.  Inicia el servidor de desarrollo:
+### Paso 4: Configuración de Redux
 
-    ```bash
-    npm run dev
-    ```
+Usaremos Redux Toolkit para gestionar el estado de la aplicación (usuario, posts, carga, errores).
 
-4.  Abre la URL que indique Vite (generalmente `http://localhost:5173`) en tu navegador.
+1.  **Crear el "Slice" de usuario (`src/redux/slices/userSlice.js`):**
+    Un "slice" maneja la lógica y el estado de una parte de la aplicación.
 
-### Scripts Disponibles
-
--   `npm run dev`: Inicia la aplicación en modo de desarrollo.
--   `npm run build`: Compila la aplicación para producción en la carpeta `dist`.
--   `npm run lint`: Analiza el código en busca de errores y problemas de estilo.
--   `npm run preview`: Previsualiza la build de producción localmente.
--   `npm run deploy`: Despliega la aplicación en GitHub Pages.
-
----
-
-## 7. Configuración del Despliegue
-
-Para que el despliegue en GitHub Pages funcione correctamente, se han realizado las siguientes configuraciones clave:
-
-1.  **`vite.config.js`**: Se ha establecido la propiedad `base` con el nombre del repositorio para que las rutas de los assets sean correctas en producción.
     ```javascript
-    // https://vitejs.dev/config/
-    export default defineConfig({
-        plugins: [react()],
-        base: "https://slinkter.github.io/myprojectapi02",
+    import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+    import { getUser, getPostsByUser } from "../../api/api";
+
+    // Thunk asíncrono para buscar usuario y posts en paralelo
+    export const fetchUserAndPosts = createAsyncThunk(
+        "user/fetchUserAndPosts",
+        async (userId, { rejectWithValue }) => {
+            try {
+                const [user, posts] = await Promise.all([
+                    getUser(userId),
+                    getPostsByUser(userId),
+                ]);
+                // La API devuelve {} si no encuentra el usuario
+                if (Object.keys(user).length === 0) {
+                    return { user: null, posts: [] };
+                }
+                return { user, posts };
+            } catch (error) {
+                return rejectWithValue(error.message);
+            }
+        }
+    );
+
+    const userSlice = createSlice({
+        name: "user",
+        initialState: {
+            user: null,
+            posts: [],
+            isLoading: false,
+            error: null,
+        },
+        reducers: {},
+        extraReducers: (builder) => {
+            builder
+                .addCase(fetchUserAndPosts.pending, (state) => {
+                    state.isLoading = true;
+                    state.error = null;
+                })
+                .addCase(fetchUserAndPosts.fulfilled, (state, action) => {
+                    state.isLoading = false;
+                    state.user = action.payload.user;
+                    state.posts = action.payload.posts;
+                })
+                .addCase(fetchUserAndPosts.rejected, (state, action) => {
+                    state.isLoading = false;
+                    state.error = action.payload;
+                    state.user = null;
+                    state.posts = [];
+                });
+        },
+    });
+
+    export default userSlice.reducer;
+    ```
+
+2.  **Configurar el Store (`src/redux/store.js`):**
+
+    ```javascript
+    import { configureStore } from "@reduxjs/toolkit";
+    import userReducer from "./slices/userSlice";
+
+    export const store = configureStore({
+        reducer: {
+            user: userReducer,
+        },
     });
     ```
-2.  **`package.json`**: Se ha instalado la dependencia `gh-pages` y se han añadido los scripts `predeploy` y `deploy` para automatizar el proceso de compilación y publicación.
-    ```json
-    "scripts": {
-      "predeploy": "npm run build",
-      "deploy": "gh-pages -d dist"
-    }
+
+3.  **Proveer el Store a la aplicación (`src/main.jsx`):**
+
+    ```javascript
+    import React from "react";
+    import ReactDOM from "react-dom/client";
+    import App from "./App.jsx";
+    import "./index.css";
+    import { Provider } from "react-redux";
+    import { store } from "./redux/store.js";
+    import { ThemeProvider } from "@material-tailwind/react";
+
+    ReactDOM.createRoot(document.getElementById("root")).render(
+        <React.StrictMode>
+            <Provider store={store}>
+                <ThemeProvider>
+                    <App />
+                </ThemeProvider>
+            </Provider>
+        </React.StrictMode>
+    );
     ```
+
+### Paso 5: El Hook Personalizado `useUser`
+
+Este es el núcleo de nuestra lógica de UI. Encapsula toda la interacción con Redux y el manejo de la entrada del usuario, manteniendo los componentes limpios.
+
+**`src/hooks/useUser.js`**:
+
+```javascript
+import { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserAndPosts } from "../redux/slices/userSlice";
+
+export const useUser = (initialUserId = 1) => {
+    const [inputValue, setInputValue] = useState(initialUserId.toString());
+    const [searchId, setSearchId] = useState(null);
+    const dispatch = useDispatch();
+
+    const { user, posts, isLoading, error } = useSelector(
+        (state) => state.user
+    );
+
+    useEffect(() => {
+        if (initialUserId) {
+            dispatch(fetchUserAndPosts(initialUserId));
+            setSearchId(initialUserId.toString());
+        }
+    }, [dispatch, initialUserId]);
+
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        if (/^$|^[1-9]$|^10$/.test(value)) {
+            // Valida que el ID esté entre 1 y 10
+            setInputValue(value);
+        }
+    };
+
+    const handleSearch = useCallback(() => {
+        if (inputValue) {
+            setSearchId(inputValue);
+            dispatch(fetchUserAndPosts(Number(inputValue)));
+        }
+    }, [dispatch, inputValue]);
+
+    const handleRetry = useCallback(() => {
+        if (searchId) {
+            dispatch(fetchUserAndPosts(Number(searchId)));
+        }
+    }, [dispatch, searchId]);
+
+    return {
+        user,
+        posts,
+        isLoading,
+        error,
+        inputValue,
+        searchId,
+        handleInputChange,
+        handleSearch,
+        handleRetry,
+    };
+};
+```
+
+### Paso 6: Ensamblaje de la Interfaz en `App.jsx`
+
+Gracias al hook `useUser`, nuestro componente `App.jsx` se vuelve muy simple y declarativo. Su única responsabilidad es renderizar la UI basándose en el estado que le proporciona el hook.
+
+**`src/App.jsx`**:
+
+```javascript
+import { Input, Button, Typography } from "@material-tailwind/react";
+import { useUser } from "./hooks/useUser";
+import MainLayout from "./components/layout/MainLayout";
+import UserProfile from "./components/UserProfile";
+import PostList from "./components/PostList";
+import ErrorMessage from "./components/ErrorMessage";
+import NotFoundCard from "./components/NotFoundCard";
+import ProfileSkeleton from "./components/skeletons/ProfileSkeleton";
+import PostListSkeleton from "./components/skeletons/PostListSkeleton";
+
+function App() {
+    const {
+        user, posts, isLoading, error,
+        inputValue, searchId,
+        handleInputChange, handleSearch, handleRetry,
+    } = useUser(1); // Inicializamos con el ID 1
+
+    return (
+        <MainLayout>
+            {/* ... (código JSX para el input y el botón de búsqueda) ... */}
+
+            {isLoading && (
+                <div className="space-y-8">
+                    <ProfileSkeleton />
+                    <PostListSkeleton />
+                </div>
+            )}
+
+            {error && <ErrorMessage message={error} onRetry={handleRetry} />}
+
+            {!isLoading && !error && user && (
+                <div className="space-y-8">
+                    <UserProfile user={user} />
+                    {posts.length > 0 ? <PostList posts={posts} /> : /* ... */}
+                </div>
+            )}
+
+            {!isLoading && !error && !user && searchId && (
+                <NotFoundCard numberId={searchId} />
+            )}
+        </MainLayout>
+    );
+}
+
+export default App;
+```
+
+_(Nota: El código de los componentes de UI como `UserProfile`, `PostList`, etc., se omite por brevedad, pero se encuentran en la carpeta `src/components`)_.
+
+### Paso 7: Ejecutar el Proyecto
+
+Finalmente, inicia el servidor de desarrollo para ver la aplicación en acción.
+
+```bash
+npm run dev
+```
+
+Abre `http://localhost:5173` en tu navegador. ¡Y listo! Has construido una aplicación React robusta con una arquitectura limpia y escalable.
