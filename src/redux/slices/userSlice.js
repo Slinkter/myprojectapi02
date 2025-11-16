@@ -2,6 +2,21 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getUser } from "../../api/user";
 import { getPostsByUser } from "../../api/post";
 
+export const fetchUserAndPosts = createAsyncThunk(
+    "user/fetchUserAndPosts",
+    async (userId, { rejectWithValue }) => {
+        try {
+            const [user, posts] = await Promise.all([
+                getUser(userId),
+                getPostsByUser(userId),
+            ]);
+            return { user, posts };
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 const userSlice = createSlice({
     name: "user",
     initialState: {
@@ -30,20 +45,5 @@ const userSlice = createSlice({
             });
     },
 });
-
-export const fetchUserAndPosts = createAsyncThunk(
-    "user/fetchUserAndPosts",
-    async (userId, { rejectWithValue }) => {
-        try {
-            const [user, posts] = await Promise.all([
-                getUser(userId),
-                getPostsByUser(userId),
-            ]);
-            return { user, posts };
-        } catch (error) {
-            return rejectWithValue(error.message);
-        }
-    }
-);
 
 export default userSlice.reducer;
