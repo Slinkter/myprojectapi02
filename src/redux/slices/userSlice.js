@@ -10,6 +10,12 @@ export const fetchUserAndPosts = createAsyncThunk(
                 getUser(userId),
                 getPostsByUser(userId),
             ]);
+
+            // La API de JSONPlaceholder devuelve {} si no encuentra el usuario.
+            // Esta comprobación explícita hace que el thunk sea más robusto.
+            if (user && Object.keys(user).length === 0) {
+                return { user: null, posts: [] };
+            }
             return { user, posts };
         } catch (error) {
             return rejectWithValue(error.message);

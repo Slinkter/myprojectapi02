@@ -24,36 +24,36 @@ const PostList = React.memo(({ posts }) => {
     };
 
     return (
-        <Card className="w-full shadow-xl rounded-2xl bg-white">
+        <Card className="post-list">
             <CardBody>
-                <div className="flex items-center gap-3 mb-6">
-                    <NewspaperIcon className="h-8 w-8 text-blue-500" />
+                <div className="post-list__header">
+                    <NewspaperIcon className="post-list__icon" />
                     <Typography
                         variant="h5"
                         color="blue-gray"
-                        className="font-bold"
+                        className="post-list__title"
                     >
                         Publicaciones Recientes
                     </Typography>
                 </div>
-                <div className="space-y-3">
+                <div className="post-list__items">
                     {posts.map((post, index) => (
                         <Accordion
                             key={post.id}
                             open={open === index + 1}
                             onClick={() => handleOpen(index + 1)}
-                            className="border border-gray-200 rounded-lg transition-shadow shadow-sm hover:shadow-md"
+                            className="post-list__item"
                         >
-                            <AccordionHeader className="px-4 text-left text-blue-gray-800 hover:text-blue-600">
+                            <AccordionHeader className="post-list__item-header">
                                 <Typography
                                     variant="h6"
                                     color="blue-gray"
-                                    className="font-semibold capitalize"
+                                    className="post-list__item-title"
                                 >
                                     {post.title}
                                 </Typography>
                             </AccordionHeader>
-                            <AccordionBody className="px-4 pt-0 text-base font-normal text-gray-700">
+                            <AccordionBody className="post-list__item-body">
                                 {post.body}
                             </AccordionBody>
                         </Accordion>
@@ -64,7 +64,7 @@ const PostList = React.memo(({ posts }) => {
     );
 });
 
-PostList.displayName = 'PostList';
+PostList.displayName = "PostList";
 
 PostList.propTypes = {
     posts: PropTypes.arrayOf(

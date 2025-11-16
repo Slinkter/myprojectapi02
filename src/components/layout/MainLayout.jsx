@@ -11,13 +11,13 @@ const currentYear = new Date().getFullYear();
  */
 function MainLayout({ children }) {
     return (
-        <div className="flex flex-col min-h-screen bg-gray-50">
-            <header className="bg-white shadow-md">
-                <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
+        <div className="main-layout">
+            <header className="main-layout__header">
+                <div className="main-layout__container">
                     <Typography
                         variant="h4"
                         color="blue-gray"
-                        className="font-bold text-center"
+                        className="main-layout__title"
                     >
                         My Project API
                     </Typography>
@@ -25,14 +25,18 @@ function MainLayout({ children }) {
             </header>
 
             {/* Contenido Principal */}
-            <main className="flex-grow container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto space-y-8">{children}</div>
+            <main className="main-layout__content">
+                <div className="main-layout__content-wrapper">{children}</div>
             </main>
 
-            <footer className="bg-white mt-auto py-4 shadow-md">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <Typography color="blue-gray" className="text-sm">
-                        &copy; {currentYear} My Project API. Todos los derechos reservados.
+            <footer className="main-layout__footer">
+                <div className="main-layout__container text-center">
+                    <Typography
+                        color="blue-gray"
+                        className="main-layout__footer-text"
+                    >
+                        &copy; {currentYear} My Project API. Todos los derechos
+                        reservados.
                     </Typography>
                 </div>
             </footer>

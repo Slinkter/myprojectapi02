@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { Alert, Button, Typography } from "@material-tailwind/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import PropTypes from "prop-types";
@@ -12,24 +12,24 @@ import PropTypes from "prop-types";
  */
 const ErrorMessage = React.memo(({ message, onRetry }) => {
     return (
-        <Alert
-            variant="ghost"
-            color="red"
-            className="p-6 rounded-2xl border border-red-200 bg-red-50/50"
-        >
-            <div className="flex items-center gap-4">
-                <ExclamationTriangleIcon className="h-8 w-8 text-red-500" />
+        <Alert variant="ghost" color="red" className="error-alert">
+            <div className="error-alert__content">
+                <ExclamationTriangleIcon className="error-alert__icon" />
                 <div>
-                    <Typography variant="h6" color="red" className="font-bold">
+                    <Typography
+                        variant="h6"
+                        color="red"
+                        className="error-alert__title"
+                    >
                         ¡Ha ocurrido un error!
                     </Typography>
-                    <Typography color="red" className="font-normal">
+                    <Typography color="red" className="error-alert__message">
                         {message}
                     </Typography>
                 </div>
             </div>
             {onRetry && (
-                <div className="mt-6 flex justify-end">
+                <div className="error-alert__actions">
                     <Button
                         onClick={onRetry}
                         color="red"
@@ -44,7 +44,7 @@ const ErrorMessage = React.memo(({ message, onRetry }) => {
     );
 });
 
-ErrorMessage.displayName = 'ErrorMessage';
+ErrorMessage.displayName = "ErrorMessage";
 
 ErrorMessage.propTypes = {
     message: PropTypes.string.isRequired,

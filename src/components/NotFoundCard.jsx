@@ -1,11 +1,7 @@
-import React from 'react';
-import {
-    Card,
-    CardBody,
-    Typography,
-} from "@material-tailwind/react";
+import React from "react";
+import { Card, CardBody, Typography } from "@material-tailwind/react";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 /**
  * Muestra una tarjeta indicando que el usuario no fue encontrado.
@@ -15,17 +11,25 @@ import PropTypes from 'prop-types';
  */
 const NotFoundCard = React.memo(({ numberId }) => {
     return (
-        <Card className="mt-2 w-full shadow-lg rounded-2xl bg-yellow-50/50 border border-yellow-200">
-            <CardBody className="p-6 text-center">
-                <UserCircleIcon className="h-16 w-16 mx-auto text-yellow-600 mb-4" />
-                <Typography variant="h5" color="blue-gray" className="font-bold mb-2">
+        <Card className="not-found-card">
+            <CardBody className="not-found-card__body">
+                <UserCircleIcon className="not-found-card__icon" />
+                <Typography
+                    variant="h5"
+                    color="blue-gray"
+                    className="not-found-card__title"
+                >
                     Usuario no encontrado
                 </Typography>
-                <Typography variant="lead" color="gray" className="max-w-md mx-auto">
-                    No pudimos encontrar un usuario con el ID{' '}
-                    <span className="font-semibold text-blue-gray-800">{numberId}</span>.
+                <Typography
+                    variant="lead"
+                    color="gray"
+                    className="max-w-md mx-auto"
+                >
+                    No pudimos encontrar un usuario con el ID{" "}
+                    <span className="not-found-card__id">{numberId}</span>.
                 </Typography>
-                <Typography color="gray" className="mt-2 text-sm">
+                <Typography color="gray" className="not-found-card__hint">
                     Por favor, selecciona un ID de usuario entre 1 y 10.
                 </Typography>
             </CardBody>
@@ -33,10 +37,11 @@ const NotFoundCard = React.memo(({ numberId }) => {
     );
 });
 
-NotFoundCard.displayName = 'NotFoundCard';
+NotFoundCard.displayName = "NotFoundCard";
 
 NotFoundCard.propTypes = {
-    numberId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    numberId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        .isRequired,
 };
 
 export default NotFoundCard;

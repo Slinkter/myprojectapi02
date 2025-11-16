@@ -15,3 +15,158 @@ body {
 .error-message {
     @apply text-red-500 bg-red-100 border border-red-400 rounded-lg p-4 w-full text-center;
 }
+
+/* === Estilos de Componentes con BEM === */
+
+/* --- Bloque: user-search --- */
+.user-search {
+    @apply w-full max-w-md mx-auto;
+}
+
+.user-search__title {
+    @apply font-bold mb-4 text-center;
+}
+
+/* --- Bloque: search-form --- */
+.search-form {
+    @apply flex items-center gap-4 mb-8;
+}
+
+.search-form__button:disabled {
+    @apply cursor-not-allowed;
+}
+
+/* --- Bloque: results-wrapper --- */
+.results-wrapper {
+    @apply space-y-8;
+}
+
+/* --- Elemento: no-posts --- */
+.no-posts__text {
+    @apply text-center text-gray-500;
+}
+
+/* --- Bloque: main-layout --- */
+.main-layout {
+    @apply flex flex-col min-h-screen bg-gray-50;
+}
+.main-layout__header {
+    @apply bg-white shadow-md;
+}
+.main-layout__container {
+    @apply container mx-auto px-4 py-4 sm:px-6 lg:px-8;
+}
+.main-layout__title {
+    @apply font-bold text-center;
+}
+.main-layout__content {
+    @apply flex-grow container mx-auto px-4 py-8 sm:px-6 lg:px-8;
+}
+.main-layout__content-wrapper {
+    @apply max-w-4xl mx-auto space-y-8;
+}
+.main-layout__footer {
+    @apply bg-white mt-auto py-4 shadow-md;
+}
+.main-layout__footer-text {
+    @apply text-sm;
+}
+
+/* --- Bloque: error-alert --- */
+.error-alert {
+    @apply p-6 rounded-2xl border border-red-200 bg-red-50/50;
+}
+.error-alert__content {
+    @apply flex items-center gap-4;
+}
+.error-alert__icon {
+    @apply h-8 w-8 text-red-500;
+}
+.error-alert__title {
+    @apply font-bold;
+}
+.error-alert__message {
+    @apply font-normal;
+}
+.error-alert__actions {
+    @apply mt-6 flex justify-end;
+}
+
+/* --- Bloque: not-found-card --- */
+.not-found-card {
+    @apply mt-2 w-full shadow-lg rounded-2xl bg-yellow-50/50 border border-yellow-200;
+}
+.not-found-card__body {
+    @apply p-6 text-center;
+}
+.not-found-card__icon {
+    @apply h-16 w-16 mx-auto text-yellow-600 mb-4;
+}
+.not-found-card__title {
+    @apply font-bold mb-2;
+}
+.not-found-card__id {
+    @apply font-semibold text-blue-gray-800;
+}
+.not-found-card__hint {
+    @apply mt-2 text-sm;
+}
+
+/* --- Bloque: post-list --- */
+.post-list {
+    @apply w-full shadow-xl rounded-2xl bg-white;
+}
+.post-list__header {
+    @apply flex items-center gap-3 mb-6;
+}
+.post-list__icon {
+    @apply h-8 w-8 text-blue-500;
+}
+.post-list__title {
+    @apply font-bold;
+}
+.post-list__items {
+    @apply space-y-3;
+}
+.post-list__item {
+    @apply border border-gray-200 rounded-lg transition-shadow shadow-sm hover:shadow-md;
+}
+.post-list__item-header {
+    @apply px-4 text-left text-blue-gray-800 hover:text-blue-600;
+}
+.post-list__item-title {
+    @apply font-semibold capitalize;
+}
+.post-list__item-body {
+    @apply px-4 pt-0 text-base font-normal text-gray-700;
+}
+
+/* === Estilos de Componentes con BEM === */
+
+/* --- Bloque: user-search --- */
+.user-search {
+    @apply w-full max-w-md mx-auto;
+}
+
+.user-search__title {
+    @apply font-bold mb-4 text-center;
+}
+
+/* --- Bloque: search-form --- */
+.search-form {
+    @apply flex items-center gap-4 mb-8;
+}
+
+.search-form__button:disabled {
+    @apply cursor-not-allowed;
+}
+
+/* --- Bloque: results-wrapper --- */
+.results-wrapper {
+    @apply space-y-8;
+}
+
+/* --- Elemento: no-posts --- */
+.no-posts__text {
+    @apply text-center text-gray-500;
+}
