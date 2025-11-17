@@ -22,43 +22,40 @@ import PropTypes from "prop-types";
  */
 const UserProfile = React.memo(({ user }) => {
     return (
-        <Card className="w-full shadow-lg rounded-2xl overflow-hidden bg-white">
-            <CardBody className="p-6 text-center">
+        <Card className="user-profile">
+            <CardBody className="user-profile__body">
                 <Avatar
                     src={`https://i.pravatar.cc/150?u=${user.id}`}
                     alt={user.name}
                     size="xl"
                     variant="circular"
-                    className="mx-auto mb-4 border-4 border-blue-500 shadow-lg"
+                    className="user-profile__avatar"
                 />
                 <Typography
                     variant="h4"
                     color="blue-gray"
-                    className="font-bold"
+                    className="user-profile__name"
                 >
                     {user.name}
                 </Typography>
-                <Typography color="gray" className="text-lg font-medium mb-6">
+                <Typography color="gray" className="user-profile__username">
                     @{user.username}
                 </Typography>
 
-                <div className="flex items-center justify-center gap-2 mb-4">
-                    <BriefcaseIcon className="h-6 w-6 text-gray-500" />
-                    <Typography className="font-semibold text-gray-700">
+                <div className="user-profile__company">
+                    <BriefcaseIcon className="user-profile__company-icon" />
+                    <Typography className="user-profile__company-name">
                         {user.company.name}
                     </Typography>
                 </div>
-                <Typography
-                    color="gray"
-                    className="italic text-sm max-w-md mx-auto mb-8"
-                >
+                <Typography color="gray" className="user-profile__catchphrase">
                     &ldquo;{user.company.catchPhrase}&rdquo;
                 </Typography>
 
-                <div className="flex flex-wrap justify-center gap-6 text-left">
+                <div className="user-profile__details">
                     <Tooltip content="Dirección">
-                        <div className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-blue-500 transition-colors">
-                            <MapPinIcon className="h-5 w-5" />
+                        <div className="user-profile__detail-item">
+                            <MapPinIcon className="user-profile__detail-icon" />
                             <Typography color="blue-gray">
                                 {user.address.city}
                             </Typography>
@@ -67,9 +64,9 @@ const UserProfile = React.memo(({ user }) => {
                     <Tooltip content="Email">
                         <a
                             href={`mailto:${user.email}`}
-                            className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-blue-500 transition-colors"
+                            className="user-profile__detail-item"
                         >
-                            <EnvelopeIcon className="h-5 w-5" />
+                            <EnvelopeIcon className="user-profile__detail-icon" />
                             <Typography color="blue-gray">
                                 {user.email}
                             </Typography>
@@ -80,9 +77,9 @@ const UserProfile = React.memo(({ user }) => {
                             href={`http://${user.website}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-blue-500 transition-colors"
+                            className="user-profile__detail-item"
                         >
-                            <GlobeAltIcon className="h-5 w-5" />
+                            <GlobeAltIcon className="user-profile__detail-icon" />
                             <Typography color="blue-gray">
                                 {user.website}
                             </Typography>

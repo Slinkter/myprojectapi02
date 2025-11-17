@@ -1,5 +1,6 @@
 // Importaciones de componentes de la biblioteca de UI @material-tailwind/react.
 import { Input, Button, Typography } from "@material-tailwind/react";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 // Importaciones de componentes de la aplicación.
 import UserProfile from "./components/UserProfile";
 import PostList from "./components/PostList";
@@ -55,10 +56,17 @@ function App() {
                     />
                     <Button
                         onClick={handleSearch}
-                        className="search-form__button"
+                        className="search-form__button flex items-center gap-2"
                         disabled={!inputValue || isLoading}
                     >
-                        {isLoading ? "Buscando..." : "Buscar"}
+                        {isLoading ? (
+                            "Buscando..."
+                        ) : (
+                            <>
+                                <MagnifyingGlassIcon className="h-5 w-5" />{" "}
+                                Buscar
+                            </>
+                        )}
                     </Button>
                 </div>
 

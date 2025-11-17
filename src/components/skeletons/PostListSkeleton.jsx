@@ -2,16 +2,16 @@ import { Card, CardBody } from "@material-tailwind/react";
 
 const PostListSkeleton = () => {
     return (
-        <Card className="w-full shadow-xl rounded-2xl animate-pulse">
-            <CardBody>
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="h-8 w-8 bg-gray-300 rounded"></div>
-                    <div className="h-6 w-48 bg-gray-300 rounded"></div>
+        <Card className="skeleton">
+            <CardBody className="post-list-skeleton__body">
+                <div className="post-list-skeleton__header">
+                    <div className="skeleton__item post-list-skeleton__header-icon"></div>
+                    <div className="skeleton__item post-list-skeleton__header-title"></div>
                 </div>
-                <div className="space-y-2">
-                    <div className="h-12 bg-gray-300 rounded"></div>
-                    <div className="h-12 bg-gray-300 rounded"></div>
-                    <div className="h-12 bg-gray-300 rounded"></div>
+                <div className="post-list-skeleton__items">
+                    <div className="skeleton__item post-list-skeleton__item"></div>
+                    <div className="skeleton__item post-list-skeleton__item"></div>
+                    <div className="skeleton__item post-list-skeleton__item"></div>
                 </div>
             </CardBody>
         </Card>

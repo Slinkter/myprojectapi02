@@ -1,22 +1,23 @@
-# Tutorial: Creando un Visor de Perfiles con React, Redux y Hooks
+# Tutorial: Creando un Visor de Perfiles con React, Redux y Estilo "Liquid Glass"
 
 ¡Hola! En este tutorial, construiremos una aplicación web completa desde cero, basada en el proyecto `myprojectapi02`. La aplicación permitirá buscar un usuario por su ID, mostrar su perfil junto con sus publicaciones, y manejará de forma elegante los estados de carga, error o si el usuario no es encontrado.
 
-Aprenderemos sobre arquitectura de software en capas, gestión de estado profesional con Redux, y cómo crear una aplicación React limpia y mantenible.
+Aprenderemos sobre arquitectura de software en capas, gestión de estado profesional con Redux, y cómo crear una aplicación React limpia, mantenible y con una estética moderna de "vidrio líquido" (Glassmorphism).
 
 ### **Índice del Tutorial**
 
 1.  **Tecnologías Clave y Dependencias**
 2.  **Paso 1: Configuración del Entorno de Desarrollo**
 3.  **Paso 2: Arquitectura del Proyecto en Capas**
-4.  **Paso 3: La Capa de Acceso a Datos (API)**
-5.  **Paso 4: Configurando el Estado con Redux**
-6.  **Paso 5: El Hook Personalizado `useUser` - La Lógica de UI**
-7.  **Paso 6: Creando Componentes de UI Reutilizables**
-8.  **Paso 7: Ensamblando la Aplicación Principal (`App.jsx`)**
-9.  **Paso 8: Conectando Todo en el Punto de Entrada (`main.jsx`)**
-10. **Análisis de Buenas Prácticas y Patrones**
-11. **Oportunidades de Mejora**
+4.  **Paso 3: Estructura de Estilos (BEM y CSS Centralizado)**
+5.  **Paso 4: La Capa de Acceso a Datos (API)**
+6.  **Paso 5: Configurando el Estado con Redux**
+7.  **Paso 6: Hooks Personalizados para Lógica de UI (`useUser` y `useTheme`)**
+8.  **Paso 7: Creando Componentes de UI Reutilizables**
+9.  **Paso 8: Ensamblando la Aplicación Principal (`App.jsx`)**
+10. **Paso 9: Conectando Todo en el Punto de Entrada (`main.jsx`)**
+11. **Análisis de Buenas Prácticas y Patrones**
+12. **Oportunidades de Mejora**
 
 ---
 
@@ -73,6 +74,7 @@ Configuramos `tailwind.config.js` para que analice nuestros archivos y se integr
 const withMT = require("@material-tailwind/react/utils/withMT");
 
 module.exports = withMT({
+    darkMode: "class", // Habilita el modo oscuro basado en clases
     content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
     theme: {
         fontFamily: {

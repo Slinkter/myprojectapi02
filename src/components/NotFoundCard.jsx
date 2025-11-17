@@ -11,23 +11,26 @@ import PropTypes from "prop-types";
  */
 const NotFoundCard = React.memo(({ numberId }) => {
     return (
-        <Card className="not-found-card">
+        <Card className="not-found-card bg-yellow-50/50 border border-yellow-200 dark:bg-gray-800 dark:border-yellow-900">
             <CardBody className="not-found-card__body">
                 <UserCircleIcon className="not-found-card__icon" />
                 <Typography
                     variant="h5"
-                    color="blue-gray"
-                    className="not-found-card__title"
+                    color="yellow"
+                    className="not-found-card__title dark:text-yellow-400"
                 >
                     Usuario no encontrado
                 </Typography>
                 <Typography
                     variant="lead"
                     color="gray"
-                    className="max-w-md mx-auto"
+                    className="max-w-md mx-auto dark:text-gray-400"
                 >
                     No pudimos encontrar un usuario con el ID{" "}
-                    <span className="not-found-card__id">{numberId}</span>.
+                    <span className="not-found-card__id font-semibold text-blue-gray-800 dark:text-gray-200">
+                        {numberId}
+                    </span>
+                    .
                 </Typography>
                 <Typography color="gray" className="not-found-card__hint">
                     Por favor, selecciona un ID de usuario entre 1 y 10.
