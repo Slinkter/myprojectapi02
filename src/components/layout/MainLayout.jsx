@@ -13,16 +13,9 @@ const currentYear = new Date().getFullYear();
 function MainLayout({ children }) {
     return (
         <div className="main-layout">
+            {/* navbar */}
             <header className="main-layout__header">
-                <div className="main-layout__container flex justify-between items-center">
-                    <Typography
-                        variant="h4"
-                        color="blue-gray"
-                        className="main-layout__title !text-left"
-                    >
-                        My Project API
-                    </Typography>
-                    {/* Botón para cambiar el tema, ahora en la barra de navegación */}
+                <div className="main-layout__container flex justify-center items-center">
                     <ThemeToggleButton />
                 </div>
             </header>
@@ -31,15 +24,14 @@ function MainLayout({ children }) {
             <main className="main-layout__content">
                 <div className="main-layout__content-wrapper">{children}</div>
             </main>
-
+            {/* Footer */}
             <footer className="main-layout__footer">
                 <div className="main-layout__container text-center">
                     <Typography
                         color="blue-gray"
                         className="main-layout__footer-text"
                     >
-                        &copy; {currentYear} My Project API. Todos los derechos
-                        reservados.
+                        &copy; {currentYear} Todos los derechos reservados.
                     </Typography>
                 </div>
             </footer>

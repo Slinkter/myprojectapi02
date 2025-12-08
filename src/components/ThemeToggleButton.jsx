@@ -1,4 +1,3 @@
-import React from "react";
 import { IconButton, Tooltip } from "@material-tailwind/react";
 import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
 import { useTheme } from "../hooks/useTheme";
@@ -12,11 +11,9 @@ const ThemeToggleButton = () => {
 
     return (
         <Tooltip
-            content={
-                theme === "dark" ? "Activar modo claro" : "Activar modo oscuro"
-            }
             placement="left"
             className="theme-toggle__tooltip"
+            content={theme === "dark" ? " modo claro" : " modo oscuro"}
         >
             <IconButton
                 onClick={toggleTheme}
@@ -24,7 +21,6 @@ const ThemeToggleButton = () => {
                 className="theme-toggle"
                 aria-label="Cambiar tema"
             >
-                {/* IconButton centra y ajusta el tamaño del ícono automáticamente */}
                 {theme === "dark" ? (
                     <SunIcon className="theme-toggle__icon" />
                 ) : (

@@ -1,418 +1,201 @@
-# Tutorial: Creando un Visor de Perfiles con React, Redux y Hooks
+# 🚀 GeminiCLI Project (myprojectapi02)
+
+¡Bienvenido al proyecto GeminiCLI, un ejemplo práctico de desarrollo frontend moderno con React! Este proyecto sirve como una base robusta para la búsqueda y visualización de perfiles de usuario y sus publicaciones asociadas, demostrando buenas prácticas de arquitectura y gestión de estado.
 
 ---
 
-## 1. Descripción General
+## 🌟 Introducción al Proyecto
 
-Este documento es un tutorial detallado para construir una aplicación de visualización de perfiles de usuario desde cero. La aplicación permite buscar usuarios por ID, muestra su perfil y publicaciones, y maneja estados de carga y error de forma elegante.
+Este proyecto es una aplicación web sencilla pero poderosa que permite buscar usuarios por ID (utilizando la API de JSONPlaceholder) y mostrar su perfil junto con sus publicaciones. Ha sido concebido como un lienzo para explorar y aplicar patrones de diseño modernos, optimizaciones de rendimiento y una arquitectura limpia en un entorno React.
 
-El objetivo es demostrar una arquitectura limpia y moderna en React, ideal para portafolios y preparación de entrevistas técnicas.
+## 🛠️ Tecnologías Utilizadas
 
----
+*   **React 18:** La biblioteca líder para construir interfaces de usuario interactivas.
+*   **Vite:** Un entorno de desarrollo frontend de próxima generación que proporciona una experiencia de desarrollo rapidísima.
+*   **Redux Toolkit:** La forma recomendada de usar Redux, simplificando la gestión de estado con un enfoque en la inmutabilidad y la lógica asíncrona.
+*   **Tailwind CSS:** Un framework CSS "utility-first" para construir diseños personalizados directamente en tu marcado.
+*   **Heroicons:** Un conjunto de iconos SVG para React.
+*   **@material-tailwind/react:** Una implementación de Material Design para React con componentes de Tailwind CSS.
 
-## 2. Tecnologías Utilizadas
+## 🏛️ Arquitectura del Sistema
 
--   **React 18:** Para la construcción de la interfaz de usuario.
--   **Vite:** Como herramienta de empaquetado y servidor de desarrollo.
--   **Redux Toolkit:** Para un manejo de estado global predecible y eficiente.
--   **Tailwind CSS:** Para un desarrollo de estilos rápido y personalizable.
--   **Material Tailwind:** Como librería de componentes base para la UI.
--   **ESLint:** Para mantener un código limpio y consistente.
+El proyecto sigue un enfoque de **arquitectura basada en características (Feature-Based Architecture)**, combinado con principios de **Clean Architecture** para una separación clara de responsabilidades.
 
----
+*   **Capa de Presentación (UI):** Componentes React y páginas que interactúan con los hooks.
+*   **Capa de Lógica de UI (Hooks):** Custom Hooks (`useUser`) que encapsulan la lógica específica de la vista y la interacción con el estado global (Redux).
+*   **Capa de Gestión de Estado (Redux Toolkit):** `slices` de Redux que definen el estado de la aplicación, sus acciones y cómo responde a las operaciones asíncronas (`createAsyncThunk`).
+*   **Capa de Servicios (Servicios de Dominio):** Módulos (`user-service.js`) que contienen la lógica de negocio compleja, orquestando llamadas a la API y transformando datos antes de que lleguen al estado de la aplicación.
+*   **Capa de Acceso a Datos (API):** Módulos (`api.js`, `user.js`, `post.js`) que manejan la comunicación directa con los endpoints de la API, incluyendo la gestión de solicitudes y errores HTTP.
 
-## Arquitectura y Flujo de Datos
+Esta estructura promueve la modularidad, la mantenibilidad y la escalabilidad, haciendo que cada parte del sistema sea más fácil de entender, probar y modificar de forma aislada.
 
-El proyecto sigue una arquitectura de capas bien definida para separar responsabilidades, lo que facilita el mantenimiento, la escalabilidad y las pruebas.
+## 📁 Estructura de Carpetas
 
--   **Capa de Vista (Componentes React):** Se encarga únicamente de renderizar la UI y capturar eventos del usuario. Son componentes "tontos" que reciben datos y funciones a través de props.
--   **Capa de Lógica de UI (Hook `useUser`):** Actúa como un controlador o intermediario. Conecta la vista con el estado global, despacha acciones y maneja la lógica de la interfaz sin ensuciar los componentes.
--   **Capa de Estado (Redux):** Centraliza todo el estado de la aplicación (`user`, `posts`, `isLoading`, `error`). El "thunk" `fetchUserAndPosts` maneja la lógica asíncrona de las llamadas a la API.
--   **Capa de Acceso a Datos (`api.js`):** Abstrae y centraliza toda la comunicación con servicios externos (la API de JSONPlaceholder), manteniendo el resto de la aplicación agnóstica sobre el origen de los datos.
+La organización del proyecto refleja la arquitectura basada en características y la separación de responsabilidades:
 
-### Diagrama de Flujo
-
-```mermaid
-graph LR
-    %% --- Capas y Nodos ---
-
-    subgraph "📱 Vista (React)"
-        direction LR
-        A[1. Usuario busca ID] --> B[App.jsx];
-        B --> C{useUser Hook};
-        C --> D[11. Renderiza UI<br/>(Perfil, Posts, Error, Skeletons)];
-    end
-
-    subgraph "🧠 Lógica (Hook + Redux Thunk)"
-        direction TB
-        C -- "2. Llama a handleSearch()" --> E["3. dispatch(fetchUserAndPosts)"];
-        E --> F[4. Thunk se ejecuta];
-        F -- "5. Llama a la capa de API" --> G[api.js];
-        F -- "6. Estado: 'pending'" --> H[7. userSlice: isLoading = true];
-    end
-
-    subgraph "🌐 Datos (API)"
-        direction TB
-        G -- "8. Petición HTTP" --> API[(API Externa)];
-        API -- "9a. Éxito" --> I{Resultado};
-        API -- "9b. Error" --> I;
-    end
-
-    subgraph "📦 Estado (Redux Store)"
-        direction TB
-        I -- "10. Thunk recibe resultado" --> J["11. userSlice actualiza estado<br/>(datos o error)"];
-        J --> K[12. Store notifica a suscriptores];
-    end
-
-    %% --- Conexiones entre capas ---
-    K --> C;
-
-    %% --- Estilos ---
-    style A fill:#e6f7ff,stroke:#91d5ff
-    style D fill:#e6f7ff,stroke:#91d5ff
-    style API fill:#f6e58d,stroke:#f9ca24,stroke-width:2px
-    classDef redux fill:#f9f0ff,stroke:#d3adf7
-    class H,J,K redux
+```
+myprojectapi02/
+├── public/                 # Archivos estáticos
+├── src/
+│   ├── api/                # Lógica base para interactuar con APIs externas
+│   │   ├── api.js          # Cliente HTTP genérico y manejo de errores base
+│   │   ├── post.js         # Funciones específicas para la API de posts
+│   │   └── user.js         # Funciones específicas para la API de usuarios
+│   ├── assets/             # Recursos estáticos de la aplicación (imágenes, etc.)
+│   ├── components/         # Componentes UI reutilizables y atómicos
+│   │   ├── layout/         # Componentes de layout principal
+│   │   ├── skeletons/      # Componentes de carga (placeholders)
+│   │   └── ...             # Otros componentes (UserProfile, PostList, ErrorMessage, NotFoundCard)
+│   ├── features/           # Agrupación por funcionalidad (features)
+│   │   └── UserSearch/     # Característica completa de búsqueda de usuario
+│   │       └── UserSearchPage.jsx # Página principal de la característica
+│   ├── hooks/              # Custom Hooks para lógica reutilizable y encapsulada
+│   │   └── useUser.js      # Hook para la lógica de búsqueda y gestión de usuario
+│   ├── redux/              # Gestión de estado global con Redux Toolkit
+│   │   ├── slices/         # Slices individuales de Redux (userSlice)
+│   │   └── store.js        # Configuración del store de Redux
+│   ├── services/           # Lógica de negocio y orquestación de llamadas API
+│   │   └── user-service.js # Servicio para obtener perfiles de usuario completos
+│   ├── App.jsx             # Componente principal de la aplicación
+│   ├── index.css           # Estilos globales (Tailwind CSS)
+│   ├── main.jsx            # Punto de entrada de la aplicación
+│   └── ...
+└── ...
 ```
 
-### Explicación Detallada del Flujo
+## 🚀 Cómo Instalar, Levantar y Construir
 
-1.  **Interacción del Usuario:** El usuario introduce un ID en `App.jsx` y hace clic en "Buscar".
-2.  **Llamada al Hook:** El evento `onClick` llama a la función `handleSearch` del hook `useUser`.
-3.  **Despacho de Acción:** `handleSearch` despacha el thunk asíncrono `fetchUserAndPosts(id)` a Redux.
-4.  **Ejecución del Thunk:** Redux ejecuta el thunk, que inmediatamente despacha una acción `pending`.
-5.  **Actualización de Carga:** El `userSlice` recibe la acción `pending` y actualiza el estado: `isLoading = true`. Esto hace que la UI muestre los componentes de esqueleto (Skeletons).
-6.  **Llamada a la API:** El thunk llama a las funciones `getUser` y `getPostsByUser` del archivo `api.js`.
-7.  **Petición HTTP:** `api.js` realiza las peticiones `fetch` a la API externa de `jsonplaceholder`.
-8.  **Recepción de Respuesta:**
-    -   **Éxito:** Si las peticiones son exitosas, el thunk despacha la acción `fulfilled` con los datos del usuario y los posts.
-    -   **Error:** Si algo falla, despacha la acción `rejected` con un mensaje de error.
-9.  **Actualización del Estado Final:** El `userSlice` recibe la acción `fulfilled` o `rejected` y actualiza el store con los datos (`user`, `posts`) o el `error`, y establece `isLoading = false`.
-10. **Notificación a la Vista:** El store de Redux notifica al hook `useUser` (que está suscrito vía `useSelector`) que el estado ha cambiado.
-11. **Renderizado Condicional:** El hook `useUser` recibe el nuevo estado y lo pasa al componente `App.jsx`, que se vuelve a renderizar para mostrar `UserProfile` y `PostList`, el `ErrorMessage`, o la tarjeta `NotFoundCard` según corresponda.
+Sigue estos pasos para poner en marcha el proyecto en tu máquina local:
 
----
+### Requisitos
 
-## 3. Construcción del Proyecto Paso a Paso
+*   Node.js (versión 14 o superior)
+*   pnpm (o npm/yarn)
 
-### Paso 1: Configuración Inicial del Proyecto
+### Instalación
 
-1.  **Crear el proyecto con Vite:**
-
+1.  Clona el repositorio:
     ```bash
-    npm create vite@latest my-profile-viewer -- --template react
-    cd my-profile-viewer
+    git clone [URL_DEL_REPOSITORIO]
+    cd myprojectapi02
     ```
-
-2.  **Instalar dependencias:**
-
+2.  Instala las dependencias usando pnpm:
     ```bash
-    # Manejo de estado
-    npm install @reduxjs/toolkit react-redux
-
-    # Estilos y componentes UI
-    npm install -D tailwindcss postcss autoprefixer
-    npm install @material-tailwind/react @heroicons/react
-
-    # Validación de props (buena práctica)
-    npm install prop-types
+    pnpm install
     ```
+    (Si prefieres npm o yarn, usa `npm install` o `yarn install` respectivamente)
 
-3.  **Configurar Tailwind CSS:**
+### Ejecutar en Modo Desarrollo
 
-    -   Genera los archivos de configuración:
-        ```bash
-        npx tailwindcss init -p
-        ```
-    -   Modifica `tailwind.config.js` para integrar Material Tailwind:
-
-        ```javascript
-        const withMT = require("@material-tailwind/react/utils/withMT");
-
-        module.exports = withMT({
-            content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-            theme: {
-                extend: {},
-            },
-            plugins: [],
-        });
-        ```
-
-    -   Añade las directivas de Tailwind a `src/index.css`:
-        ```css
-        @tailwind base;
-        @tailwind components;
-        @tailwind utilities;
-        ```
-
-### Paso 2: Estructura de Carpetas
-
-Crea la siguiente estructura dentro de `src/` para organizar el código de forma lógica:
-
-```
-/src
-├── api/              # Lógica de comunicación con la API externa.
-├── components/       # Componentes de UI reutilizables.
-│   ├── layout/       # Componentes de estructura (Header, Footer).
-│   └── skeletons/    # Componentes para estados de carga.
-├── hooks/            # Hooks personalizados.
-├── redux/            # Configuración de Redux (store y slices).
-│   └── slices/
-└── App.jsx
-└── main.jsx
-```
-
-### Paso 3: Capa de API
-
-Centralizamos todas las llamadas a la API en un único lugar para facilitar su mantenimiento.
-
-**`src/api/api.js`**:
-
-```javascript
-const API_BASE_URL = "https://jsonplaceholder.typicode.com";
-
-// Función genérica para manejar respuestas de la API
-const handleResponse = async (response) => {
-    if (!response.ok) {
-        throw new Error(response.statusText || `HTTP error ${response.status}`);
-    }
-    return response.json();
-};
-
-// Función genérica para realizar peticiones
-export const fetchFromApi = async (endpoint) => {
-    const response = await fetch(`${API_BASE_URL}/${endpoint}`);
-    return handleResponse(response);
-};
-
-// Funciones específicas por recurso
-export const getUser = (userId) => fetchFromApi(`users/${userId}`);
-export const getPostsByUser = (userId) =>
-    fetchFromApi(`posts?userId=${userId}`);
-```
-
-### Paso 4: Configuración de Redux
-
-Usaremos Redux Toolkit para gestionar el estado de la aplicación (usuario, posts, carga, errores).
-
-1.  **Crear el "Slice" de usuario (`src/redux/slices/userSlice.js`):**
-    Un "slice" maneja la lógica y el estado de una parte de la aplicación.
-
-    ```javascript
-    import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-    import { getUser, getPostsByUser } from "../../api/api";
-
-    // Thunk asíncrono para buscar usuario y posts en paralelo
-    export const fetchUserAndPosts = createAsyncThunk(
-        "user/fetchUserAndPosts",
-        async (userId, { rejectWithValue }) => {
-            try {
-                const [user, posts] = await Promise.all([
-                    getUser(userId),
-                    getPostsByUser(userId),
-                ]);
-                // La API devuelve {} si no encuentra el usuario
-                if (Object.keys(user).length === 0) {
-                    return { user: null, posts: [] };
-                }
-                return { user, posts };
-            } catch (error) {
-                return rejectWithValue(error.message);
-            }
-        }
-    );
-
-    const userSlice = createSlice({
-        name: "user",
-        initialState: {
-            user: null,
-            posts: [],
-            isLoading: false,
-            error: null,
-        },
-        reducers: {},
-        extraReducers: (builder) => {
-            builder
-                .addCase(fetchUserAndPosts.pending, (state) => {
-                    state.isLoading = true;
-                    state.error = null;
-                })
-                .addCase(fetchUserAndPosts.fulfilled, (state, action) => {
-                    state.isLoading = false;
-                    state.user = action.payload.user;
-                    state.posts = action.payload.posts;
-                })
-                .addCase(fetchUserAndPosts.rejected, (state, action) => {
-                    state.isLoading = false;
-                    state.error = action.payload;
-                    state.user = null;
-                    state.posts = [];
-                });
-        },
-    });
-
-    export default userSlice.reducer;
-    ```
-
-2.  **Configurar el Store (`src/redux/store.js`):**
-
-    ```javascript
-    import { configureStore } from "@reduxjs/toolkit";
-    import userReducer from "./slices/userSlice";
-
-    export const store = configureStore({
-        reducer: {
-            user: userReducer,
-        },
-    });
-    ```
-
-3.  **Proveer el Store a la aplicación (`src/main.jsx`):**
-
-    ```javascript
-    import React from "react";
-    import ReactDOM from "react-dom/client";
-    import App from "./App.jsx";
-    import "./index.css";
-    import { Provider } from "react-redux";
-    import { store } from "./redux/store.js";
-    import { ThemeProvider } from "@material-tailwind/react";
-
-    ReactDOM.createRoot(document.getElementById("root")).render(
-        <React.StrictMode>
-            <Provider store={store}>
-                <ThemeProvider>
-                    <App />
-                </ThemeProvider>
-            </Provider>
-        </React.StrictMode>
-    );
-    ```
-
-### Paso 5: El Hook Personalizado `useUser`
-
-Este es el núcleo de nuestra lógica de UI. Encapsula toda la interacción con Redux y el manejo de la entrada del usuario, manteniendo los componentes limpios.
-
-**`src/hooks/useUser.js`**:
-
-```javascript
-import { useState, useEffect, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchUserAndPosts } from "../redux/slices/userSlice";
-
-export const useUser = (initialUserId = 1) => {
-    const [inputValue, setInputValue] = useState(initialUserId.toString());
-    const [searchId, setSearchId] = useState(null);
-    const dispatch = useDispatch();
-
-    const { user, posts, isLoading, error } = useSelector(
-        (state) => state.user
-    );
-
-    useEffect(() => {
-        if (initialUserId) {
-            dispatch(fetchUserAndPosts(initialUserId));
-            setSearchId(initialUserId.toString());
-        }
-    }, [dispatch, initialUserId]);
-
-    const handleInputChange = (e) => {
-        const value = e.target.value;
-        if (/^$|^[1-9]$|^10$/.test(value)) {
-            // Valida que el ID esté entre 1 y 10
-            setInputValue(value);
-        }
-    };
-
-    const handleSearch = useCallback(() => {
-        if (inputValue) {
-            setSearchId(inputValue);
-            dispatch(fetchUserAndPosts(Number(inputValue)));
-        }
-    }, [dispatch, inputValue]);
-
-    const handleRetry = useCallback(() => {
-        if (searchId) {
-            dispatch(fetchUserAndPosts(Number(searchId)));
-        }
-    }, [dispatch, searchId]);
-
-    return {
-        user,
-        posts,
-        isLoading,
-        error,
-        inputValue,
-        searchId,
-        handleInputChange,
-        handleSearch,
-        handleRetry,
-    };
-};
-```
-
-### Paso 6: Ensamblaje de la Interfaz en `App.jsx`
-
-Gracias al hook `useUser`, nuestro componente `App.jsx` se vuelve muy simple y declarativo. Su única responsabilidad es renderizar la UI basándose en el estado que le proporciona el hook.
-
-**`src/App.jsx`**:
-
-```javascript
-import { Input, Button, Typography } from "@material-tailwind/react";
-import { useUser } from "./hooks/useUser";
-import MainLayout from "./components/layout/MainLayout";
-import UserProfile from "./components/UserProfile";
-import PostList from "./components/PostList";
-import ErrorMessage from "./components/ErrorMessage";
-import NotFoundCard from "./components/NotFoundCard";
-import ProfileSkeleton from "./components/skeletons/ProfileSkeleton";
-import PostListSkeleton from "./components/skeletons/PostListSkeleton";
-
-function App() {
-    const {
-        user, posts, isLoading, error,
-        inputValue, searchId,
-        handleInputChange, handleSearch, handleRetry,
-    } = useUser(1); // Inicializamos con el ID 1
-
-    return (
-        <MainLayout>
-            {/* ... (código JSX para el input y el botón de búsqueda) ... */}
-
-            {isLoading && (
-                <div className="space-y-8">
-                    <ProfileSkeleton />
-                    <PostListSkeleton />
-                </div>
-            )}
-
-            {error && <ErrorMessage message={error} onRetry={handleRetry} />}
-
-            {!isLoading && !error && user && (
-                <div className="space-y-8">
-                    <UserProfile user={user} />
-                    {posts.length > 0 ? <PostList posts={posts} /> : /* ... */}
-                </div>
-            )}
-
-            {!isLoading && !error && !user && searchId && (
-                <NotFoundCard numberId={searchId} />
-            )}
-        </MainLayout>
-    );
-}
-
-export default App;
-```
-
-_(Nota: El código de los componentes de UI como `UserProfile`, `PostList`, etc., se omite por brevedad, pero se encuentran en la carpeta `src/components`)_.
-
-### Paso 7: Ejecutar el Proyecto
-
-Finalmente, inicia el servidor de desarrollo para ver la aplicación en acción.
+Para iniciar la aplicación en modo desarrollo con Vite:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
-Abre `http://localhost:5173` en tu navegador. ¡Y listo! Has construido una aplicación React robusta con una arquitectura limpia y escalable.
+La aplicación estará disponible en `http://localhost:5173/` (o un puerto similar).
+
+### Construir para Producción
+
+Para generar una versión optimizada para producción:
+
+```bash
+pnpm run build
+```
+
+Los archivos de producción se generarán en la carpeta `dist/`.
+
+## 💡 Explicación Funcional del Proyecto
+
+La aplicación permite al usuario introducir un `ID de Usuario` (del 1 al 10, ya que estamos usando JSONPlaceholder) en un campo de entrada. Al hacer clic en "Buscar", la aplicación realiza una solicitud a la API para obtener los datos del usuario y sus publicaciones.
+
+*   Mientras se carga, se muestran esqueletos de carga.
+*   Si se encuentra el usuario, se muestra su perfil y una lista de sus posts.
+*   Si el usuario no existe (ya sea por un 404 o por una respuesta vacía de la API), se muestra una tarjeta indicando "Usuario No Encontrado".
+*   Si ocurre un error de red o de servidor, se muestra un mensaje de error y un botón para reintentar.
+
+## 🧩 Detalle de Módulos Clave
+
+*   **`UserSearchPage.jsx` (src/features/UserSearch):**
+    La página principal donde ocurre la interacción. Es un componente "tonto" que se encarga de renderizar la UI y delegar la lógica al custom hook `useUser`.
+*   **`useUser.js` (src/hooks):**
+    Un custom hook inteligente que encapsula toda la lógica de la característica `UserSearch`. Se conecta al store de Redux para despachar acciones y seleccionar el estado relevante (`user`, `posts`, `status`, `error`).
+*   **`userSlice.js` (src/redux/slices):**
+    El corazón de la gestión de estado para los datos del usuario y sus posts. Define el `initialState`, las acciones asíncronas (`fetchUserAndPosts`) y cómo el estado muta en respuesta a estas acciones (pending, fulfilled, rejected).
+*   **`user-service.js` (src/services):**
+    Un nuevo servicio introducido para orquestar la lógica de negocio de "obtener el perfil completo de un usuario". Este servicio es el que sabe cómo combinar las llamadas a `getUser` y `getPostsByUser` para construir el perfil completo.
+
+## 🌍 Ejemplos de Uso
+
+1.  **Buscar Usuario Existente:**
+    *   Introduce `1` en el campo y haz clic en "Buscar". Verás el perfil del "Leanne Graham" y sus posts.
+2.  **Buscar Usuario No Existente:**
+    *   Introduce `99` (o cualquier ID fuera del rango 1-10) y haz clic en "Buscar". Verás la tarjeta de "Usuario No Encontrado".
+3.  **Simular Error de Red:**
+    *   Desactiva tu conexión a internet o usa las herramientas de desarrollador para simular "Offline" y luego busca un ID. Verás el mensaje de error general.
+
+## 🎨 Principales Decisiones de Diseño
+
+*   **Single Source of Truth para el Estado:** Redux es el contenedor centralizado para el estado de la aplicación, facilitando la depuración y la gestión de datos complejos.
+*   **Separación de Responsabilidades (SoC):** Cada parte del código tiene una única responsabilidad bien definida (UI, lógica, estado, acceso a datos), lo que mejora la mantenibilidad.
+*   **Desarrollo Basado en Características:** La agrupación de componentes, hooks y lógica por características (`UserSearch`) facilita la escalabilidad y la comprensión del proyecto.
+*   **Manejo de Errores Robusto y Específico:** Implementación de un flujo de errores detallado que diferencia entre "no encontrado" y "error general", mejorando la UX.
+
+## ✅ Buenas Prácticas Aplicadas
+
+*   **Inmutabilidad en Redux:** Todas las actualizaciones de estado en Redux se realizan de forma inmutable, garantizando la previsibilidad.
+*   **Thunks Asíncronos:** Uso de `createAsyncThunk` para gestionar efectos secundarios y operaciones asíncronas de manera limpia.
+*   **Custom Hooks Reutilizables:** Encapsulación de lógica compleja de la UI en `useUser` para una mejor reusabilidad y limpieza de los componentes.
+*   **Carga Optimista (Skeletons):** Uso de esqueletos de carga para mejorar la percepción de rendimiento durante las esperas de la API.
+*   **Modularización de API:** El cliente API se divide en funciones específicas para `user` y `post`, y un cliente base genérico.
+
+## ♻️ Comparación Antes/Después del Refactor
+
+Hemos realizado mejoras significativas en dos áreas clave:
+
+### 1. Manejo de Errores "Usuario No Encontrado"
+
+*   **Antes:**
+    *   La API de JSONPlaceholder devolvía un objeto vacío (`{}`) para IDs no existentes, pero no un `404`. La lógica para detectar esto y mostrar `NotFoundCard` estaba en el componente `UserSearchPage.jsx`.
+    *   Si la API fallaba por otras razones (ej. error de servidor, red), se lanzaba un error genérico desde `api.js` y el `userSlice` lo trataba como un error `failed` sin distinción.
+    *   El estado global usaba `isLoading: boolean` y `error: string | null`, lo que requería múltiples `if` para determinar el estado actual de la UI.
+
+*   **Después:**
+    *   **`api.js`:** Ahora, cuando una respuesta HTTP no es `ok`, lanza un objeto de error enriquecido que incluye el `status` (ej. `{ message: "...", status: 404 }`).
+    *   **`userSlice.js`:**
+        *   El estado inicial ahora usa un único campo `status: 'idle' | 'loading' | 'succeeded' | 'failed' | 'notFound'`.
+        *   El `thunk` (`fetchUserAndPosts`) y sus `extraReducers` (`fulfilled`, `rejected`) están centralizados para decidir el `status` final:
+            *   Si el servicio devuelve `user: null` (respuesta de API vacía), `status` se establece a `notFound`.
+            *   Si el `thunk` es rechazado y el error contiene `status: 404`, `status` también se establece a `notFound`.
+            *   Otros errores siguen estableciendo `status` a `failed`.
+    *   **`useUser.js`:** Se actualizó para seleccionar y devolver el nuevo campo `status`.
+    *   **`UserSearchPage.jsx`:** La lógica de renderizado se simplificó, utilizando `status` directamente para mostrar esqueletos, mensajes de error, el perfil o la tarjeta de "no encontrado".
+
+**Beneficio:** La aplicación ahora es más inteligente y robusta. Puede distinguir un "usuario no encontrado" de otros tipos de errores, ofreciendo una experiencia de usuario más clara y una gestión de estado más limpia y predecible.
+
+### 2. Orquestación de Llamadas API (Capa de Servicios)
+
+*   **Antes:**
+    *   La lógica para combinar la obtención de datos de usuario y sus posts (`Promise.all`) residía directamente dentro del `createAsyncThunk` en `userSlice.js`. Esto mezclaba la lógica de negocio con la gestión de estado de Redux.
+
+*   **Después:**
+    *   Se creó un nuevo archivo de servicio: **`src/services/user-service.js`**.
+    *   Este servicio ahora contiene la función `fetchUserProfile`, que encapsula la lógica de `Promise.all` para llamar a `getUser` y `getPostsByUser`, y la lógica para detectar el usuario vacío.
+    *   El `createAsyncThunk` en `userSlice.js` se simplificó, ahora solo llama a `fetchUserProfile` del servicio.
+
+**Beneficio:** Mejora la separación de responsabilidades. Redux se encarga de la gestión del estado, mientras que la lógica de negocio (cómo obtener un "perfil completo") vive en una capa de servicio dedicada. Esto hace que el código sea más modular, fácil de probar y más mantenible a medida que el proyecto crece.
+
+---
+
+## 🗺️ TODOs y Roadmap de Mejoras
+
+Este proyecto tiene una base sólida, pero siempre hay espacio para crecer:
+
+*   **Introducir Pruebas Unitarias/Integración:** (¡CRÍTICO!) Implementar Jest/Vitest y React Testing Library para componentes, hooks, slices y servicios.
+*   **Migración a TypeScript:** (Moderado) Convertir el proyecto a TypeScript para añadir tipado estático, mejorar la robustez y la experiencia de desarrollo.
+*   **Consolidar Estilos:** (Estético) Refactorizar `index.css` y `App.css` para utilizar exclusivamente utilidades de Tailwind CSS, eliminando CSS personalizado redundante.
+*   **Paginación/Infinite Scroll:** Implementar paginación o carga infinita para la lista de posts del usuario.
+*   **Autenticación de Usuarios:** Añadir un sistema de login/registro y gestión de usuarios.
+*   **Gestión Global de Temas:** Mejorar el `ThemeToggleButton` para una gestión más robusta de temas claro/oscuro.
+
+¡Gracias por revisar este proyecto! Si tienes alguna pregunta o sugerencia, no dudes en compartirla.
