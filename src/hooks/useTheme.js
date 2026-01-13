@@ -1,43 +1,122 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
 /**
- * Un custom hook para gestionar el tema de la aplicación (claro/oscuro).
+ * @fileoverview Custom Hook para gestionar el tema visual de la aplicación.
+ * Proporciona funcionalidad para alternar entre modo claro y oscuro
+ * con persistencia en localStorage.
  *
- * - Lee el tema guardado en localStorage o la preferencia del sistema.
- * - Aplica la clase 'dark' al elemento <html> para que Tailwind CSS funcione.
- * - Proporciona una función para alternar entre los temas.
+ * @module useTheme
+ * @category Hooks
+ * @since 1.0.0
+ */
+
+/**
+ * Custom Hook para gestionar el tema visual (claro/oscuro) de la aplicación.
  *
- * @returns {{theme: string, toggleTheme: function}} Un objeto con el tema actual y la función para cambiarlo.
+ * Este hook encapsula la lógica para:
+ * - Leer el tema guardado en localStorage
+ * - Aplicar la clase 'dark' al elemento HTML
+ * - Persistir la preferencia del usuario
+ * - Proporcionar una función para alternar el tema
+ *
+ * El tema se guarda en localStorage con la clave 'theme' y puede ser 'light' o 'dark'.
+ * Al cargar la aplicación, se lee el valor guardado y se aplica automáticamente.
+ *
+ * @hook
+ * @category Theme Management
+ *
+ * @returns {Object} Objeto con el estado del tema y función para cambiarlo.
+ * @returns {boolean} returns.isDark - `true` si el tema actual es oscuro, `false` si es claro.
+ * @returns {Function} returns.toggleTheme - Función para alternar entre tema claro y oscuro.
+ *
+ * @example
+ * // Uso básico en un componente
+ * function ThemeToggleButton() {
+ *   const { isDark, toggleTheme } = useTheme();
+ *
+ *   return (
+ *     <button onClick={toggleTheme}>
+ *       {isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
+ *     </button>
+ *   );
+ * }
+ *
+ * @example
+ * // Uso con renderizado condicional
+ * function App() {
+ *   const { isDark } = useTheme();
+ *
+ *   return (
+ *     <div className={isDark ? 'dark-theme' : 'light-theme'}>
+ *       <Header />
+ *       <Content />
+ *     </div>
+ *   );
+ * }
+ *
+ * @example
+ * // Aplicar estilos basados en el tema
+ * function Card() {
+ *   const { isDark } = useTheme();
+ *
+ *   const cardStyle = {
+ *     backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+ *     color: isDark ? '#ffffff' : '#000000'
+ *   };
+ *
+ *   return <div style={cardStyle}>Card Content</div>;
+ * }
+ *
+ * @see {@link ThemeToggleButton} - Componente que utiliza este hook.
+ *
+ * @since 1.0.0
+ * @version 1.0.0
  */
 export const useTheme = () => {
-    // Inicializa el estado del tema, dando prioridad a localStorage,
-    // luego a la preferencia del sistema, y finalmente a 'light' por defecto.
-    const [theme, setTheme] = useState(() => {
-        if (typeof window === "undefined") return "light";
+  /**
+   * Estado que indica si el tema oscuro está activo.
+   * Se inicializa leyendo el valor guardado en localStorage.
+   *
+   * @type {boolean}
+   */
+  const [isDark, setIsDark] = useState(() => {
+    // Leer el tema guardado en localStorage al inicializar
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme === "dark";
+  });
 
-        const savedTheme = window.localStorage.getItem("theme");
-        if (savedTheme) return savedTheme;
+  /**
+   * Efecto que se ejecuta cada vez que cambia el tema.
+   * Aplica o remueve la clase 'dark' del elemento HTML
+   * y guarda la preferencia en localStorage.
+   */
+  useEffect(() => {
+    const htmlElement = document.documentElement;
 
-        const prefersDark = window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        ).matches;
-        return prefersDark ? "dark" : "light";
-    });
+    if (isDark) {
+      htmlElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      htmlElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDark]);
 
-    // Efecto que se ejecuta cada vez que el estado 'theme' cambia.
-    useEffect(() => {
-        const root = window.document.documentElement;
-        root.classList.remove("light", "dark"); // Limpia clases anteriores
-        root.classList.add(theme); // Añade la clase del tema actual
+  /**
+   * Alterna entre el tema claro y oscuro.
+   *
+   * @function toggleTheme
+   * @returns {void}
+   *
+   * @example
+   * <button onClick={toggleTheme}>Cambiar Tema</button>
+   */
+  const toggleTheme = () => {
+    setIsDark((prevIsDark) => !prevIsDark);
+  };
 
-        // Guarda la preferencia del usuario en localStorage.
-        window.localStorage.setItem("theme", theme);
-    }, [theme]);
-
-    // Función para cambiar el tema, memorizada con useCallback.
-    const toggleTheme = useCallback(() => {
-        setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
-    }, []);
-
-    return { theme, toggleTheme };
+  return {
+    isDark,
+    toggleTheme,
+  };
 };
