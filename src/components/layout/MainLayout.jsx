@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { Typography } from "@material-tailwind/react";
-import ThemeToggleButton from "../ThemeToggleButton";
+import ThemeToggleButton from "@/components/ui/ThemeToggleButton";
 
 const currentYear = new Date().getFullYear();
 
@@ -11,36 +11,33 @@ const currentYear = new Date().getFullYear();
  * @returns {JSX.Element}
  */
 function MainLayout({ children }) {
-    return (
-        <div className="main-layout">
-            {/* navbar */}
-            <header className="main-layout__header">
-                <div className="main-layout__container flex justify-center items-center">
-                    <ThemeToggleButton />
-                </div>
-            </header>
-
-            {/* Contenido Principal */}
-            <main className="main-layout__content">
-                <div className="main-layout__content-wrapper">{children}</div>
-            </main>
-            {/* Footer */}
-            <footer className="main-layout__footer">
-                <div className="main-layout__container text-center">
-                    <Typography
-                        color="blue-gray"
-                        className="main-layout__footer-text"
-                    >
-                        &copy; {currentYear} Todos los derechos reservados.
-                    </Typography>
-                </div>
-            </footer>
+  return (
+    <div className="main-layout">
+      {/* navbar */}
+      <header className="main-layout__header">
+        <div className="main-layout__container flex justify-center items-center">
+          <ThemeToggleButton />
         </div>
-    );
+      </header>
+
+      {/* Contenido Principal */}
+      <main className="main-layout__content">
+        <div className="main-layout__content-wrapper">{children}</div>
+      </main>
+      {/* Footer */}
+      <footer className="main-layout__footer">
+        <div className="main-layout__container text-center">
+          <Typography color="blue-gray" className="main-layout__footer-text">
+            &copy; {currentYear} Todos los derechos reservados.
+          </Typography>
+        </div>
+      </footer>
+    </div>
+  );
 }
 
 MainLayout.propTypes = {
-    children: PropTypes.node.isRequired,
+  children: PropTypes.node.isRequired,
 };
 
 export default MainLayout;
