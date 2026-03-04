@@ -1,22 +1,37 @@
 import { useSelector, useDispatch } from "react-redux";
 import { setLanguage } from "@/redux/uiSlice";
 import { translations } from "@/lib/translations";
+import { useCallback, useMemo } from "react";
 
 /**
- * Hook personalizado para acceder a las traducciones.
+ * Hook de Internacionalización de Alto Rendimiento.
+ * Optimizado con useMemo y useCallback para evitar re-renders.
+ * 
+ * @category Hooks
+ * @returns {Object} t, language, toggleLanguage
  */
 export const useTranslation = () => {
   const { language } = useSelector((state) => state.ui);
   const dispatch = useDispatch();
 
-  const t = (key) => {
-    return translations[language][key] || key;
-  };
+  /**
+   * Función de traducción memoizada.
+   */
+  const t = useCallback((key) => {
+    return translations[language]?.[key] || key;
+  }, [language]);
 
-  const toggleLanguage = () => {
+  /**
+   * Alternar idioma con persistencia.
+   */
+  const toggleLanguage = useCallback(() => {
     const nextLang = language === "es" ? "en" : "es";
     dispatch(setLanguage(nextLang));
-  };
+  }, [dispatch, language]);
 
-  return { t, language, toggleLanguage };
+  return useMemo(() => ({ 
+    t, 
+    language, 
+    toggleLanguage 
+  }), [t, language, toggleLanguage]);
 };
