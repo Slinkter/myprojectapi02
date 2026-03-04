@@ -1,64 +1,57 @@
-// Importaciones de componentes de esqueleto (placeholders de carga).
+import { Typography } from "@material-tailwind/react";
 import ProfileSkeleton from "./components/skeletons/ProfileSkeleton";
 import PostListSkeleton from "./components/skeletons/PostListSkeleton";
-// Importaciones de componentes de la aplicación.
-import UserProfile from "./components/UserProfile";
-import PostList from "./components/PostList";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import NotFoundCard from "@/components/ui/NotFoundCard";
-// Se importa el custom hook `useUser`.
-import { useUser } from "./hooks/useUser";
-// Importaciones de componentes de la biblioteca de UI @material-tailwind/react.
-import { Input, Button, Typography } from "@material-tailwind/react";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import SearchBar from "./components/SearchBar";
+import UserView from "./components/UserView";
+import { useUserSearch } from "./hooks/useUserSearch";
+import { useSearchInput } from "./hooks/useSearchInput";
 
-// El componente de la página de búsqueda de usuarios.
+/**
+ * Página de Búsqueda de Usuarios.
+ * Implementa la composición de hooks para separar lógica de UI y Dominio.
+ * 
+ * @component
+ * @category Features/UserSearch
+ */
 function UserSearchPage() {
-  // Se utiliza el custom hook `useUser` para obtener el estado y las funciones necesarias.
+  // Hook de UI: Maneja el estado del input
+  const { inputValue, handleInputChange } = useSearchInput("1");
+  
+  // Hook de Dominio: Maneja los datos y Redux
   const {
     user,
     posts,
     status,
     error,
     searchId,
-    inputValue,
-    handleInputChange,
-    handleSearch,
+    performSearch,
     handleRetry,
-  } = useUser(1);
+  } = useUserSearch(1);
 
-  // Derivamos si la UI está en estado de carga para deshabilitar controles.
   const isLoading = status === "loading";
+
+  /**
+   * Orquesta la búsqueda llamando al hook de dominio con el valor del hook de UI.
+   */
+  const handleSearch = () => {
+    performSearch(inputValue);
+  };
 
   return (
     <div className="user-search">
       <Typography variant="h3" color="blue-gray" className="user-search__title">
         Buscar Perfil de Usuario por ID
       </Typography>
-      {/* Sección del formulario de búsqueda */}
-      <div className="search-form">
-        <Input
-          type="number"
-          label="ID de Usuario (1-10)"
-          value={inputValue}
-          onChange={handleInputChange}
-          min="1"
-          max="10"
-        />
-        <Button
-          onClick={handleSearch}
-          className="search-form__button flex items-center gap-2"
-          disabled={!inputValue || isLoading}
-        >
-          {isLoading ? (
-            "Buscando..."
-          ) : (
-            <MagnifyingGlassIcon className="h-5 w-5" />
-          )}
-        </Button>
-      </div>
 
-      {/* Renderizado basado en el estado 'status' */}
+      <SearchBar 
+        value={inputValue} 
+        onChange={handleInputChange} 
+        onSearch={handleSearch} 
+        isLoading={isLoading} 
+      />
+
       {status === "loading" && (
         <div className="results-wrapper">
           <ProfileSkeleton />
@@ -71,19 +64,9 @@ function UserSearchPage() {
       )}
 
       {status === "succeeded" && user && (
-        <div className="results-wrapper">
-          <UserProfile user={user} />
-          {posts.length > 0 ? (
-            <PostList posts={posts} />
-          ) : (
-            <Typography className="no-posts__text">
-              Este usuario aún no tiene publicaciones.
-            </Typography>
-          )}
-        </div>
+        <UserView user={user} posts={posts} />
       )}
 
-      {/* La tarjeta 'NotFound' se muestra si el estado de la búsqueda es 'notFound'. */}
       {status === "notFound" && <NotFoundCard numberId={searchId} />}
     </div>
   );
