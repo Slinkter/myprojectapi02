@@ -44,11 +44,11 @@ import { UserSearchPage } from "@/features/user-search";
  * @version 1.0.0
  */
 function App() {
-  return (
-    <MainLayout>
-      <UserSearchPage />
-    </MainLayout>
-  );
+    return (
+        <MainLayout>
+            <UserSearchPage />
+        </MainLayout>
+    );
 }
 
 export default App;

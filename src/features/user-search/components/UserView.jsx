@@ -1,22 +1,22 @@
 import UserProfile from "./UserProfile";
 import PostList from "./PostList";
-import { Typography } from "@material-tailwind/react";
 import PropTypes from 'prop-types';
 
 /**
  * Componente de presentación para los resultados de la búsqueda de usuario.
+ * Estilizado con Tailwind CSS v4 puro.
  * @component
  */
 function UserView({ user, posts }) {
   return (
-    <div className="results-wrapper">
+    <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       <UserProfile user={user} />
       {posts.length > 0 ? (
         <PostList posts={posts} />
       ) : (
-        <Typography className="no-posts__text">
+        <p className="text-center text-slate-500 mt-8 italic">
           Este usuario aún no tiene publicaciones.
-        </Typography>
+        </p>
       )}
     </div>
   );

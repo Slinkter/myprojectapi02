@@ -1,33 +1,10 @@
-// Barrel export for user-search feature
-
-/**
- * @fileoverview Barrel export para el feature user-search.
- * Simplifica las importaciones exportando todos los elementos públicos del feature.
- *
- * @module user-search
- * @category Features
- * @since 1.0.0
- */
-
-/**
- * Página principal del feature de búsqueda de usuarios.
- * @see {@link module:user-search/UserSearchPage}
- */
+// Exportación de la página principal de la funcionalidad.
 export { default as UserSearchPage } from "./UserSearchPage";
 
-/**
- * Custom hook para gestionar la lógica de búsqueda de usuarios.
- * @see {@link module:user-search/hooks/useUser}
- */
-export { useUser } from "./hooks/useUser";
+// Exportación de los hooks especializados.
+export { useSearchInput } from "./hooks/useSearchInput";
+export { useUserSearch } from "./hooks/useUserSearch";
 
-/**
- * @example
- * // Importar desde el barrel export
- * import { UserSearchPage, useUser } from '@/features/user-search';
- *
- * @example
- * // En lugar de múltiples imports
- * import UserSearchPage from '@/features/user-search/UserSearchPage';
- * import { useUser } from '@/features/user-search/hooks/useUser';
- */
+// Exportación de componentes internos (opcional, para mayor flexibilidad).
+export { default as SearchBar } from "./components/SearchBar";
+export { default as UserView } from "./components/UserView";

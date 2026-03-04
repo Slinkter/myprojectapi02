@@ -1,107 +1,78 @@
-import React from "react";
 import {
-  Card,
-  CardBody,
-  Typography,
-  Avatar,
-  Tooltip,
-} from "@material-tailwind/react";
-import {
-  BriefcaseIcon,
-  MapPinIcon,
+  UserIcon,
   EnvelopeIcon,
   GlobeAltIcon,
-} from "@heroicons/react/24/solid";
-import PropTypes from "prop-types";
+  BriefcaseIcon,
+  MapPinIcon,
+} from "@heroicons/react/24/outline";
+import PropTypes from 'prop-types';
 
 /**
- * Muestra una tarjeta de perfil de usuario
- * @param {object} props - Propiedades del componente.
- * @param {object} props.user - El objeto de usuario con sus datos.
- * @returns {JSX.Element}
+ * Componente de Perfil con soporte para Modo Oscuro.
+ * @component
  */
-const UserProfile = React.memo(({ user }) => {
+function UserProfile({ user }) {
+  if (!user) return null;
+
   return (
-    <Card className="user-profile">
-      <CardBody className="user-profile__body">
-        <Avatar
-          src={`https://i.pravatar.cc/150?u=${user.id}`}
-          alt={user.name}
-          size="xl"
-          variant="circular"
-          className="user-profile__avatar"
+    <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 shadow-2xl rounded-3xl overflow-hidden max-w-2xl mx-auto my-10 animate-in fade-in zoom-in duration-500 transition-colors">
+      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white flex flex-col sm:flex-row items-center gap-6">
+        <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl shadow-inner border border-white/20">
+          <UserIcon className="h-12 w-12" />
+        </div>
+        <div className="text-center sm:text-left">
+          <h2 className="text-3xl font-extrabold tracking-tight">{user.name}</h2>
+          <p className="text-blue-100 font-medium text-lg">@{user.username}</p>
+        </div>
+      </div>
+      
+      <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <InfoItem icon={EnvelopeIcon} label="Email" value={user.email} isLink />
+        <InfoItem icon={GlobeAltIcon} label="Website" value={user.website} />
+        <InfoItem 
+          icon={BriefcaseIcon} 
+          label="Company" 
+          value={user.company?.name} 
+          subValue={user.company?.catchPhrase} 
         />
-        <Typography
-          variant="h4"
-          color="blue-gray"
-          className="user-profile__name"
-        >
-          {user.name}
-        </Typography>
-        <Typography color="gray" className="user-profile__username">
-          @{user.username}
-        </Typography>
-
-        <div className="user-profile__company">
-          <BriefcaseIcon className="user-profile__company-icon" />
-          <Typography className="user-profile__company-name">
-            {user.company.name}
-          </Typography>
-        </div>
-        <Typography color="gray" className="user-profile__catchphrase">
-          &ldquo;{user.company.catchPhrase}&rdquo;
-        </Typography>
-
-        <div className="user-profile__details">
-          <Tooltip content="Dirección">
-            <div className="user-profile__detail-item">
-              <MapPinIcon className="user-profile__detail-icon" />
-              <Typography color="blue-gray">{user.address.city}</Typography>
-            </div>
-          </Tooltip>
-          <Tooltip content="Email">
-            <a
-              href={`mailto:${user.email}`}
-              className="user-profile__detail-item"
-            >
-              <EnvelopeIcon className="user-profile__detail-icon" />
-              <Typography color="blue-gray">{user.email}</Typography>
-            </a>
-          </Tooltip>
-          <Tooltip content="Sitio Web">
-            <a
-              href={`http://${user.website}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="user-profile__detail-item"
-            >
-              <GlobeAltIcon className="user-profile__detail-icon" />
-              <Typography color="blue-gray">{user.website}</Typography>
-            </a>
-          </Tooltip>
-        </div>
-      </CardBody>
-    </Card>
+        <InfoItem 
+          icon={MapPinIcon} 
+          label="Address" 
+          value={`${user.address?.street}, ${user.address?.suite}`} 
+          subValue={`${user.address?.city} (${user.address?.zipcode})`}
+        />
+      </div>
+    </div>
   );
-});
+}
 
-UserProfile.displayName = "UserProfile";
+function InfoItem({ icon: Icon, label, value, subValue, isLink }) {
+  return (
+    <div className="flex items-start gap-4 group">
+      <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors">
+        <Icon className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] mb-1">{label}</p>
+        <p className={`text-slate-800 dark:text-slate-200 font-semibold truncate transition-colors ${isLink ? 'text-blue-600 dark:text-blue-400 hover:underline cursor-pointer' : ''}`}>
+          {value}
+        </p>
+        {subValue && <p className="text-xs text-slate-500 dark:text-slate-400 italic mt-0.5 leading-tight transition-colors">{subValue}</p>}
+      </div>
+    </div>
+  );
+}
+
+InfoItem.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  subValue: PropTypes.string,
+  isLink: PropTypes.bool,
+};
 
 UserProfile.propTypes = {
-  user: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    username: PropTypes.string.isRequired,
-    email: PropTypes.string.isRequired,
-    website: PropTypes.string.isRequired,
-    company: PropTypes.shape({
-      name: PropTypes.string,
-      catchPhrase: PropTypes.string,
-    }),
-    address: PropTypes.shape({
-      city: PropTypes.string,
-    }),
-  }).isRequired,
+  user: PropTypes.object.isRequired,
 };
 
 export default UserProfile;

@@ -1,50 +1,32 @@
-import React from "react";
-import { Card, CardBody, Typography } from "@material-tailwind/react";
-import { UserCircleIcon } from "@heroicons/react/24/solid";
-import PropTypes from "prop-types";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import PropTypes from 'prop-types';
 
 /**
- * Muestra una tarjeta indicando que el usuario no fue encontrado.
- * @param {object} props - Propiedades del componente.
- * @param {string|number} props.numberId - El ID del usuario que no se encontró.
- * @returns {JSX.Element}
+ * Componente para mostrar cuando un usuario no es encontrado.
+ * Estilizado con Tailwind CSS v4 puro.
+ * @component
  */
-const NotFoundCard = React.memo(({ numberId }) => {
-    return (
-        <Card className="not-found-card bg-yellow-50/50 border border-yellow-200 dark:bg-gray-800 dark:border-yellow-900">
-            <CardBody className="not-found-card__body">
-                <UserCircleIcon className="not-found-card__icon" />
-                <Typography
-                    variant="h5"
-                    color="yellow"
-                    className="not-found-card__title dark:text-yellow-400"
-                >
-                    Usuario no encontrado
-                </Typography>
-                <Typography
-                    variant="lead"
-                    color="gray"
-                    className="max-w-md mx-auto dark:text-gray-400"
-                >
-                    No pudimos encontrar un usuario con el ID{" "}
-                    <span className="not-found-card__id font-semibold text-blue-gray-800 dark:text-gray-200">
-                        {numberId}
-                    </span>
-                    .
-                </Typography>
-                <Typography color="gray" className="not-found-card__hint">
-                    Por favor, selecciona un ID de usuario entre 1 y 10.
-                </Typography>
-            </CardBody>
-        </Card>
-    );
-});
-
-NotFoundCard.displayName = "NotFoundCard";
+function NotFoundCard({ numberId }) {
+  return (
+    <div className="max-w-md mx-auto my-12 p-10 bg-white border border-slate-200 rounded-3xl shadow-lg animate-in fade-in slide-in-from-top-4 duration-500">
+      <div className="flex flex-col items-center text-center">
+        <div className="p-4 bg-slate-100 rounded-full mb-6">
+          <MagnifyingGlassIcon className="h-16 w-16 text-slate-400" />
+        </div>
+        <h3 className="text-2xl font-bold text-slate-800 mb-2">Usuario no encontrado</h3>
+        <p className="text-slate-500 mb-6">
+          No pudimos encontrar ningún perfil asociado al ID <span className="font-bold text-blue-600">#{numberId}</span>.
+        </p>
+        <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+          <div className="h-full bg-blue-500 w-1/3 animate-[loading_2s_infinite]"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 NotFoundCard.propTypes = {
-    numberId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-        .isRequired,
+  numberId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default NotFoundCard;

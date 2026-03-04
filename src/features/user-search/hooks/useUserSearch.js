@@ -1,22 +1,18 @@
 import { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserAndPosts } from "../redux/userSlice";
+import { fetchUserAndPosts, fetchUsersList } from "../redux/userSlice";
 
 /**
- * Hook de dominio para gestionar la búsqueda de usuarios y sus posts.
- * Se comunica directamente con el store de Redux.
- * 
- * @category Hooks
- * @param {number|string} initialUserId - ID inicial para cargar al montar.
- * @returns {Object} Estado de Redux y funciones de acción.
+ * Hook de dominio para búsqueda inteligente.
  */
 export const useUserSearch = (initialUserId) => {
   const dispatch = useDispatch();
-  const { user, posts, status, error } = useSelector((state) => state.user);
+  const { user, posts, status, error, allUsers } = useSelector((state) => state.user);
   const [searchId, setSearchId] = useState(initialUserId);
 
-  // Carga inicial
+  // Cargar lista de usuarios al inicio para búsqueda por nombre
   useEffect(() => {
+    dispatch(fetchUsersList());
     if (initialUserId) {
       dispatch(fetchUserAndPosts(initialUserId));
       setSearchId(initialUserId);
@@ -24,25 +20,37 @@ export const useUserSearch = (initialUserId) => {
   }, [dispatch, initialUserId]);
 
   /**
-   * Ejecuta la búsqueda de un usuario por ID.
-   * @param {number|string} id 
+   * Orquesta la búsqueda: por ID si es número, por Nombre si es texto.
    */
-  const performSearch = useCallback((id) => {
-    if (id) {
-      const userId = Number(id);
+  const performSearch = useCallback((input) => {
+    if (!input) return;
+
+    if (/^\d+$/.test(input)) {
+      // Búsqueda por ID
+      const userId = Number(input);
       dispatch(fetchUserAndPosts(userId));
       setSearchId(userId);
-    }
-  }, [dispatch]);
+    } else {
+      // Búsqueda por Nombre/Username en la lista cacheada
+      const found = allUsers.find(u => 
+        u.name.toLowerCase().includes(input.toLowerCase()) || 
+        u.username.toLowerCase().includes(input.toLowerCase())
+      );
 
-  /**
-   * Reintenta la última búsqueda exitosa o fallida.
-   */
-  const handleRetry = useCallback(() => {
-    if (searchId) {
-      dispatch(fetchUserAndPosts(searchId));
+      if (found) {
+        dispatch(fetchUserAndPosts(found.id));
+        setSearchId(found.id);
+      } else {
+        // Forzamos estado notFound si no hay coincidencias de texto
+        dispatch({ type: "user/fetchById/rejected", payload: { status: 404, message: "No match" } });
+        setSearchId(input);
+      }
     }
-  }, [dispatch, searchId]);
+  }, [dispatch, allUsers]);
+
+  const handleRetry = useCallback(() => {
+    if (searchId) performSearch(searchId);
+  }, [performSearch, searchId]);
 
   return {
     user,

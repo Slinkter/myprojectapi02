@@ -1,4 +1,3 @@
-import { Typography } from "@material-tailwind/react";
 import ProfileSkeleton from "./components/skeletons/ProfileSkeleton";
 import PostListSkeleton from "./components/skeletons/PostListSkeleton";
 import ErrorMessage from "@/components/ui/ErrorMessage";
@@ -10,16 +9,10 @@ import { useSearchInput } from "./hooks/useSearchInput";
 
 /**
  * Página de Búsqueda de Usuarios.
- * Implementa la composición de hooks para separar lógica de UI y Dominio.
- * 
  * @component
- * @category Features/UserSearch
  */
 function UserSearchPage() {
-  // Hook de UI: Maneja el estado del input
-  const { inputValue, handleInputChange } = useSearchInput("1");
-  
-  // Hook de Dominio: Maneja los datos y Redux
+  const { inputValue, helperText, isError, handleInputChange } = useSearchInput("1");
   const {
     user,
     posts,
@@ -32,42 +25,48 @@ function UserSearchPage() {
 
   const isLoading = status === "loading";
 
-  /**
-   * Orquesta la búsqueda llamando al hook de dominio con el valor del hook de UI.
-   */
   const handleSearch = () => {
     performSearch(inputValue);
   };
 
   return (
-    <div className="user-search">
-      <Typography variant="h3" color="blue-gray" className="user-search__title">
-        Buscar Perfil de Usuario por ID
-      </Typography>
+    <div className="w-full max-w-6xl mx-auto px-4 py-8">
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4 transition-colors">
+          Buscador de Usuarios
+        </h2>
+        <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto transition-colors">
+          Busca por ID numérico (1-10) o por nombre de usuario para ver su perfil y posts.
+        </p>
+      </div>
 
       <SearchBar 
         value={inputValue} 
         onChange={handleInputChange} 
         onSearch={handleSearch} 
         isLoading={isLoading} 
+        helperText={helperText}
+        isError={isError}
       />
 
-      {status === "loading" && (
-        <div className="results-wrapper">
-          <ProfileSkeleton />
-          <PostListSkeleton />
-        </div>
-      )}
+      <div className="min-h-[400px]">
+        {status === "loading" && (
+          <div className="space-y-8">
+            <ProfileSkeleton />
+            <PostListSkeleton />
+          </div>
+        )}
 
-      {status === "failed" && (
-        <ErrorMessage message={error} onRetry={handleRetry} />
-      )}
+        {status === "failed" && (
+          <ErrorMessage message={error} onRetry={handleRetry} />
+        )}
 
-      {status === "succeeded" && user && (
-        <UserView user={user} posts={posts} />
-      )}
+        {status === "succeeded" && user && (
+          <UserView user={user} posts={posts} />
+        )}
 
-      {status === "notFound" && <NotFoundCard numberId={searchId} />}
+        {status === "notFound" && <NotFoundCard numberId={searchId} />}
+      </div>
     </div>
   );
 }

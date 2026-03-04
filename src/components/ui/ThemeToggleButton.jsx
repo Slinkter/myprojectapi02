@@ -1,34 +1,28 @@
-import { IconButton, Tooltip } from "@material-tailwind/react";
-import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
+import { SunIcon, MoonIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "@/hooks/useTheme";
 
 /**
- * Un botón flotante que permite al usuario cambiar entre el modo claro y oscuro.
+ * Botón para alternar entre temas claro y oscuro.
+ * Refactorizado para corregir error de propiedad y compatibilidad con Tailwind v4.
+ * @component
  */
-const ThemeToggleButton = () => {
-  // Usa el custom hook para obtener el tema actual y la función para cambiarlo.
-  const { theme, toggleTheme } = useTheme();
+function ThemeToggleButton() {
+  // CORRECCIÓN: Usar 'isDark' en lugar de 'isDarkMode' para coincidir con el hook
+  const { isDark, toggleTheme } = useTheme();
 
   return (
-    <Tooltip
-      placement="left"
-      className="theme-toggle__tooltip"
-      content={theme === "dark" ? " modo claro" : " modo oscuro"}
+    <button
+      onClick={toggleTheme}
+      aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+      className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300 text-slate-600 dark:text-blue-400 group shadow-sm active:scale-95 focus:ring-2 focus:ring-blue-500 outline-none"
     >
-      <IconButton
-        onClick={toggleTheme}
-        variant="text"
-        className="theme-toggle"
-        aria-label="Cambiar tema"
-      >
-        {theme === "dark" ? (
-          <SunIcon className="theme-toggle__icon" />
-        ) : (
-          <MoonIcon className="theme-toggle__icon" />
-        )}
-      </IconButton>
-    </Tooltip>
+      {isDark ? (
+        <SunIcon className="h-5 w-5 animate-in spin-in-12 duration-500" />
+      ) : (
+        <MoonIcon className="h-5 w-5 animate-in zoom-in-50 duration-500" />
+      )}
+    </button>
   );
-};
+}
 
 export default ThemeToggleButton;

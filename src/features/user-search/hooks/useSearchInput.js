@@ -1,32 +1,46 @@
 import { useState } from "react";
 
 /**
- * Hook para gestionar el estado del campo de entrada (input) de búsqueda.
- * Encapsula la validación y el formateo del ID del usuario.
+ * Hook de UI para gestionar el input de búsqueda.
+ * Soporta IDs (números) y Nombres (texto).
  * 
  * @category Hooks
- * @returns {Object} 
- * @property {string} inputValue - Valor actual del input.
- * @property {function} handleInputChange - Manejador de cambios con validación regex.
- * @property {function} setInputValue - Función para resetear o cambiar el valor manualmente.
  */
 export const useSearchInput = (initialValue = "") => {
   const [inputValue, setInputValue] = useState(initialValue.toString());
+  const [helperText, setHelperText] = useState("");
+  const [isError, setIsError] = useState(false);
 
   /**
-   * Maneja los cambios en el input validando que sea un número del 1 al 10.
-   * @param {React.ChangeEvent<HTMLInputElement>} e 
+   * Maneja el cambio del input con validación en tiempo real.
    */
   const handleInputChange = (e) => {
     const value = e.target.value;
-    // Regex: Solo permite vacío o números del 1 al 10
-    if (/^$|^[1-9]$|^10$/.test(value)) {
-      setInputValue(value);
+    setInputValue(value);
+
+    // Validación para IDs numéricos (JSONPlaceholder solo tiene IDs del 1 al 10)
+    if (/^\d+$/.test(value)) {
+      const numId = parseInt(value);
+      if (numId > 10) {
+        setHelperText("La API solo soporta IDs del 1 al 10.");
+        setIsError(true);
+      } else {
+        setHelperText("Buscando por ID numérico.");
+        setIsError(false);
+      }
+    } else if (value.length > 0) {
+      setHelperText("Buscando por nombre o usuario.");
+      setIsError(false);
+    } else {
+      setHelperText("");
+      setIsError(false);
     }
   };
 
   return {
     inputValue,
+    helperText,
+    isError,
     handleInputChange,
     setInputValue
   };
