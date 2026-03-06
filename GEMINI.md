@@ -9,7 +9,6 @@
 - **State Management:** Redux Toolkit 2.11.2 (with Memoized Selectors)
 - **Styling:** TailwindCSS 4.2.1 (Pure CSS, no external UI libs)
 - **Icons:** Heroicons 2.2.0
-- **i18n:** Custom Hierarchical Translation System
 - **Error Handling:** ErrorBoundary + Declarative State Boundaries
 
 ## 🏗️ Architecture & Organization
@@ -42,7 +41,6 @@ The project follows a **Feature-Based Architecture** combined with **Layered Cle
 - **Clean Code:** Standardized camelCase for logic, PascalCase for components.
 - **Early Return Pattern:** Mandated for all functions and components to ensure linear readability.
 - **Defensive Programming:** Infrastructure-level mappers ensure domain integrity.
-- **Dot-Notation i18n:** Hierarchical translation access (e.g., `t("search.title")`).
 - **Imports:** Alias `@/` maps to `src/`.
 
 ## 📚 Core Documentation

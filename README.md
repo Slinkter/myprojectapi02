@@ -15,6 +15,59 @@ Imagina que construyes un edificio. No mezclarías las tuberías con el papel ta
 
 ---
 
+## 🗺️ Jerarquía de Componentes y Flujo de Datos
+Este diagrama representa cómo se orquestan las piezas del sistema siguiendo un desacoplamiento de **Nivel Profesional**. El `StateBoundary` actúa como el corazón del flujo, aislando la lógica de carga de los componentes de negocio:
+
+```text
+       [ App.jsx ]  (Punto de Entrada)
+            |
+    < ErrorBoundary >  (Protección Global)
+            |
+     < MainLayout >    (Estructura Base / Tema)
+            |
+   _________________|_________________
+  |                                   |
+  |       [ UserSearchPage ]          | (Orquestador de Funcionalidad)
+  |      /         |        \         |
+  | [Header]  [SearchBar]  [Hooks]     | (useSearchInput & useUserSearch)
+  |                |         |        |
+  |                V         V        |
+  |        < StateBoundary > ---------+--> [ Redux Store ] (Estado Global)
+  |________/_______|_______\__________|
+          /        |        \
+    [Loading]   [Error]   [NotFound]   (Componentes de Feedback)
+        |          |          |
+ [Skeletons] [ErrorMessage] [NotFoundCard]
+        |
+        V
+   < UserView >  (Estado: 'succeeded')
+    /        \
+[UserProfile] [PostList]  (Componentes Presentacionales Puros)
+      |           |
+ [InfoItem]   [Articles]
+```
+
+### 🧠 Ingeniería del Desacoplamiento:
+*   **Orquestación (Hooks):** Separamos la gestión del input (`useSearchInput`) de la lógica de negocio (`useUserSearch`).
+*   **Gestión de Estados (Boundary):** El `StateBoundary` elimina la necesidad de `if(loading)` dispersos por la UI.
+*   **Componentes Puros (UI):** `UserProfile` y `PostList` son agnósticos; solo reciben datos y los renderizan.
+*   **Protección de Dominio:** Los **Mappers** aseguran que la UI nunca se rompa ante cambios inesperados en la API externa.
+
+---
+
+## 🎨 Gestión de Estilos de Alto Nivel (`cn` pattern)
+Para garantizar un código limpio, escalable y libre de efectos secundarios visuales, hemos implementado la utilidad `cn` (Class Name) en el archivo `@/lib/utils.js`. Este es un estándar de la industria (popularizado por *shadcn/ui*) que combina dos potentes herramientas:
+
+*   **`clsx`**: Sustituye la concatenación manual de strings y ternarios complejos. Permite manejar la lógica condicional de las clases de forma declarativa y legible.
+*   **`tailwind-merge`**: Es el "traductor" inteligente de Tailwind. Su función crítica es resolver **conflictos de especificidad**. En CSS estándar, el orden de las clases en el HTML no garantiza qué estilo gana; `tailwind-merge` analiza la cadena y asegura que la última clase aplicada (ej: un padding pasado por props) sobrescriba correctamente a la base del componente.
+
+### 🧠 Justificación de la Arquitectura de Estilos:
+1.  **Mantenibilidad:** Evitamos los "Template Literals" gigantes que mezclan lógica y strings, haciendo que el JSX sea mucho más limpio.
+2.  **Robustez:** Eliminamos comportamientos erráticos donde una clase de Tailwind no se aplicaba porque otra "pesaba" más internamente.
+3.  **Consistencia Profesional:** Alineamos el proyecto con las prácticas de ingeniería de software de nivel producción, facilitando la creación de componentes altamente reutilizables.
+
+---
+
 ## 🛠️ Stack Tecnológico (Seleccionado por Expertos)
 
 | Herramienta | Función | El "Por Qué" Educativo |
@@ -57,7 +110,6 @@ pnpm run dev
 *   **100/100 en React Doctor:** Arquitectura certificada sin errores de rendimiento.
 *   **Early Return Pattern:** Funciones limpias, legibles y directas al grano.
 *   **Defensive Mapping:** Protegemos nuestra lógica de los errores de servidores externos.
-*   **i18n Jerárquico:** Preparado para conquistar el mundo en cualquier idioma.
 
 ---
 *Desarrollado con pasión por la ingeniería y rigor educativo.*

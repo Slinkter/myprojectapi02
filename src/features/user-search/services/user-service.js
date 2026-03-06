@@ -1,20 +1,34 @@
+/**
+ * @fileoverview Application Service para el dominio de Usuarios.
+ * Actúa como orquestador entre la capa de infraestructura (API Adapters)
+ * y la capa de dominio (Mappers). Sigue el principio de Single Responsibility
+ * al centralizar la lógica de negocio para obtener datos de usuario complejos.
+ * 
+ * @module user-service
+ */
+
 import { getUser, getAllUsers } from "../api/user.api";
 import { getPostsByUser } from "../api/post.api";
 import { mapRawUser, mapRawPosts } from "../api/user.mappers";
 
 /**
- * @fileoverview Application Service para el dominio de Usuarios.
- * Coordina la infraestructura (API) y el dominio (Mappers).
- * Sigue el principio de Single Responsibility.
- */
-
-/**
- * Obtiene el perfil completo de un usuario con sus posts.
- * Aplica el patrón Early Return para casos de usuario inexistente.
+ * Recupera el perfil completo de un usuario, incluyendo sus publicaciones.
+ * Coordina múltiples llamadas concurrentes a la API y utiliza mappers para
+ * transformar los resultados en entidades seguras para el dominio.
  * 
  * @async
- * @param {number|string} userId - Identificador único del usuario.
- * @returns {Promise<{user: Object|null, posts: Array}>} Perfil de usuario mapeado.
+ * @function fetchUserProfileById
+ * @param {number|string} userId - El identificador único del usuario.
+ * @returns {Promise<{user: Object|null, posts: Array}>} Un objeto que contiene el perfil
+ * del usuario mapeado y su lista de publicaciones sanitizada.
+ * 
+ * @example
+ * ```javascript
+ * const { user, posts } = await fetchUserProfileById(1);
+ * if (user) {
+ *   console.log(`Usuario ${user.name} tiene ${posts.length} posts.`);
+ * }
+ * ```
  */
 export const fetchUserProfileById = async (userId) => {
   if (!userId) return { user: null, posts: [] };
@@ -24,7 +38,7 @@ export const fetchUserProfileById = async (userId) => {
     getPostsByUser(userId),
   ]);
 
-  // Si el usuario no existe o está vacío, retorno temprano.
+  // Si el usuario no existe o la API retornó un objeto vacío, aplicamos Early Return.
   if (!rawUser || Object.keys(rawUser).length === 0) {
     return { user: null, posts: [] };
   }
@@ -36,11 +50,20 @@ export const fetchUserProfileById = async (userId) => {
 };
 
 /**
- * Obtiene la lista completa de usuarios mapeada para el dominio.
- * Filtra registros inválidos para asegurar la integridad.
+ * Obtiene y sanitiza la lista de todos los usuarios registrados.
+ * Aplica validaciones de integridad después del mapeo para asegurar que
+ * solo los perfiles válidos lleguen a la UI.
  * 
  * @async
- * @returns {Promise<Array<Object>>} Lista de usuarios sanitizada.
+ * @function fetchAllUsers
+ * @returns {Promise<Array<Object>>} Una promesa que resuelve con la lista completa de
+ * usuarios del dominio.
+ * 
+ * @example
+ * ```javascript
+ * const users = await fetchAllUsers();
+ * const activeUsers = users.filter(u => u.id > 0);
+ * ```
  */
 export const fetchAllUsers = async () => {
   const rawUsers = await getAllUsers();
@@ -49,5 +72,5 @@ export const fetchAllUsers = async () => {
 
   return rawUsers
     .map(mapRawUser)
-    .filter(user => user && user.id); // Asegura que solo pasen usuarios con ID válido.
+    .filter(user => user && user.id); // Asegura integridad filtrando perfiles rotos.
 };

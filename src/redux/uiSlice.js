@@ -1,19 +1,24 @@
+/**
+ * @fileoverview Redux Slice para la gestión del estado global de la Interfaz de Usuario (UI).
+ * 
+ * @module ui-slice
+ */
+
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
-  language: localStorage.getItem("language") || "es",
-};
+/**
+ * @typedef {Object} UIState
+ */
 
+const initialState = {};
+
+/**
+ * Slice para manejar el estado transversal de la UI.
+ */
 const uiSlice = createSlice({
   name: "ui",
   initialState,
-  reducers: {
-    setLanguage: (state, action) => {
-      state.language = action.payload;
-      localStorage.setItem("language", action.payload);
-    },
-  },
+  reducers: {},
 });
 
-export const { setLanguage } = uiSlice.actions;
 export default uiSlice.reducer;

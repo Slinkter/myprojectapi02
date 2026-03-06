@@ -1,15 +1,25 @@
-import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
-import { fetchUserProfileById, fetchAllUsers } from "../services/user-service";
-
 /**
  * @fileoverview Redux Slice para la gestión del estado de Usuarios.
- * Sigue Clean Code: Estandarización de nombres y estados predecibles.
+ * Implementa la lógica de estado para la búsqueda, perfiles y caché de usuarios.
+ * Sigue los principios de Redux Toolkit y Clean Code para asegurar estados
+ * predecibles y selectores eficientes.
+ * 
+ * @module user-slice
  */
+
+import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import { fetchUserProfileById, fetchAllUsers } from "../services/user-service";
 
 // --- Async Thunks ---
 
 /**
- * Thunk para obtener un perfil completo (Usuario + Posts) por ID.
+ * Thunk asíncrono para obtener un perfil completo (Usuario + Publicaciones) por su ID.
+ * Gestiona errores de infraestructura y propaga mensajes de error localizables.
+ * 
+ * @function fetchUserAndPosts
+ * @param {number|string} userId - ID del usuario a recuperar.
+ * @param {Object} thunkAPI - API de Redux Toolkit para rejectWithValue.
+ * @returns {Promise<Object>} Perfil de usuario y posts.
  */
 export const fetchUserAndPosts = createAsyncThunk(
   "user/fetchById",
@@ -26,7 +36,11 @@ export const fetchUserAndPosts = createAsyncThunk(
 );
 
 /**
- * Thunk para cargar la lista de usuarios (Caché).
+ * Thunk asíncrono para cargar la lista completa de usuarios.
+ * Se utiliza principalmente para la funcionalidad de búsqueda local por nombre (caché).
+ * 
+ * @function fetchUsersList
+ * @returns {Promise<Array<Object>>} Lista de todos los usuarios sanitizados.
  */
 export const fetchUsersList = createAsyncThunk(
   "user/fetchList",
@@ -41,16 +55,29 @@ export const fetchUsersList = createAsyncThunk(
 
 // --- Slice Definition ---
 
+/**
+ * @typedef {Object} UserState
+ * @property {string} fetchStatus - Estado actual de la petición ('idle', 'loading', 'succeeded', 'failed', 'notFound').
+ * @property {string|null} error - Mensaje de error actual o clave de traducción.
+ * @property {Object|null} profileData - Datos del perfil del usuario actual.
+ * @property {Array<Object>} userPosts - Lista de publicaciones del usuario actual.
+ * @property {Array<Object>} cachedUserList - Caché local de todos los usuarios para búsqueda.
+ */
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    fetchStatus: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed' | 'notFound'
+    fetchStatus: "idle", 
     error: null,
     profileData: null,
     userPosts: [],
     cachedUserList: [],
   },
   reducers: {
+    /**
+     * Reinicia el estado de búsqueda y perfil a sus valores iniciales.
+     * @param {UserState} state - Estado actual del slice.
+     */
     resetUserState: (state) => {
       state.fetchStatus = "idle";
       state.profileData = null;
@@ -91,28 +118,52 @@ export const { resetUserState } = userSlice.actions;
 
 // --- Memoized Selectors ---
 
+/**
+ * Selector base para obtener el estado de usuarios.
+ * @private
+ */
 const selectUserState = (state) => state.user;
 
+/**
+ * Selector memorizado para los datos del perfil del usuario actual.
+ * @type {Function}
+ */
 export const selectCurrentUserProfile = createSelector(
   [selectUserState],
   (userState) => userState.profileData
 );
 
+/**
+ * Selector memorizado para las publicaciones del usuario actual.
+ * @type {Function}
+ */
 export const selectCurrentUserPosts = createSelector(
   [selectUserState],
   (userState) => userState.userPosts
 );
 
+/**
+ * Selector memorizado para el estado de la petición (status).
+ * @type {Function}
+ */
 export const selectUserFetchStatus = createSelector(
   [selectUserState],
   (userState) => userState.fetchStatus
 );
 
+/**
+ * Selector memorizado para el mensaje de error actual.
+ * @type {Function}
+ */
 export const selectUserFetchError = createSelector(
   [selectUserState],
   (userState) => userState.error
 );
 
+/**
+ * Selector memorizado para la lista de usuarios en caché.
+ * @type {Function}
+ */
 export const selectCachedUsers = createSelector(
   [selectUserState],
   (userState) => userState.cachedUserList

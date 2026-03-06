@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Componente para la visualización del perfil de usuario.
+ * Presenta información detallada del usuario en una tarjeta con diseño moderno,
+ * gradientes y soporte completo para modo oscuro.
+ * 
+ * @module UserProfile
+ */
+
 import {
   UserIcon,
   EnvelopeIcon,
@@ -6,10 +14,21 @@ import {
   MapPinIcon,
 } from "@heroicons/react/24/outline";
 import PropTypes from 'prop-types';
+import { cn } from "@/lib/utils";
 
 /**
- * Componente de Perfil con soporte para Modo Oscuro.
+ * Muestra el perfil de un usuario con su información de contacto y laboral.
+ * Diseñado con una cabecera visualmente atractiva y una rejilla de datos.
+ * 
  * @component
+ * @param {Object} props - Propiedades del componente.
+ * @param {Object} props.user - Objeto de usuario sanitizado del dominio.
+ * @returns {JSX.Element|null} La tarjeta de perfil o null si no hay usuario.
+ * 
+ * @example
+ * ```tsx
+ * <UserProfile user={mappedUser} />
+ * ```
  */
 function UserProfile({ user }) {
   if (!user) return null;
@@ -46,6 +65,17 @@ function UserProfile({ user }) {
   );
 }
 
+/**
+ * Subcomponente para renderizar una fila de información con icono.
+ * 
+ * @component
+ * @param {Object} props - Propiedades del ítem.
+ * @param {React.ElementType} props.icon - Componente de icono de Heroicons.
+ * @param {string} props.label - Etiqueta descriptiva (ej: "Email").
+ * @param {string} props.value - Valor principal de la información.
+ * @param {string} [props.subValue] - Información secundaria u opcional.
+ * @param {boolean} [props.isLink] - Si es `true`, aplica estilos de enlace interactivo.
+ */
 function InfoItem({ icon: Icon, label, value, subValue, isLink }) {
   return (
     <div className="flex items-start gap-4 group min-w-0">
@@ -54,7 +84,10 @@ function InfoItem({ icon: Icon, label, value, subValue, isLink }) {
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] mb-1">{label}</p>
-        <p className={`text-slate-800 dark:text-slate-200 font-semibold break-words transition-colors ${isLink ? 'text-blue-600 dark:text-blue-400 hover:underline cursor-pointer' : ''}`}>
+        <p className={cn(
+          "text-slate-800 dark:text-slate-200 font-semibold break-words transition-colors",
+          isLink && "text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+        )}>
           {value}
         </p>
         {subValue && <p className="text-xs text-slate-500 dark:text-slate-400 italic mt-0.5 leading-tight transition-colors break-words">{subValue}</p>}
@@ -64,14 +97,20 @@ function InfoItem({ icon: Icon, label, value, subValue, isLink }) {
 }
 
 InfoItem.propTypes = {
+  /** Componente de icono para mostrar al lado de la información. */
   icon: PropTypes.elementType.isRequired,
+  /** Etiqueta pequeña superior. */
   label: PropTypes.string.isRequired,
+  /** Valor principal del campo. */
   value: PropTypes.string,
+  /** Texto secundario descriptivo. */
   subValue: PropTypes.string,
+  /** Flag para habilitar cursor pointer y estilos de enlace. */
   isLink: PropTypes.bool,
 };
 
 UserProfile.propTypes = {
+  /** Objeto de usuario con la estructura del dominio definida en mappers. */
   user: PropTypes.object.isRequired,
 };
 

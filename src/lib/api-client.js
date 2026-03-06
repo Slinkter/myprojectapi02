@@ -1,19 +1,36 @@
 /**
- * @fileoverview Cliente HTTP centralizado para infraestructura.
- * Proporciona aislamiento de la API externa (JSONPlaceholder).
- * Sigue el principio de Single Responsibility.
+ * @fileoverview Cliente HTTP centralizado para la infraestructura del proyecto.
+ * Proporciona una capa de abstracción sobre la API nativa `fetch` para interactuar
+ * con JSONPlaceholder, garantizando aislamiento y manejo consistente de errores.
+ * 
+ * @module api-client
  */
 
 const API_BASE_URL = "https://jsonplaceholder.typicode.com";
 
 /**
- * Realiza una petición HTTP GET sanitizada.
- * Aplica Early Return para manejo de errores de red y respuesta.
+ * Realiza una petición HTTP GET sanitizada a la API externa.
+ * Implementa el patrón Early Return para gestionar fallos de red y respuestas inválidas.
  * 
  * @async
- * @param {string} endpoint - El endpoint relativo (sin barra inicial).
- * @returns {Promise<Object|Array>} Datos parseados de la respuesta.
- * @throws {Error} Con propiedad 'status' para manejo programático.
+ * @function fetchFromApi
+ * @param {string} endpoint - El endpoint relativo al que se realizará la petición (ej: "users/1").
+ * @returns {Promise<Object|Array>} Una promesa que resuelve con los datos parseados de la respuesta.
+ * 
+ * @throws {Error} Lanza un error con la propiedad `status` si la respuesta no es exitosa (4xx, 5xx).
+ * @throws {Error} Lanza un error de red (status 500) si la petición falla por problemas de conectividad.
+ * 
+ * @example
+ * ```javascript
+ * try {
+ *   const user = await fetchFromApi("users/1");
+ *   console.log(user.name); // "Leanne Graham"
+ * } catch (error) {
+ *   if (error.status === 404) {
+ *     console.error("Usuario no encontrado");
+ *   }
+ * }
+ * ```
  */
 export const fetchFromApi = async (endpoint) => {
   if (!endpoint) throw new Error("Endpoint is required");

@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Configuración centralizada de ESLint para el proyecto.
+ * Define las reglas de calidad de código, plugins de React y configuraciones del entorno.
+ * 
+ * @module eslint-config
+ */
+
 module.exports = {
   root: true,
   env: { browser: true, es2020: true, node: true },

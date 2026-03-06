@@ -1,9 +1,21 @@
+/**
+ * @fileoverview Configuración del Store central de Redux.
+ * Orquesta los diferentes reducers de la aplicación para formar el árbol de estado global.
+ * 
+ * @module store
+ */
+
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "../features/user-search/redux/userSlice";
 import uiReducer from "./uiSlice";
 
 /**
- * Configuración del store global de Redux.
+ * Instancia del Store de Redux configurada con Redux Toolkit.
+ * Incluye por defecto el middleware para thunks asíncronos.
+ * 
+ * @type {Object}
+ * @property {Object} user - Estado del dominio de usuarios.
+ * @property {Object} ui - Estado transversal de la interfaz de usuario.
  */
 export const store = configureStore({
   reducer: {
