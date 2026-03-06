@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import ProfileSkeleton from "./components/skeletons/ProfileSkeleton";
 import PostListSkeleton from "./components/skeletons/PostListSkeleton";
 import ErrorMessage from "@/components/ui/ErrorMessage";
@@ -7,6 +8,7 @@ import SearchBar from "./components/SearchBar";
 import UserView from "./components/UserView";
 import { useUserSearch } from "./hooks/useUserSearch";
 import { useSearchInput } from "./hooks/useSearchInput";
+import { useTranslation } from "@/hooks/useTranslation";
 
 /**
  * Componente que agrupa los esqueletos para el StateBoundary.
@@ -19,11 +21,28 @@ const LoadingView = () => (
 );
 
 /**
+ * Cabecera de la página - Componente Presentacional Puro.
+ */
+const Header = () => {
+  const { t } = useTranslation();
+  return (
+    <header className="text-center mb-12">
+      <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+        {t("search.title")}
+      </h2>
+      <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+        {t("search.description")}
+      </p>
+    </header>
+  );
+};
+
+/**
  * Página de Búsqueda de Usuarios - Versión Alta Ingeniería.
- * @component
+ * Sigue Clean Code: Uso de traducciones jerárquicas y lógica desacoplada.
  */
 function UserSearchPage() {
-  const { inputValue, helperText, isError, handleInputChange } = useSearchInput("1");
+  const { searchValue, helperMessage, hasError, onInputChange } = useSearchInput("1");
   const {
     user,
     posts,
@@ -33,51 +52,43 @@ function UserSearchPage() {
     performSearch,
   } = useUserSearch(1);
 
-  const handleSearch = () => performSearch(inputValue);
+  const handleSearch = useCallback(() => {
+    performSearch(searchValue);
+  }, [performSearch, searchValue]);
   
-  // Vercel Best Practice: Pre-fetch inteligente
-  const handlePrefetch = () => {
-    if (!isError && inputValue) {
-      // Solo pre-fetch si es un ID numérico (lógica de dominio)
-      if (/^\d+$/.test(inputValue)) {
-        // Podríamos disparar una acción de pre-cache aquí si fuera necesario
+  const handlePrefetch = useCallback(() => {
+    if (!hasError && searchValue) {
+      if (/^\d+$/.test(searchValue)) {
+        // Pre-fetch logic
       }
     }
-  };
+  }, [hasError, searchValue]);
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-8">
-      <header className="text-center mb-12">
-        <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
-          Buscador de Usuarios
-        </h2>
-        <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-          Ingeniería de alto rendimiento con Tailwind v4 y Redux Toolkit.
-        </p>
-      </header>
+      <Header />
 
       <SearchBar 
-        value={inputValue} 
-        onChange={handleInputChange} 
+        value={searchValue} 
+        onChange={onInputChange} 
         onSearch={handleSearch} 
         onPrefetch={handlePrefetch}
         isLoading={status === "loading"} 
-        helperText={helperText}
-        isError={isError}
+        helperText={helperMessage}
+        isError={hasError}
       />
 
-      <div className="min-h-[400px]">
-        {/* Patrón State Boundary: Abstracción total del estado de carga/error */}
+      <main className="min-h-[400px]">
         <StateBoundary 
           status={status} 
           error={error}
           loadingComponent={LoadingView}
           errorComponent={ErrorMessage}
-          notFoundComponent={() => <NotFoundCard numberId={searchId} />}
+          notFoundComponent={() => <NotFoundCard attemptedId={searchId} />}
         >
           {user && <UserView user={user} posts={posts} />}
         </StateBoundary>
-      </div>
+      </main>
     </div>
   );
 }

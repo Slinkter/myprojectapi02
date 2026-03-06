@@ -1,71 +1,53 @@
-import { memo } from "react";
-import { DocumentTextIcon } from "@heroicons/react/24/outline";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import { useTranslation } from "@/hooks/useTranslation";
 
 /**
- * Ítem individual de la lista de publicaciones.
- * Optimizado con memo para evitar re-renders.
+ * Lista de publicaciones del usuario.
  */
-const PostItem = memo(({ post }) => (
-  <article 
-    className="group bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300"
-  >
-    <h4 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors capitalize">
-      {post.title}
-    </h4>
-    <p className="text-slate-600 dark:text-slate-400 leading-relaxed transition-colors">
-      {post.body}
-    </p>
-  </article>
-));
-
-PostItem.propTypes = {
-  post: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    body: PropTypes.string.isRequired,
-  }).isRequired,
-};
-
-PostItem.displayName = "PostItem";
-
-/**
- * Lista de Posts optimizada.
- * @component
- */
-function PostList({ posts }) {
+const PostList = ({ userPosts }) => {
   const { t } = useTranslation();
-  if (!posts || posts.length === 0) return null;
+
+  if (!userPosts || userPosts.length === 0) {
+    return (
+      <div className="bg-white/50 dark:bg-slate-900/50 rounded-3xl p-8 text-center border border-dashed border-slate-300 dark:border-slate-700">
+        <p className="text-slate-500 dark:text-slate-400">{t("user.noPosts")}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-4xl mx-auto my-12 px-4">
-      <div className="flex items-center gap-3 mb-8">
-        <DocumentTextIcon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-        <h3 className="text-2xl font-bold text-slate-800 dark:text-white transition-colors">
-          {t('posts_title')}
-        </h3>
-        <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm font-bold transition-colors">
-          {posts.length}
-        </span>
-      </div>
-
-      <div className="grid gap-6">
-        {posts.map((post) => (
-          <PostItem key={post.id} post={post} />
+    <section className="space-y-6">
+      <h3 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 px-2">
+        <span className="w-2 h-8 bg-blue-600 rounded-full"></span>
+        {t("user.postsTitle")}
+      </h3>
+      <div className="grid gap-6 sm:grid-cols-2">
+        {userPosts.map((post) => (
+          <article 
+            key={post.id} 
+            className="group bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          >
+            <h4 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors">
+              {post.title}
+            </h4>
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-3">
+              {post.body}
+            </p>
+          </article>
         ))}
       </div>
-    </div>
+    </section>
   );
-}
+};
 
 PostList.propTypes = {
-  posts: PropTypes.arrayOf(
+  userPosts: PropTypes.arrayOf(
     PropTypes.shape({
-      id: PropTypes.number,
-      title: PropTypes.string,
-      body: PropTypes.string,
+      id: PropTypes.number.isRequired,
+      title: PropTypes.string.isRequired,
+      body: PropTypes.string.isRequired,
     })
   ).isRequired,
 };
 
-export default memo(PostList);
+export default PostList;

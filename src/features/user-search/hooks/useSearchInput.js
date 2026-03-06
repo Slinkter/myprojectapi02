@@ -1,47 +1,59 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 /**
  * Hook de UI para gestionar el input de búsqueda.
- * Soporta IDs (números) y Nombres (texto).
+ * Sigue Clean Code: Nombres descriptivos y lógica desacoplada.
  * 
- * @category Hooks
+ * @param {string} initialSearch - Valor inicial de búsqueda.
+ * @returns {Object} Estado y manejadores de búsqueda.
  */
-export const useSearchInput = (initialValue = "") => {
-  const [inputValue, setInputValue] = useState(initialValue.toString());
-  const [helperText, setHelperText] = useState("");
-  const [isError, setIsError] = useState(false);
+export const useSearchInput = (initialSearch = "") => {
+  const { t } = useTranslation();
+  const [searchValue, setSearchValue] = useState(initialSearch.toString());
+  const [helperMessage, setHelperMessage] = useState("");
+  const [hasError, setHasError] = useState(false);
 
   /**
-   * Maneja el cambio del input con validación en tiempo real.
+   * Valida y procesa el cambio en el input.
+   * Aplica Early Return para una lógica lineal.
    */
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setInputValue(value);
+  const onInputChange = useCallback((event) => {
+    const value = event.target.value;
+    setSearchValue(value);
 
-    // Validación para IDs numéricos (JSONPlaceholder solo tiene IDs del 1 al 10)
-    if (/^\d+$/.test(value)) {
-      const numId = parseInt(value);
-      if (numId > 10) {
-        setHelperText("La API solo soporta IDs del 1 al 10.");
-        setIsError(true);
-      } else {
-        setHelperText("Buscando por ID numérico.");
-        setIsError(false);
-      }
-    } else if (value.length > 0) {
-      setHelperText("Buscando por nombre o usuario.");
-      setIsError(false);
-    } else {
-      setHelperText("");
-      setIsError(false);
+    // Caso: Input vacío
+    if (!value) {
+      setHelperMessage("");
+      setHasError(false);
+      return;
     }
-  };
+
+    // Caso: ID Numérico
+    if (/^\d+$/.test(value)) {
+      const numericId = parseInt(value, 10);
+      
+      if (numericId > 10) {
+        setHelperMessage(t("search.helper.limit"));
+        setHasError(true);
+        return;
+      }
+
+      setHelperMessage(t("search.helper.idOk"));
+      setHasError(false);
+      return;
+    }
+
+    // Caso: Búsqueda por Texto
+    setHelperMessage(t("search.helper.nameOk"));
+    setHasError(false);
+  }, [t]);
 
   return {
-    inputValue,
-    helperText,
-    isError,
-    handleInputChange,
-    setInputValue
+    searchValue,
+    helperMessage,
+    hasError,
+    onInputChange,
+    setSearchValue
   };
 };

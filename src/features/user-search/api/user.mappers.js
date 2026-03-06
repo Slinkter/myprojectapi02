@@ -1,51 +1,54 @@
 /**
- * @fileoverview Mapeadores de datos para transformar las respuestas de la API
- * externa en entidades de dominio limpias y predecibles.
- * 
- * @module UserMappers
- * @category Data Layer
+ * @fileoverview Domain Mappers para Usuarios y Posts.
+ * Sanitizan datos de infraestructura (API) para proteger el dominio.
+ * Sigue el patrón Defensive Programming.
  */
 
 /**
- * Mapea la respuesta cruda de la API a un objeto User limpio.
+ * Mapea la respuesta cruda de la API a una entidad User sanitizada.
+ * Aplica el patrón Early Return para casos nulos.
  * 
- * @param {Object} rawUser - Datos provenientes de JSONPlaceholder.
- * @returns {Object} Usuario mapeado con solo los campos necesarios.
+ * @param {Object} raw - Datos crudos de JSONPlaceholder.
+ * @returns {Object|null} Usuario mapeado o null si los datos son inválidos.
  */
-export const mapRawUser = (rawUser) => {
-  if (!rawUser || Object.keys(rawUser).length === 0) return null;
+export const mapRawUser = (raw) => {
+  // Early Return: Validación mínima necesaria.
+  if (!raw || typeof raw !== "object" || !raw.id) return null;
   
   return {
-    id: rawUser.id,
-    name: rawUser.name,
-    username: rawUser.username,
-    email: rawUser.email,
-    website: rawUser.website,
+    id: Number(raw.id),
+    name: String(raw.name || "Unknown User"),
+    username: String(raw.username || "guest"),
+    email: String(raw.email || ""),
+    website: String(raw.website || ""),
     company: {
-      name: rawUser.company?.name || "N/A",
-      catchPhrase: rawUser.company?.catchPhrase || ""
+      name: String(raw.company?.name || "N/A"),
+      catchPhrase: String(raw.company?.catchPhrase || "")
     },
     address: {
-      street: rawUser.address?.street || "",
-      suite: rawUser.address?.suite || "",
-      city: rawUser.address?.city || "",
-      zipcode: rawUser.address?.zipcode || ""
+      street: String(raw.address?.street || ""),
+      suite: String(raw.address?.suite || ""),
+      city: String(raw.address?.city || ""),
+      zipcode: String(raw.address?.zipcode || "")
     }
   };
 };
 
 /**
- * Mapea una lista de publicaciones crudas a una lista de objetos Post limpios.
+ * Mapea publicaciones crudas a entidades Post sanitizadas.
+ * Asegura que solo se incluyan posts con contenido mínimo.
  * 
- * @param {Array<Object>} rawPosts - Lista de posts de la API.
- * @returns {Array<Object>} Lista de posts mapeada.
+ * @param {Array<Object>} rawList - Lista de posts de la API.
+ * @returns {Array<Object>} Lista sanitizada.
  */
-export const mapRawPosts = (rawPosts) => {
-  if (!Array.isArray(rawPosts)) return [];
+export const mapRawPosts = (rawList) => {
+  if (!Array.isArray(rawList)) return [];
   
-  return rawPosts.map(post => ({
-    id: post.id,
-    title: post.title,
-    body: post.body
-  }));
+  return rawList
+    .filter(p => p && p.id && p.title) // Solo posts válidos.
+    .map(p => ({
+      id: Number(p.id),
+      title: String(p.title),
+      body: String(p.body || "")
+    }));
 };

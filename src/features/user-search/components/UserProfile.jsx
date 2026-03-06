@@ -48,16 +48,16 @@ function UserProfile({ user }) {
 
 function InfoItem({ icon: Icon, label, value, subValue, isLink }) {
   return (
-    <div className="flex items-start gap-4 group">
-      <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors">
-        <Icon className="h-6 w-6 text-blue-600 dark:text-blue-400 shrink-0" />
+    <div className="flex items-start gap-4 group min-w-0">
+      <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors shrink-0">
+        <Icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] mb-1">{label}</p>
-        <p className={`text-slate-800 dark:text-slate-200 font-semibold truncate transition-colors ${isLink ? 'text-blue-600 dark:text-blue-400 hover:underline cursor-pointer' : ''}`}>
+        <p className={`text-slate-800 dark:text-slate-200 font-semibold break-words transition-colors ${isLink ? 'text-blue-600 dark:text-blue-400 hover:underline cursor-pointer' : ''}`}>
           {value}
         </p>
-        {subValue && <p className="text-xs text-slate-500 dark:text-slate-400 italic mt-0.5 leading-tight transition-colors">{subValue}</p>}
+        {subValue && <p className="text-xs text-slate-500 dark:text-slate-400 italic mt-0.5 leading-tight transition-colors break-words">{subValue}</p>}
       </div>
     </div>
   );

@@ -5,33 +5,41 @@ import { useCallback, useMemo } from "react";
 
 /**
  * Hook de Internacionalización de Alto Rendimiento.
- * Optimizado con useMemo y useCallback para evitar re-renders.
+ * Soporta acceso jerárquico por puntos (ej: "search.title").
  * 
- * @category Hooks
- * @returns {Object} t, language, toggleLanguage
+ * @returns {Object} t, currentLanguage, toggleLanguage
  */
 export const useTranslation = () => {
-  const { language } = useSelector((state) => state.ui);
+  const { language: currentLanguage } = useSelector((state) => state.ui);
   const dispatch = useDispatch();
 
   /**
-   * Función de traducción memoizada.
+   * Función de traducción con soporte para acceso por puntos.
+   * Sigue Clean Code: Maneja recursión simple para navegar el diccionario.
    */
-  const t = useCallback((key) => {
-    return translations[language]?.[key] || key;
-  }, [language]);
+  const t = useCallback((path) => {
+    const keys = path.split(".");
+    let result = translations[currentLanguage];
 
-  /**
-   * Alternar idioma con persistencia.
-   */
+    for (const key of keys) {
+      if (result && result[key]) {
+        result = result[key];
+      } else {
+        return path; // Retorna la ruta si no encuentra la clave.
+      }
+    }
+
+    return result;
+  }, [currentLanguage]);
+
   const toggleLanguage = useCallback(() => {
-    const nextLang = language === "es" ? "en" : "es";
+    const nextLang = currentLanguage === "es" ? "en" : "es";
     dispatch(setLanguage(nextLang));
-  }, [dispatch, language]);
+  }, [dispatch, currentLanguage]);
 
   return useMemo(() => ({ 
     t, 
-    language, 
+    language: currentLanguage, 
     toggleLanguage 
-  }), [t, language, toggleLanguage]);
+  }), [t, currentLanguage, toggleLanguage]);
 };

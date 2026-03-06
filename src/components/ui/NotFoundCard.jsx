@@ -1,32 +1,32 @@
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 /**
- * Componente para mostrar cuando un usuario no es encontrado.
- * Estilizado con Tailwind CSS v4 puro.
- * @component
+ * Tarjeta de error cuando un usuario no existe.
  */
-function NotFoundCard({ numberId }) {
+function NotFoundCard({ attemptedId }) {
+  const { t } = useTranslation();
+
   return (
-    <div className="max-w-md mx-auto my-12 p-10 bg-white border border-slate-200 rounded-3xl shadow-lg animate-in fade-in slide-in-from-top-4 duration-500">
-      <div className="flex flex-col items-center text-center">
-        <div className="p-4 bg-slate-100 rounded-full mb-6">
-          <MagnifyingGlassIcon className="h-16 w-16 text-slate-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-slate-800 mb-2">Usuario no encontrado</h3>
-        <p className="text-slate-500 mb-6">
-          No pudimos encontrar ningún perfil asociado al ID <span className="font-bold text-blue-600">#{numberId}</span>.
-        </p>
-        <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-          <div className="h-full bg-blue-500 w-1/3 animate-[loading_2s_infinite]"></div>
-        </div>
+    <div className="bg-white dark:bg-slate-900 shadow-2xl rounded-3xl p-10 text-center border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-500">
+      <div className="w-24 h-24 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+        <span className="text-5xl">🔍</span>
       </div>
+      <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+        {t("user.notFoundTitle")}
+      </h3>
+      <p className="text-slate-600 dark:text-slate-400 mb-2">
+        {t("user.notFoundDesc")} <span className="font-bold text-blue-600 dark:text-blue-400">&quot;{attemptedId}&quot;</span>.
+      </p>
+      <p className="text-sm text-slate-500 dark:text-slate-500 italic">
+        {t("search.description")}
+      </p>
     </div>
   );
 }
 
 NotFoundCard.propTypes = {
-  numberId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  attemptedId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default NotFoundCard;
