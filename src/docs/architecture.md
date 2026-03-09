@@ -6,65 +6,120 @@ Este proyecto implementa una **Arquitectura de Capas (Onion Architecture)** adap
 
 ## 📐 Vista General del Sistema
 
-╔══════════════════════════════════════════════════════════════╗
-║                    BROWSER / CLIENT UI                       ║
-╠══════════════════════════════════════════════════════════════╣
-║  ╔══════════════════════╗      ╔════════════════════════╗    ║
-║  ║   REACT COMPONENTS   ║ <──> ║   DOMAIN HOOKS (SRP)   ║    ║
-║  ╚══════════╦═══════════╝      ╚══════════╦═════════════╝    ║
-║             ║                             ║                  ║
-║  ╔══════════▼═══════════╗      ╔══════════▼═════════════╗    ║
-║  ║   REDUX STORE (SSO)  ║ <──> ║   THUNKS & SERVICES    ║    ║
-║  ╚══════════╦═══════════╝      ╚══════════╦═════════════╝    ║
-║             ║                             ║                  ║
-║  ╔══════════▼═══════════╗      ╔══════════▼═════════════╗    ║
-║  ║   DATA MAPPERS (DDD) ║ <──> ║   EXTERNAL API (REST)  ║    ║
-║  ╚══════════════════════╝      ╚════════════════════════╝    ║
-╚══════════════════════════════════════════════════════════════╝
+```
+                    SISTEMA COMPLETO — OVERVIEW
+                    ───────────────────────────
+
+       ┌──────────────────────┐           ┌──────────────────────┐
+       │      BROWSER UI      │           │     REDUX STORE      │
+       │     React + Vite     │──────────►│     Slices + RTK     │
+       └──────────────────────┘           └──────────────────────┘
+                  ▲                                  │
+                  │                                  ▼
+       ┌──────────────────────┐           ┌──────────────────────┐
+       │     EXTERNAL API     │           │     DATA MAPPERS     │
+       │   JSONPlaceholder    │◄──────────│     Domain Logic     │
+       └──────────────────────┘           └──────────────────────┘
+```
 
 ---
 
-## 🧬 Capas de Clean Architecture
+## 🧩 Clean Architecture (4 Capas)
 
-### 1. Presentación (Capa Externa)
-Componentes React puros que solo conocen el estado para renderizar UI. No tienen lógica de negocio.
-- **Componentes:** `UserProfile.jsx`, `PostList.jsx`.
-- **Patrón:** `React.memo` + `PropTypes`.
-
-### 2. Aplicación (Capa de Orquestación)
-Define los casos de uso del sistema. Orquesta la interacción con el Store y los Servicios.
-- **Hooks:** `useUserSearch.js`.
-- **Thunks:** `fetchUserAndPosts`.
-
-### 3. Dominio (Capa de Lógica)
-Contiene las entidades del dominio y los contratos de datos. Es agnóstica a la infraestructura.
-- **Mappers:** `user.mappers.js`.
-- **Propósito:** Sanitizar y proteger el modelo de datos.
-
-### 4. Infraestructura (Capa de Acceso)
-Se encarga de la comunicación con el mundo exterior.
-- **API Client:** `api-client.js`.
-- **Adapters:** `user.api.js`.
+```
+              CAPA 4: PRESENTACIÓN (UI)
+       ┌──────────────────────────────────────┐
+       │        React Components + JSX        │
+       │  SearchBar · UserView · UserProfile  │
+       └──────────────────────────────────────┘
+                        │ depende de ▼
+              CAPA 3: APLICACIÓN (STATE)
+       ┌──────────────────────────────────────┐
+       │    Redux Thunks · Hooks · Slices     │
+       │    userSlice.js · useUserSearch      │
+       └──────────────────────────────────────┘
+                        │ depende de ▼
+              CAPA 2: DOMINIO (LÓGICA)
+       ┌──────────────────────────────────────┐
+       │    user.mappers.js · Entidades       │
+       │    Validación · Modelos Puros        │
+       └──────────────────────────────────────┘
+                        │ depende de ▼
+              CAPA 1: INFRAESTRUCTURA
+       ┌──────────────────────────────────────┐
+       │     user.api.js · api-client.js      │
+       │     REST Adapters · Fetch Logic      │
+       └──────────────────────────────────────┘
+```
 
 ---
 
-## 🔄 Flujo de Datos End-to-End
+## 🌳 Árbol de Componentes
 
-╔══════════════╗     ╔══════════════╗     ╔══════════════╗
-║  USER INPUT  ║ ──> ║  DOM HOOKS   ║ ──> ║ REDUX STORE  ║
-╚══════════════╝     ╚══════════════╝     ╚══════╦═══════╝
-       ▲                                         ║
-       ║             ╔══════════════╗     ╔══════▼═══════╗
-       ╚════════════ ║  UI SELECTOR ║ <── ║ DATA MAPPERS ║
-                     ╚══════════════╝     ╚══════════════╝
+```
+                       ┌──────────────────────┐
+                       │       App.jsx        │
+                       └──────────────────────┘
+                                  │
+                       ┌──────────────────────┐
+                       │    MainLayout.jsx    │
+                       └──────────────────────┘
+                       ╱                      ╲
+          ┌──────────────────────┐      ┌──────────────────────┐
+          │    SearchBar.jsx     │      │     UserView.jsx     │
+          │    Input + Botón     │      │    Datos Usuario     │
+          └──────────────────────┘      └──────────────────────┘
+                                         ╱              ╲
+                          ┌──────────────────┐    ┌──────────────────┐
+                          │   UserProfile    │    │     PostList     │
+                          └──────────────────┘    └──────────────────┘
+```
 
-**Ciclo Técnico:** 
-1. `UserSearchPage` dispara `performSearch`.
-2. `useUserSearch` despacha `fetchUserAndPosts` (Thunk).
-3. `user-service` llama a la infraestructura.
-4. `api-client` realiza el fetch HTTP.
-5. Los **Data Mappers** transforman el JSON sucio en entidades de dominio limpias.
-6. El Store de Redux se actualiza y notifica a los componentes.
+---
+
+## 🔄 Flujo de Datos End-to-End (Redux Cycle)
+
+```
+                    FLUJO DE DATOS — REDUX CYCLE
+                    ────────────────────────────
+
+    ① INPUT                ② HOOK                  ③ STORE
+    ───────                ──────                  ───────
+
+    ┌──────────────┐       ┌──────────────┐         ┌──────────────────┐
+    │   Usuario    │       │useUserSearch │         │   userSlice.js   │
+    │   escribe    │──────►│   dispatch   │────────►│ fetchUserAndPos  │
+    └──────────────┘       └──────────────┘         └──────────────────┘
+          ▲                                                  │
+          │                                                  ▼
+    ┌──────────────┐       ┌──────────────┐         ┌──────────────────┐
+    │    React     │       │ useSelector  │         │  user.mappers.js │
+    │  re-render   │◄──────│  selectores  │◄────────│   mapRawUser()   │
+    └──────────────┘       └──────────────┘         └──────────────────┘
+```
+
+---
+
+## 🚀 Pipeline de Deploy (GitHub Pages)
+
+```
+                    PIPELINE — GITHUB PAGES DEPLOY
+                    ──────────────────────────────
+
+    LOCAL DEV              BUILD                   DEPLOY
+    ──────────             ─────                   ──────
+
+    ┌──────────────┐       ┌──────────────┐        ┌───────────────────┐
+    │   pnpm dev   │       │  pnpm build  │        │   pnpm deploy     │
+    │    :5173     │──────►│ vite bundle  │───────►│  gh-pages branch  │
+    └──────────────┘       └──────────────┘        └───────────────────┘
+                                                             │
+                                                             ▼
+                                                ┌──────────────────────┐
+                                                │ slinkter.github.io   │
+                                                │ /myprojectapi02      │
+                                                └──────────────────────┘
+```
 
 ---
 *Documento generado bajo estándares de Senior Frontend Architecture.*
