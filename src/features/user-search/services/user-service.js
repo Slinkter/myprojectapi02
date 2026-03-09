@@ -9,7 +9,7 @@
 
 import { getUser, getAllUsers } from "../api/user.api";
 import { getPostsByUser } from "../api/post.api";
-import { mapRawUser, mapRawPosts } from "../api/user.mappers";
+import { mapRawUser, mapRawPosts } from "../domain/user.mappers";
 
 /**
  * Recupera el perfil completo de un usuario, incluyendo sus publicaciones.

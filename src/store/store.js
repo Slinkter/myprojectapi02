@@ -6,7 +6,7 @@
  */
 
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "../features/user-search/redux/userSlice";
+import userReducer from "../features/user-search/store/userSlice";
 import uiReducer from "./uiSlice";
 
 /**

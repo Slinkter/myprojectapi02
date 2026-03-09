@@ -6,6 +6,7 @@
  * @module SearchBar
  */
 
+import { memo } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import PropTypes from "prop-types";
 import { cn } from "@/lib/utils";
@@ -15,32 +16,21 @@ import { cn } from "@/lib/utils";
  * Utiliza Heroicons para feedback visual y gestiona estados de deshabilitado.
  *
  * @component
- * @param {Object} props - Propiedades del componente.
- * @param {string} props.value - El valor actual del campo de búsqueda.
- * @param {Function} props.onChange - Callback ejecutado al cambiar el contenido del input.
- * @param {Function} props.onSearch - Callback ejecutado al pulsar el botón de buscar.
- * @param {Function} [props.onPrefetch] - Callback opcional para precarga de datos al hover.
- * @param {boolean} props.isLoading - Indica si hay una búsqueda en curso.
- * @param {string} [props.helperText] - Texto de ayuda o error a mostrar debajo del input.
- * @param {boolean} [props.isError] - Si es `true`, aplica estilos de error al componente.
- *
- * @returns {JSX.Element} El componente de barra de búsqueda.
  */
-function SearchBar(props) {
-    const {
-        value,
-        onChange,
-        onSearch,
-        onPrefetch,
-        isLoading,
-        helperText,
-        isError,
-    } = props;
-    
+const SearchBar = memo(({
+    value,
+    onChange,
+    onSearch,
+    onPrefetch,
+    isLoading,
+    helperText,
+    isError,
+}) => {
     return (
-        <div className="flex flex-col items-center w-full max-w-lg mx-auto my-8 px-4">
-            <div className="flex flex-col sm:flex-row gap-4 w-full">
-                <div className="relative w-full group">
+        <div className={cn("flex flex-col items-center w-full max-w-lg mx-auto my-8 px-4")}>
+            <div className={cn("flex flex-col sm:flex-row gap-4 w-full")}>
+                <div className={cn("relative w-full group")}>
+                    <label htmlFor="userId" className="sr-only">Buscar por ID de usuario o nombre</label>
                     <input
                         id="userId"
                         type="text"
@@ -48,7 +38,7 @@ function SearchBar(props) {
                         value={value}
                         onChange={onChange}
                         className={cn(
-                            "w-full px-5 py-3 bg-white/90 dark:bg-slate-800/90 border-2 rounded-xl transition-all text-slate-800 dark:text-slate-100 placeholder:text-slate-400 font-medium",
+                            "w-full px-5 py-3 bg-white/90 dark:bg-slate-800/90 border-2 rounded-xl transition-all text-slate-800 dark:text-slate-100 placeholder:text-slate-400 font-medium outline-none",
                             isError
                                 ? "border-red-400 focus:ring-red-500/20"
                                 : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
@@ -59,12 +49,15 @@ function SearchBar(props) {
                     onClick={onSearch}
                     onMouseEnter={onPrefetch}
                     disabled={!value || isLoading || isError}
-                    className="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 outline-none"
+                    aria-busy={isLoading}
+                    className={cn(
+                        "w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 outline-none"
+                    )}
                 >
                     {isLoading ? (
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <div className={cn("w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin")} />
                     ) : (
-                        <MagnifyingGlassIcon className="h-5 w-5" />
+                        <MagnifyingGlassIcon className={cn("h-5 w-5")} />
                     )}
                     <span>Buscar</span>
                 </button>
@@ -81,7 +74,9 @@ function SearchBar(props) {
             )}
         </div>
     );
-}
+});
+
+SearchBar.displayName = "SearchBar";
 
 SearchBar.propTypes = {
     /** Valor actual controlado por el padre. */

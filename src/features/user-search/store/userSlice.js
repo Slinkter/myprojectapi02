@@ -7,7 +7,7 @@
  * @module user-slice
  */
 
-import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchUserProfileById, fetchAllUsers } from "../services/user-service";
 
 // --- Async Thunks ---
@@ -32,6 +32,14 @@ export const fetchUserAndPosts = createAsyncThunk(
         status: error.status 
       });
     }
+  },
+  {
+    condition: (userId, { getState }) => {
+      const { user } = getState();
+      if (user.fetchStatus === "loading") {
+        return false;
+      }
+    }
   }
 );
 
@@ -48,7 +56,10 @@ export const fetchUsersList = createAsyncThunk(
     try {
       return await fetchAllUsers();
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue({
+        message: error.message || "error.list.generic",
+        status: error.status || 500
+      });
     }
   }
 );
@@ -57,7 +68,8 @@ export const fetchUsersList = createAsyncThunk(
 
 /**
  * @typedef {Object} UserState
- * @property {string} fetchStatus - Estado actual de la petición ('idle', 'loading', 'succeeded', 'failed', 'notFound').
+ * @property {string} fetchStatus - Estado de la petición individual ('idle', 'loading', 'succeeded', 'failed', 'notFound').
+ * @property {string} listStatus - Estado de la petición de lista ('idle', 'loading', 'succeeded', 'failed').
  * @property {string|null} error - Mensaje de error actual o clave de traducción.
  * @property {Object|null} profileData - Datos del perfil del usuario actual.
  * @property {Array<Object>} userPosts - Lista de publicaciones del usuario actual.
@@ -67,10 +79,13 @@ export const fetchUsersList = createAsyncThunk(
 const userSlice = createSlice({
   name: "user",
   initialState: {
+    // Estado de búsqueda individual
     fetchStatus: "idle", 
     error: null,
     profileData: null,
     userPosts: [],
+    // Estado de lista/caché (operación separada)
+    listStatus: "idle",
     cachedUserList: [],
   },
   reducers: {
@@ -87,9 +102,12 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Búsqueda Individual
       .addCase(fetchUserAndPosts.pending, (state) => {
         state.fetchStatus = "loading";
         state.error = null;
+        state.profileData = null;
+        state.userPosts = [];
       })
       .addCase(fetchUserAndPosts.fulfilled, (state, { payload }) => {
         if (!payload.user) {
@@ -108,65 +126,54 @@ const userSlice = createSlice({
         state.profileData = null;
         state.userPosts = [];
       })
+      // Carga de Lista (Caché)
+      .addCase(fetchUsersList.pending, (state) => {
+        state.listStatus = "loading";
+      })
       .addCase(fetchUsersList.fulfilled, (state, { payload }) => {
+        state.listStatus = "succeeded";
         state.cachedUserList = payload;
+      })
+      .addCase(fetchUsersList.rejected, (state) => {
+        state.listStatus = "failed";
+        state.cachedUserList = []; // Fallo explícito, no silencioso.
       });
   },
 });
 
 export const { resetUserState } = userSlice.actions;
 
-// --- Memoized Selectors ---
+// --- Direct Selectors (Optimized) ---
 
 /**
- * Selector base para obtener el estado de usuarios.
- * @private
+ * Selector directo para los datos del perfil del usuario actual.
+ * @param {Object} state - Estado global de Redux.
  */
-const selectUserState = (state) => state.user;
+export const selectCurrentUserProfile = (state) => state.user.profileData;
 
 /**
- * Selector memorizado para los datos del perfil del usuario actual.
- * @type {Function}
+ * Selector directo para las publicaciones del usuario actual.
+ * @param {Object} state - Estado global de Redux.
  */
-export const selectCurrentUserProfile = createSelector(
-  [selectUserState],
-  (userState) => userState.profileData
-);
+export const selectCurrentUserPosts = (state) => state.user.userPosts;
 
 /**
- * Selector memorizado para las publicaciones del usuario actual.
- * @type {Function}
+ * Selector directo para el estado de la petición individual (status).
+ * @param {Object} state - Estado global de Redux.
  */
-export const selectCurrentUserPosts = createSelector(
-  [selectUserState],
-  (userState) => userState.userPosts
-);
+export const selectUserFetchStatus = (state) => state.user.fetchStatus;
 
 /**
- * Selector memorizado para el estado de la petición (status).
- * @type {Function}
+ * Selector directo para el mensaje de error actual.
+ * @param {Object} state - Estado global de Redux.
  */
-export const selectUserFetchStatus = createSelector(
-  [selectUserState],
-  (userState) => userState.fetchStatus
-);
+export const selectUserFetchError = (state) => state.user.error;
 
 /**
- * Selector memorizado para el mensaje de error actual.
- * @type {Function}
+ * Selector directo para la lista de usuarios en caché.
+ * @param {Object} state - Estado global de Redux.
  */
-export const selectUserFetchError = createSelector(
-  [selectUserState],
-  (userState) => userState.error
-);
-
-/**
- * Selector memorizado para la lista de usuarios en caché.
- * @type {Function}
- */
-export const selectCachedUsers = createSelector(
-  [selectUserState],
-  (userState) => userState.cachedUserList
-);
+export const selectCachedUsers = (state) => state.user.cachedUserList;
 
 export default userSlice.reducer;
+

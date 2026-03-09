@@ -1,50 +1,108 @@
-# 🎓 Masterclass: El Arte de Esculpir Software
-## Ingeniería Inversa y Patrones en `UserApp Pro`
+# 🎓 Masterclass de Ingeniería: myprojectapi02 (v2.1)
 
-¡Hola, estudiante! En esta sesión magistral, desglosaremos este proyecto no como un montón de archivos, sino como un **sistema vivo**. Mi objetivo es que aprendas a ver "debajo del capó".
+Este documento no es una guía de uso, es una **disección técnica** de las decisiones de arquitectura que convierten a este sistema en una herramienta de grado empresarial.
 
 ---
 
-## 1. El Concepto: "Separación de Intereses"
-El mayor error de un desarrollador es mezclarlo todo. Aquí usamos una **Arquitectura en Capas**. 
+## 🏗️ SECCIÓN 1: El Problema — SPA y el Caos de Estado
 
-### La Analogía del Restaurante (ASCII)
-```text
-CLIENTE (UI) <------> MESERO (Hook) <------> CHEF (Service) <------> DESPENSA (API)
-(Ves la comida)      (Toma tu pedido)       (Prepara el plato)      (Trae los ingredientes)
+El desarrollo de una Single Page Application (SPA) suele degradarse en un "espagueti de datos" cuando no hay una separación clara de responsabilidades. Sin arquitectura, los componentes React terminan realizando llamadas directas a la API y gestionando el estado global con `useState`.
+
+╔══════════════════════════════════╗        ╔══════════════════════════════╗
+║        SITUACIÓN SIN ORDEN       ║        ║      ORDEN ARQUITECTÓNICO    ║
+╠══════════════════════════════════╣        ╠══════════════════════════════╣
+║  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  ║        ║  ░░░░░░░░░░░░░░░░░░░░░░░░░░  ║
+║  ░ COMPONENTE <──> API EXTERNA ░  ║  ──>   ║  ░ UI <──> STORE <──> DOM  ░  ║
+║  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  ║        ║  ░░░░░░░░░░░░░░░░░░░░░░░░░░  ║
+║  ░ ACAPARAMIENTO DE LÓGICA     ░  ║        ║  ░ SEPARACIÓN DE CAPAS     ░  ║
+╚══════════════════════════════════╝        ╚══════════════════════════════╝
+
+---
+
+## 🧪 SECCIÓN 2: Clean Architecture en React
+
+Hemos implementado una **Arquitectura en Capas** que garantiza que la lógica de negocio no dependa de la UI.
+
+### Infraestructura (`src/lib/api-client.js`)
+Solo se encarga del transporte HTTP. No conoce el dominio.
+```javascript
+export const fetchFromApi = async (endpoint) => {
+  const response = await fetch(`${API_BASE_URL}/${endpoint}`);
+  if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+  return response.json();
+};
 ```
 
-1.  **Capa de Despensa (API):** Traemos datos crudos de JSONPlaceholder.
-2.  **Capa de Chef (Service):** Limpiamos la "basura" del ingrediente (Mapping) y nos aseguramos de que sea apto para el consumo.
-3.  **Capa de Mesero (Hook):** Entrega la información lista a la mesa del cliente sin que este sepa cómo se cocinó.
+### Dominio (`src/features/user-search/domain/user.mappers.js`)
+Sanitiza y protege el modelo. Es el contrato que la UI espera recibir.
+```javascript
+export const mapRawUser = (raw) => {
+  if (!raw?.id) return null;
+  return {
+    id: Number(raw.id),
+    name: String(raw.name || "Usuario Anónimo")
+    // ...
+  };
+};
+```
 
 ---
 
-## 2. Patrones de Diseño de Alto Rendimiento
+## 🛡️ SECCIÓN 3: El Patrón Data Mapper — Programación Defensiva
 
-### A. El Patrón "Early Return" (Retorno Temprano)
-En lugar de crear laberintos de `if/else`, salimos de la habitación en cuanto encontramos la respuesta. 
+La capa de infraestructura es "sucia" por naturaleza. Los servicios externos pueden cambiar sus contratos sin aviso. Los mappers actúan como un **escudo protector**.
 
-**¿Por qué?:** Reduce la carga cognitiva. El cerebro lee el código de arriba abajo, linealmente, sin tener que recordar 5 niveles de anidamiento.
+╔══════════════════════════════════════════════╗
+║                EL ESCUDO MAPPING             ║
+╠══════════════════════════════════════════════╣
+║  ╔══════════╗        ╔══════════════════╗    ║
+║  ║ API RAW  ║ <────> ║ DATA MAPPERS     ║    ║
+║  ╚══════════╝        ╚════════╦═════════╝    ║
+║                               ║              ║
+║                      ╔════════▼═════════╗    ║
+║                      ║ DOMINIO SEGURO   ║    ║
+║                      ╚══════════════════╝    ║
+╚══════════════════════════════════════════════╝
 
-### B. El Patrón "Mapper" (Escudo de Datos)
-La API externa es como un clima salvaje; nuestro dominio es una casa acogedora. El **Mapper** es la puerta que asegura que el barro no entre a la casa. Transformamos `raw_data` en `DomainEntity`.
-
----
-
-## 3. Lógica de UI: El "State Boundary"
-En este proyecto no verás `isLoading ? <Spinner /> : <Data />` repetido mil veces. Hemos creado una **Frontera de Estado**. 
-
-Es un componente inteligente que recibe el "clima" de la aplicación (status) y decide qué "ropa" ponerle a la UI (Skeletons, Errores o Datos). Esto mantiene tus páginas limpias y enfocadas en lo que importa: la experiencia del usuario.
-
----
-
-## 4. Gestión de Memoria (Memoización)
-Usamos **Selectores Memorizados**. Imagina que tienes un libro de 1000 páginas. En lugar de leerlo todo cada vez que alguien pregunta por una palabra, guardas un índice (caché). Eso hace Redux Toolkit con `createSelector`.
+**Escenario de Falla:** Si JSONPlaceholder cambia la propiedad `name` por `full_name`, solo actualizamos el Mapper en un único lugar. La UI permanece intacta.
 
 ---
 
-## 📝 Conclusión Educativa
-Este proyecto es un ejemplo de **Ingeniería Consciente**. Cada línea de código tiene una razón de ser, cada carpeta un propósito y cada patrón una función de ahorro de energía mental.
+## 💀 SECCIÓN 4: StateBoundary — El Patrón Declarativo
 
-**Tu Reto:** Abre `src/features/user-search/redux/userSlice.js` y observa cómo el estado fluye como un río, limpio y predecible. ¡Eso es ingeniería!
+Hemos eliminado el antipatrón de llenar el JSX con `if(loading)` o ternarios complejos. El `StateBoundary` orquesta los 5 estados del ciclo de vida de forma centralizada.
+
+╔══════════════════════════════════════════════╗
+║              LÍMITE DE ESTADO                ║
+╠══════════════════════════════════════════════╣
+║  ╔══════════╗        ╔══════════════════╗    ║
+║  ║ LOADING  ║ <────> ║  SUCCESS        ║    ║
+║  ╚════╦═════╝        ╚════════╦═════════╝    ║
+║  ╔════▼═════╗        ╔════════▼═════════╗    ║
+║  ║ FAILED   ║ <────> ║  NOT_FOUND      ║    ║
+║  ╚══════════╝        ╚══════════════════╝    ║
+╚══════════════════════════════════════════════╝
+
+---
+
+## 🧠 SECCIÓN 5: Redux Toolkit — Flujo Predecible
+
+Utilizamos Redux no solo por el estado global, sino por la **predictibilidad**.
+
+1.  **Action (Thunk):** `fetchUserAndPosts.pending` activa esqueletos.
+2.  **Reducer:** Actualiza el store con los datos mapeados.
+3.  **Selector:** Los componentes se suscriben solo a la data que necesitan.
+
+**Optimización:** Hemos simplificado los selectores para evitar `createSelector` cuando no hay transformaciones, reduciendo la carga computacional en cada render.
+
+---
+
+## 🎣 SECCIÓN 6: Los Dos Hooks — Separación de Responsabilidades
+
+Implementamos el **Single Responsibility Principle (SRP)** mediante la separación de la lógica de UI y la lógica de dominio.
+
+- **`useSearchInput`:** Gestiona el estado local del input, validaciones de rango (1-10) y mensajes de asistencia visual. No conoce Redux.
+- **`useUserSearch`:** Orquesta la comunicación con el Store de Redux, la caché de usuarios y la ejecución de la búsqueda inteligente. No conoce el input de texto.
+
+---
+*Documento generado bajo estándares de Senior Frontend Architecture.*

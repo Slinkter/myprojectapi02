@@ -27,21 +27,25 @@ export const mapRawUser = (raw) => {
   // Early Return: Validación mínima necesaria para considerar un usuario válido.
   if (!raw || typeof raw !== "object" || !raw.id) return null;
   
+  const safeId = Number(raw.id);
+  if (isNaN(safeId)) return null;
+
   return {
-    id: Number(raw.id),
-    name: String(raw.name || "Unknown User"),
-    username: String(raw.username || "guest"),
-    email: String(raw.email || ""),
-    website: String(raw.website || ""),
+    id: safeId,
+    name: raw.name ? String(raw.name) : "Unknown User",
+    username: raw.username ? String(raw.username) : "guest",
+    email: raw.email ? String(raw.email) : "",
+    phone: String(raw.phone || ""),
+    website: raw.website ? String(raw.website) : "",
     company: {
-      name: String(raw.company?.name || "N/A"),
-      catchPhrase: String(raw.company?.catchPhrase || "")
+      name: raw.company?.name ? String(raw.company.name) : "N/A",
+      catchPhrase: raw.company?.catchPhrase ? String(raw.company.catchPhrase) : ""
     },
     address: {
-      street: String(raw.address?.street || ""),
-      suite: String(raw.address?.suite || ""),
-      city: String(raw.address?.city || ""),
-      zipcode: String(raw.address?.zipcode || "")
+      street: raw.address?.street ? String(raw.address.street) : "",
+      suite: raw.address?.suite ? String(raw.address.suite) : "",
+      city: raw.address?.city ? String(raw.address.city) : "",
+      zipcode: raw.address?.zipcode ? String(raw.address.zipcode) : ""
     }
   };
 };
@@ -67,6 +71,7 @@ export const mapRawPosts = (rawList) => {
     .filter(p => p && p.id && p.title) // Filtrado defensivo de posts inválidos.
     .map(p => ({
       id: Number(p.id),
+      userId: Number(p.userId), // Necesario para filtrado futuro.
       title: String(p.title),
       body: String(p.body || "")
     }));

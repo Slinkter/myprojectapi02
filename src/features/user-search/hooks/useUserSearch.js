@@ -9,14 +9,14 @@
 
 import { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserAndPosts, fetchUsersList } from "../redux/userSlice";
+import { fetchUserAndPosts, fetchUsersList } from "../store/userSlice";
 import { 
   selectCurrentUserProfile, 
   selectCurrentUserPosts, 
   selectUserFetchStatus, 
   selectUserFetchError, 
   selectCachedUsers 
-} from "../redux/userSlice";
+} from "../store/userSlice";
 
 /**
  * Hook personalizado para gestionar la búsqueda de perfiles de usuario.

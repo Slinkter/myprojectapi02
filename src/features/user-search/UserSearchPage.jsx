@@ -5,7 +5,7 @@
  * @module UserSearchPage
  */
 
-import { useCallback } from "react";
+import { useCallback, memo } from "react";
 import ProfileSkeleton from "./components/skeletons/ProfileSkeleton";
 import PostListSkeleton from "./components/skeletons/PostListSkeleton";
 import ErrorMessage from "@/components/ui/ErrorMessage";
@@ -15,6 +15,7 @@ import SearchBar from "./components/SearchBar";
 import UserView from "./components/UserView";
 import { useUserSearch } from "./hooks/useUserSearch";
 import { useSearchInput } from "./hooks/useSearchInput";
+import { cn } from "@/lib/utils";
 
 /**
  * Vista de carga que agrupa esqueletos de perfil y publicaciones.
@@ -22,12 +23,14 @@ import { useSearchInput } from "./hooks/useSearchInput";
  *
  * @component
  */
-const LoadingView = () => (
-    <div className="space-y-8 animate-in fade-in duration-500">
+const LoadingView = memo(() => (
+    <div className={cn("space-y-8 animate-in fade-in duration-500")}>
         <ProfileSkeleton />
         <PostListSkeleton />
     </div>
-);
+));
+
+LoadingView.displayName = "LoadingView";
 
 /**
  * Cabecera de la página de búsqueda.
@@ -35,18 +38,21 @@ const LoadingView = () => (
  *
  * @component
  */
-const Header = () => {
+const Header = memo(() => {
     return (
-        <header className="text-center mb-12">
-            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+        <header className={cn("text-center mb-12")}>
+            <h2 className={cn("text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4")}>
                 Buscador de Usuarios
             </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                Busca por ID numérico (1-10)
+            <p className={cn("text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto")}>
+                Busca por ID numérico (1-10) o por nombre de usuario.
             </p>
         </header>
     );
-};
+});
+
+Header.displayName = "Header";
+
 /**
  * Página principal del dominio User Search.
  * Implementa la orquestación entre `useSearchInput` para la gestión de la UI del input
@@ -55,13 +61,13 @@ const Header = () => {
  * @component
  * @returns {JSX.Element} El contenedor principal de la búsqueda de usuarios.
  */
-function UserSearchPage() {
+const UserSearchPage = memo(() => {
     // Gestión del estado local del input y validaciones.
     const { searchValue, helperMessage, hasError, onInputChange } =
         useSearchInput("1");
 
     // Gestión del estado global, búsqueda y orquestación de la API.
-    const { user, posts, status, error, searchId, performSearch } =
+    const { user, posts, status, error, searchId, performSearch, handleRetry } =
         useUserSearch(1);
 
     /** Maneja la ejecución de la búsqueda al pulsar el botón. */
@@ -79,7 +85,7 @@ function UserSearchPage() {
     }, [hasError, searchValue]);
 
     return (
-        <div className="w-full max-w-6xl mx-auto px-4 py-8">
+        <div className={cn("w-full max-w-6xl mx-auto px-4 py-8")}>
             <Header />
 
             <SearchBar
@@ -92,11 +98,12 @@ function UserSearchPage() {
                 isError={hasError}
             />
 
-            <main className="min-h-[400px]">
+            <main className={cn("min-h-[400px]")}>
                 {/* Límite de estado: gestiona carga, error, no encontrado y éxito. */}
                 <StateBoundary
                     status={status}
                     error={error}
+                    onRetry={handleRetry}
                     loadingComponent={LoadingView}
                     errorComponent={ErrorMessage}
                     notFoundComponent={() => (
@@ -108,6 +115,8 @@ function UserSearchPage() {
             </main>
         </div>
     );
-}
+});
+
+UserSearchPage.displayName = "UserSearchPage";
 
 export default UserSearchPage;

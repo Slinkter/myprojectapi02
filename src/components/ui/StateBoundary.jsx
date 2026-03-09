@@ -6,77 +6,71 @@
  * @module StateBoundary
  */
 
+import { memo } from "react";
 import PropTypes from "prop-types";
-import { cn } from "@/lib/utils";
 
 /**
  * Componente que orquesta el renderizado condicional basado en el estado de una petición.
  * Permite inyectar componentes personalizados para cada estado o utilizar fallbacks.
  * 
  * @component
- * @category UI Patterns
- * 
- * @param {Object} props - Propiedades del componente.
- * @param {string} props.status - Estado actual de la lógica de negocio ('idle', 'loading', 'succeeded', 'failed', 'notFound').
- * @param {string} [props.error] - Mensaje de error para pasar al componente de error.
- * @param {React.ElementType} [props.loadingComponent] - Componente a renderizar durante la carga.
- * @param {React.ElementType} [props.errorComponent] - Componente a renderizar en caso de fallo.
- * @param {React.ElementType} [props.notFoundComponent] - Componente a renderizar si el recurso no existe.
- * @param {React.ReactNode} props.children - Contenido a mostrar cuando el estado es 'succeeded'.
- * 
- * @returns {JSX.Element|null} El componente correspondiente al estado actual.
- * 
- * @example
- * ```tsx
- * <StateBoundary 
- *   status={status} 
- *   loadingComponent={MySkeleton}
- *   errorComponent={ErrorMessage}
- * >
- *   <DataView data={data} />
- * </StateBoundary>
- * ```
  */
-function StateBoundary({ 
+const StateBoundary = memo(({ 
   status, 
   error, 
+  onRetry,
   loadingComponent: Loading, 
   errorComponent: ErrorComp, 
   notFoundComponent: NotFound,
+  className,
   children 
-}) {
+}) => {
   switch (status) {
     case "loading":
-      return Loading ? <Loading /> : <p className={cn("animate-pulse")}>Cargando...</p>;
+      return Loading ? <Loading /> : <p className="animate-pulse text-slate-500">Cargando...</p>;
     
     case "failed":
-      return ErrorComp ? <ErrorComp message={error} /> : <p className={cn("text-red-500")}>{error}</p>;
+      return ErrorComp ? (
+        <ErrorComp message={error} onRetry={onRetry} />
+      ) : (
+        <p className="text-red-500 font-medium">{error}</p>
+      );
     
     case "notFound":
-      return NotFound ? <NotFound /> : <p className={cn("text-orange-500")}>Recurso no encontrado.</p>;
+      return NotFound ? <NotFound /> : <p className="text-orange-500 font-medium">Recurso no encontrado.</p>;
     
     case "succeeded":
-      return <>{children}</>;
+      return <div className={className}>{children}</div>;
     
     case "idle":
     default:
       return null;
   }
-}
+});
+
+StateBoundary.displayName = "StateBoundary";
 
 StateBoundary.propTypes = {
   /** Estado actual de la operación asíncrona. */
   status: PropTypes.oneOf(["idle", "loading", "succeeded", "failed", "notFound"]).isRequired,
   /** Mensaje de error opcional. */
   error: PropTypes.string,
+  /** Callback para reintentar una operación fallida. */
+  onRetry: PropTypes.func,
   /** Componente (no instancia) para el estado de carga. */
   loadingComponent: PropTypes.elementType,
   /** Componente (no instancia) para el estado de error. */
   errorComponent: PropTypes.elementType,
   /** Componente (no instancia) para el estado no encontrado. */
   notFoundComponent: PropTypes.elementType,
+  /** Clase CSS adicional para el contenedor de éxito. */
+  className: PropTypes.string,
   /** Contenido para el estado de éxito. */
   children: PropTypes.node,
+};
+
+StateBoundary.defaultProps = {
+  className: "",
 };
 
 export default StateBoundary;

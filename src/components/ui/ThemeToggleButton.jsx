@@ -5,6 +5,7 @@
  * @module ThemeToggleButton
  */
 
+import { memo } from "react";
 import { SunIcon, MoonIcon } from "@heroicons/react/24/outline";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";
@@ -16,13 +17,8 @@ import { cn } from "@/lib/utils";
  * 
  * @component
  * @returns {JSX.Element} El botón de alternancia de tema.
- * 
- * @example
- * ```tsx
- * <ThemeToggleButton />
- * ```
  */
-function ThemeToggleButton() {
+const ThemeToggleButton = memo(() => {
   // Integración con la lógica de persistencia y aplicación de CSS 'dark'.
   const { isDark, toggleTheme } = useTheme();
 
@@ -42,6 +38,8 @@ function ThemeToggleButton() {
       )}
     </button>
   );
-}
+});
+
+ThemeToggleButton.displayName = "ThemeToggleButton";
 
 export default ThemeToggleButton;

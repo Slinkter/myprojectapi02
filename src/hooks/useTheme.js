@@ -91,6 +91,32 @@ export const useTheme = () => {
    * y guarda la preferencia en localStorage.
    */
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    
+    const handleChange = (e) => {
+      // Solo actualizamos si el usuario no tiene una preferencia guardada manualmente
+      if (!localStorage.getItem("theme")) {
+        setIsDark(e.matches);
+      }
+    };
+
+    // Soporte para navegadores antiguos y modernos
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", handleChange);
+    } else {
+      mediaQuery.addListener(handleChange);
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener("change", handleChange);
+      } else {
+        mediaQuery.removeListener(handleChange);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     const htmlElement = document.documentElement;
 
     if (isDark) {

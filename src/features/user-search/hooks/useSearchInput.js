@@ -56,12 +56,12 @@ export const useSearchInput = (initialSearch = "") => {
       return;
     }
 
-    // Validación de ID Numérico.
+    // Validación de ID Numérico (Rango [1, 10]).
     if (/^\d+$/.test(value)) {
       const numericId = parseInt(value, 10);
       
-      // La API externa JSONPlaceholder solo tiene 10 usuarios estables.
-      if (numericId > 10) {
+      // La API externa JSONPlaceholder solo tiene 10 usuarios estables (IDs 1-10).
+      if (numericId < 1 || numericId > 10) {
         setHelperMessage("La API solo soporta IDs del 1 al 10.");
         setHasError(true);
         return;
