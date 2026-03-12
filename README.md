@@ -22,28 +22,46 @@ Una aplicación React de alto rendimiento diseñada bajo principios de **Clean A
           └──────────────────────────────────────┘
 ```
 
-### 2. Árbol de Componentes (Jerarquía Visual)
+### 2. Diagrama de Secuencia: Flujo de Búsqueda con AbortController
+
+Este diagrama describe el ciclo de vida de una petición, destacando la seguridad ante *race conditions*.
 
 ```text
-                       ┌──────────────────────┐
-                       │    MainLayout.jsx    │
-                       │    (Contenedor UI)   │
-                       └──────────────────────┘
-                                  │
-                       ┌──────────────────────┐
-                       │    UserSearchPage    │
-                       │    (Orquestador)     │
-                       └──────────────────────┘
-                       ╱                      ╲
-          ┌──────────────────────┐      ┌──────────────────────┐
-          │    SearchBar.jsx     │      │     UserView.jsx     │
-          │    Input + Botón     │      │     (State Gate)     │
-          └──────────────────────┘      └──────────────────────┘
-                                         ╱              ╲
-                          ┌──────────────────┐    ┌──────────────────┐
-                          │   UserProfile    │    │     PostList     │
-                          │    (Bio Data)    │    │   (Feed Data)    │
-                          └──────────────────┘    └──────────────────┘
+ USUARIO          UI (HOOKS)          REDUX (THUNK)         API CLIENT
+    │                 │                    │                    │
+    │── Search(id) ──>│                    │                    │
+    │                 │── fetchUser(id) ──>│                    │
+    │                 │     (signal)       │                    │
+    │                 │                    │── GET /users/1 ───>│
+    │                 │                    │    (Pending)       │
+    │── New Search ──>│                    │                    │
+    │                 │── ABORT previous ─>│                    │
+    │                 │                    │── (Request Cancel) │
+    │                 │                    │                    │
+    │                 │── fetchUser(new) ─>│                    │
+    │                 │                    │── GET /users/2 ───>│
+    │                 │                    │                    │
+    │ <── Success ────│ <─── Fulfilled ────│ <───── JSON ───────│
+```
+
+### 3. Máquina de Estados (StateBoundary Logic)
+
+Documentación del comportamiento del orquestador de UI.
+
+```text
+       ┌──────────┐          ┌────────────┐
+  ────>│   IDLE   │─────────>│  LOADING   │
+       └──────────┘          └────────────┘
+             ^                 ╱        ╲
+             │                ╱          ╲
+             │        ┌───────────┐  ┌───────────┐
+             └────────│  SUCCESS  │  │   ERROR   │
+              (Reset) └───────────┘  └───────────┘
+                                         │
+                                         V
+                                   ┌───────────┐
+                                   │  RETRY?   │
+                                   └───────────┘
 ```
 
 ---
@@ -53,38 +71,37 @@ Una aplicación React de alto rendimiento diseñada bajo principios de **Clean A
 El proyecto no es un simple buscador; es una implementación de **Screaming Architecture** (Feature-Based) que aísla la lógica de negocio de la infraestructura.
 
 ### 1. Layered Architecture (Separación de Capas)
-*   **Infrastructure Layer (`api/`, `lib/api-client.js`):** Abstracción pura de red utilizando `fetch` con soporte nativo para `AbortController` (cancelación de peticiones) para prevenir *race conditions*.
-*   **Domain Layer (`domain/user.mappers.js`):** Implementación de **Mappers** que actúan como una *Anti-Corruption Layer (ACL)*, sanitizando y transformando los datos crudos de la API externa en entidades seguras para la UI.
-*   **Application/Service Layer (`services/`):** Orquestación de lógica compleja, como el **Modo Degradado**, que permite cargar el perfil del usuario incluso si la consulta de sus publicaciones falla.
-*   **State Management (`store/`):** Uso de **Redux Toolkit** con selectores memoizados (`createSelector`) para optimizar el rendimiento computacional.
+*   **Infrastructure Layer (`api/`, `lib/api-client.js`):** Abstracción pura de red utilizando `fetch` con soporte nativo para `AbortController`.
+*   **Domain Layer (`domain/user.mappers.js`):** Implementación de **Mappers** (Anti-Corruption Layer) que sanitizan y transforman los datos crudos.
+*   **Application/Service Layer (`services/`):** Orquestación de lógica compleja (Modo Degradado).
+*   **State Management (`store/`):** Uso de **Redux Toolkit** con selectores memoizados (`createSelector`).
 
 ### 2. Patrones de UI Avanzados
-*   **State Boundary Pattern:** Gestión declarativa de estados laterales (Loading, Error, NotFound, Success) mediante un componente de orden superior que centraliza el flujo visual.
-*   **Headless Hooks:** Lógica de validación (`useSearchInput`) y de dominio (`useUserSearch`) totalmente desacoplada de los componentes visuales.
-*   **Container/Presentational:** Clara distinción entre componentes lógicos y componentes puros de renderizado.
+*   **State Boundary Pattern:** Gestión declarativa de estados laterales.
+*   **Headless Hooks:** Lógica de validación y dominio desacoplada.
+*   **Container/Presentational:** Clara distinción entre componentes lógicos y puros.
 
 ---
 
 ## 🚀 Optimizaciones de Ingeniería
 
 ### Resiliencia y Rendimiento
-*   **Gestión de Concurrencia:** Implementación de `AbortSignal` en toda la cadena de llamadas para abortar peticiones obsoletas durante el tipado rápido.
-*   **Búsqueda Normalizada:** Algoritmo de búsqueda inteligente que ignora acentos (`normalize("NFD")`), mayúsculas y espacios innecesarios, mejorando la tasa de éxito de búsqueda por nombre.
-*   **Debouncing de Validación:** Optimización del hilo principal mediante el retraso de validaciones sintácticas mientras el usuario escribe.
+*   **Gestión de Concurrencia:** Implementación de `AbortSignal` para abortar peticiones obsoletas.
+*   **Búsqueda Normalizada:** Algoritmo que ignora acentos, mayúsculas y espacios.
+*   **Debouncing de Validación:** Optimización del hilo principal durante el tipado.
 
 ### Experiencia de Usuario (UX/DX)
-*   **Feedback Instantáneo:** Mensajes de asistencia dinámicos basados en constantes configurables (`src/config/constants.js`).
-*   **Accesibilidad (A11y):** Uso de `aria-live="polite"` y `aria-describedby` para asegurar que los cambios de estado sean comunicados correctamente a lectores de pantalla.
-*   **Transiciones Fluídas:** Animaciones de entrada (`fade-in`) y esqueletos de carga (`ProfileSkeleton`) para reducir la carga cognitiva durante la espera de datos.
+*   **Feedback Instantáneo:** Mensajes de asistencia dinámicos (`src/config/constants.js`).
+*   **Accesibilidad (A11y):** Uso de `aria-live` y `aria-describedby`.
+*   **Transiciones Fluídas:** Animaciones de entrada (`fade-in`) y esqueletos de carga.
 
 ---
 
 ## 🛠 Tech Stack
 
-*   **Core:** React 18 (Hooks, Memo, Suspense Patterns)
+*   **Core:** React 18 (Hooks, Memo, Suspense)
 *   **State:** Redux Toolkit + Reselect
-*   **Styling:** Tailwind CSS 4 + Lucide/Heroicons
-*   **Infrastructure:** Vite + ESLint (Standard Strict)
+*   **Styling:** Tailwind CSS 4
 *   **Tools:** AbortController API, String Normalization API
 
 ---
@@ -108,4 +125,4 @@ pnpm lint
 
 ---
 
-> **Nota de Ingeniería:** Este proyecto cumple con los estándares de **Clean Code**, evitando el uso de "hardcoding" mediante un sistema de configuración centralizado y garantizando que cada función tenga una única responsabilidad (SRP).
+> **Nota de Ingeniería:** Este proyecto cumple con los estándares de **Clean Code**, evitando el uso de "hardcoding" y garantizando que cada función tenga una única responsabilidad (SRP).
