@@ -9,7 +9,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
-import { fetchUserProfileById, fetchAllUsers } from "../services/user-service";
+import { fetchUserProfileById, fetchAllUsers } from "@/features/user-search/services/user-service";
 
 // --- Async Thunks ---
 
@@ -199,3 +199,49 @@ export const selectMemoizedUserList = createSelector(
 );
 
 export default userSlice.reducer;
+
+/*
+ * ============================================================================
+ *                          USER SLICE ARCHITECTURE
+ * ============================================================================
+ * 
+ *                     [ Component (UI) ]
+ *                             |
+ *                      (dispatch action)
+ *                             |
+ *                             v
+ *        +-----------------------------------------+
+ *        |                Thunks                   |
+ *        | - fetchUserAndPosts (API Call)          |
+ *        | - fetchUsersList    (API Call)          |
+ *        +-----------------------------------------+
+ *                             |
+ *                       (status & data)
+ *                             v
+ *        +-----------------------------------------+
+ *        |             Extra Reducers              |
+ *        |  [pending] -> fetchStatus = 'loading'   |
+ *        |  [fulfilled]-> profileData = payload    |
+ *        |  [rejected] -> error = payload.msg      |
+ *        +-----------------------------------------+
+ *                             |
+ *                        (updates)
+ *                             v
+ *        +-----------------------------------------+
+ *        |           State (La Bóveda)             |
+ *        | { fetchStatus, profileData, error ... } |
+ *        +-----------------------------------------+
+ *                             |
+ *                          (reads)
+ *                             v
+ *        +-----------------------------------------+
+ *        |              Selectors                  |
+ *        | - selectCurrentUserProfile              |
+ *        | - selectUserFetchStatus                 |
+ *        +-----------------------------------------+
+ *                             |
+ *                        (returns)
+ *                             v
+ *                     [ Component (UI) ]
+ * ============================================================================
+ */

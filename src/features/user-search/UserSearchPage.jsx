@@ -6,15 +6,15 @@
  */
 
 import { useCallback, memo } from "react";
-import ProfileSkeleton from "./components/skeletons/ProfileSkeleton";
-import PostListSkeleton from "./components/skeletons/PostListSkeleton";
+import ProfileSkeleton from "@/features/user-search/components/skeletons/ProfileSkeleton";
+import PostListSkeleton from "@/features/user-search/components/skeletons/PostListSkeleton";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import NotFoundCard from "@/components/ui/NotFoundCard";
 import StateBoundary from "@/components/ui/StateBoundary";
-import SearchBar from "./components/SearchBar";
-import UserView from "./components/UserView";
-import { useUserSearch } from "./hooks/useUserSearch";
-import { useSearchInput } from "./hooks/useSearchInput";
+import SearchBar from "@/features/user-search/components/SearchBar";
+import UserView from "@/features/user-search/components/UserView";
+import { useUserSearch } from "@/features/user-search/hooks/useUserSearch";
+import { useSearchInput } from "@/features/user-search/hooks/useSearchInput";
 import { cn } from "@/lib/utils";
 
 /**

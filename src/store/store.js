@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "../features/user-search/store/userSlice";
-import uiReducer from "./uiSlice";
+import userReducer from "@/features/user-search/store/userSlice";
+import uiReducer from "@/store/uiSlice";
 
 /**
  * Instancia del Store de Redux configurada con Redux Toolkit.

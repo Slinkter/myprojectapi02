@@ -6,12 +6,12 @@
  */
 
 // Exportación de la página principal de la funcionalidad.
-export { default as UserSearchPage } from "./UserSearchPage";
+export { default as UserSearchPage } from "@/features/user-search/UserSearchPage";
 
 // Exportación de los hooks especializados para consumo externo o pruebas.
-export { useSearchInput } from "./hooks/useSearchInput";
-export { useUserSearch } from "./hooks/useUserSearch";
+export { useSearchInput } from "@/features/user-search/hooks/useSearchInput";
+export { useUserSearch } from "@/features/user-search/hooks/useUserSearch";
 
 // Exportación de componentes internos (opcional, para mayor flexibilidad en la composición).
-export { default as SearchBar } from "./components/SearchBar";
-export { default as UserView } from "./components/UserView";
+export { default as SearchBar } from "@/features/user-search/components/SearchBar";
+export { default as UserView } from "@/features/user-search/components/UserView";
