@@ -46,8 +46,6 @@ Este diagrama describe el ciclo de vida de una petición, destacando la segurida
 
 ### 3. Arquitectura Cliente-Servidor (Infraestructura)
 
-Representación del ecosistema de red y protocolos utilizados.
-
 ```text
       CLIENTE (Browser)                   SERVIDOR (Cloud)
   ┌──────────────────────┐            ┌──────────────────────┐
@@ -56,31 +54,9 @@ Representación del ecosistema de red y protocolos utilizados.
   │  [HTTP Client]       │── HTTPS ──>│  [REST Endpoints]    │
   │  (Fetch + Abort)     │<─ JSON ─── │  (/users, /posts)    │
   └──────────────────────┘            └──────────────────────┘
-             │                                   │
-      (Local Storage)                     (Cloud Database)
-      [User Cache]                        [Mock Data]
 ```
 
-### 4. Diagrama de Estructura (UML Component-like)
-
-Dependencias estáticas entre módulos del sistema.
-
-```text
-   ┌───────────┐       ┌─────────────┐       ┌────────────┐
-   │  FEATURE  │──────>│   SERVICES  │──────>│    API     │
-   │  (React)   │       │  (Orchestr) │       │  (Adapters)│
-   └─────┬─────┘       └──────┬──────┘       └─────┬──────┘
-         │                    │                    │
-         V                    V                    V
-   ┌───────────┐       ┌─────────────┐       ┌────────────┐
-   │   STORE   │       │   MAPPERS   │       │   CLIENT   │
-   │  (Redux)   │<──────│  (Domain)   │       │   (Fetch)  │
-   └───────────┘       └─────────────┘       └────────────┘
-```
-
-### 5. Máquina de Estados (StateBoundary Logic)
-
-Documentación del comportamiento del orquestador de UI.
+### 4. Máquina de Estados (StateBoundary Logic)
 
 ```text
        ┌──────────┐          ┌────────────┐
@@ -91,11 +67,6 @@ Documentación del comportamiento del orquestador de UI.
              │        ┌───────────┐  ┌───────────┐
              └────────│  SUCCESS  │  │   ERROR   │
               (Reset) └───────────┘  └───────────┘
-                                         │
-                                         V
-                                   ┌───────────┐
-                                   │  RETRY?   │
-                                   └───────────┘
 ```
 
 ---
@@ -110,11 +81,6 @@ El proyecto no es un simple buscador; es una implementación de **Screaming Arch
 *   **Application/Service Layer (`services/`):** Orquestación de lógica compleja (Modo Degradado).
 *   **State Management (`store/`):** Uso de **Redux Toolkit** con selectores memoizados (`createSelector`).
 
-### 2. Patrones de UI Avanzados
-*   **State Boundary Pattern:** Gestión declarativa de estados laterales.
-*   **Headless Hooks:** Lógica de validación y dominio desacoplada.
-*   **Container/Presentational:** Clara distinción entre componentes lógicos y puros.
-
 ---
 
 ## 🚀 Optimizaciones de Ingeniería
@@ -124,19 +90,24 @@ El proyecto no es un simple buscador; es una implementación de **Screaming Arch
 *   **Búsqueda Normalizada:** Algoritmo que ignora acentos, mayúsculas y espacios.
 *   **Debouncing de Validación:** Optimización del hilo principal durante el tipado.
 
-### Experiencia de Usuario (UX/DX)
-*   **Feedback Instantáneo:** Mensajes de asistencia dinámicos (`src/config/constants.js`).
-*   **Accesibilidad (A11y):** Uso de `aria-live` y `aria-describedby`.
-*   **Transiciones Fluídas:** Animaciones de entrada (`fade-in`) y esqueletos de carga.
+---
+
+## 📦 Stack Tecnológico y Trade-offs
+
+| Tecnología        | Razón de la elección                              | Trade-off (Lo malo)                               |
+| ----------------- | ------------------------------------------------- | ------------------------------------------------- |
+| **Redux Toolkit** | Flujo de datos 100% predecible y centralizado.    | Añade más archivos que usar un simple `useState`. |
+| **Tailwind v4**   | Estilizado ultra-rápido sin archivos CSS pesados. | Las clases en el HTML pueden verse desordenadas.  |
+| **Data Mappers**  | Protege la UI de cambios en la API externa.       | Requiere escribir código extra de transformación. |
+| **Vite**          | Recarga instantánea y construcción optimizada.    | Configuración mínima pero rígida.                 |
 
 ---
 
-## 🛠 Tech Stack
+## 📚 Documentación Profunda
 
-*   **Core:** React 18 (Hooks, Memo, Suspense)
-*   **State:** Redux Toolkit + Reselect
-*   **Styling:** Tailwind CSS 4
-*   **Tools:** AbortController API, String Normalization API
+- [📖 Masterclass de Ingeniería](./src/docs/MASTERCLASS_INGENIERIA.md): Explicación línea a línea de los patrones.
+- [🏗️ Arquitectura](./src/docs/architecture.md): Diagramas técnicos y flujo de datos.
+- [🩺 Diagnóstico Técnico](./src/docs/00-diagnostico-tecnico.md): Por qué elegí este stack.
 
 ---
 
