@@ -8,6 +8,7 @@
 
 import { memo } from "react";
 import PropTypes from "prop-types";
+import { cn } from "@/lib/utils";
 
 /**
  * Componente que orquesta el renderizado condicional basado en el estado de una petición.
@@ -40,7 +41,11 @@ const StateBoundary = memo(({
       return NotFound ? <NotFound /> : <p className="text-orange-500 font-medium">Recurso no encontrado.</p>;
     
     case "succeeded":
-      return <div className={className}>{children}</div>;
+      return (
+        <div className={cn("animate-in fade-in duration-500", className)}>
+          {children}
+        </div>
+      );
     
     case "idle":
     default:

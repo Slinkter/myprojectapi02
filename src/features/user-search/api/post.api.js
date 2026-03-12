@@ -16,6 +16,7 @@ import { fetchFromApi } from "@/lib/api-client";
  * @async
  * @function getPostsByUser
  * @param {number|string} userId - El identificador único del usuario propietario de los posts.
+ * @param {RequestInit} [options={}] - Opciones para la petición fetch.
  * @returns {Promise<Array<Object>>} Una promesa que resuelve con un array de posts crudos.
  * Retorna un array vacío `[]` si el usuario no tiene posts o si ocurre un error.
  * 
@@ -25,11 +26,11 @@ import { fetchFromApi } from "@/lib/api-client";
  * console.log(`Encontradas ${userPosts.length} publicaciones para el usuario 1`);
  * ```
  */
-export const getPostsByUser = async (userId) => {
+export const getPostsByUser = async (userId, options = {}) => {
   if (!userId) return [];
 
   try {
-    const posts = await fetchFromApi(`posts?userId=${userId}`);
+    const posts = await fetchFromApi(`posts?userId=${userId}`, options);
     return Array.isArray(posts) ? posts : [];
   } catch (error) {
     // Error resiliente: retorno de array vacío ante fallos para no romper el servicio.

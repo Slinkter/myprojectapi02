@@ -17,6 +17,7 @@ import { fetchFromApi } from "@/lib/api-client";
  * @async
  * @function getUser
  * @param {number|string} id - El identificador único del usuario en el sistema externo.
+ * @param {RequestInit} [options={}] - Opciones para la petición fetch.
  * @returns {Promise<Object>} Una promesa que resuelve con los datos crudos del usuario
  * o un objeto vacío `{}` si el usuario no fue encontrado.
  * 
@@ -30,11 +31,11 @@ import { fetchFromApi } from "@/lib/api-client";
  * }
  * ```
  */
-export const getUser = async (id) => {
+export const getUser = async (id, options = {}) => {
   if (!id) return {};
 
   try {
-    return await fetchFromApi(`users/${id}`);
+    return await fetchFromApi(`users/${id}`, options);
   } catch (error) {
     // Si es un 404, retornamos objeto vacío de forma segura para la capa de servicios.
     if (error.status === 404) return {};
@@ -49,6 +50,7 @@ export const getUser = async (id) => {
  * 
  * @async
  * @function getAllUsers
+ * @param {RequestInit} [options={}] - Opciones para la petición fetch.
  * @returns {Promise<Array<Object>>} Una promesa que resuelve con un array de objetos
  * de usuario crudos. Retorna `[]` si ocurre un error o no hay datos.
  * 
@@ -58,9 +60,9 @@ export const getUser = async (id) => {
  * console.log(`Total de usuarios recuperados: ${allUsers.length}`);
  * ```
  */
-export const getAllUsers = async () => {
+export const getAllUsers = async (options = {}) => {
   try {
-    const users = await fetchFromApi("users");
+    const users = await fetchFromApi("users", options);
     return Array.isArray(users) ? users : [];
   } catch (error) {
     // Error silencioso para la lista completa para no bloquear la app.

@@ -15,7 +15,7 @@ import {
   selectCurrentUserPosts, 
   selectUserFetchStatus, 
   selectUserFetchError, 
-  selectCachedUsers 
+  selectMemoizedUserList as selectCachedUsers 
 } from "../store/userSlice";
 
 /**
@@ -82,15 +82,24 @@ export const useUserSearch = (initialUserId) => {
   const performSearch = useCallback((input) => {
     if (!input) return;
 
-    if (/^\d+$/.test(input)) {
-      const userId = Number(input);
+    // Normalización de la entrada: limpiar espacios y remover acentos.
+    const cleanInput = String(input).trim();
+    const normalizedInput = cleanInput
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+    if (/^\d+$/.test(cleanInput)) {
+      const userId = Number(cleanInput);
       dispatch(fetchUserAndPosts(userId));
       setSearchId(userId);
     } else {
-      const found = cachedUsers.find(u => 
-        u.name.toLowerCase().includes(input.toLowerCase()) || 
-        u.username.toLowerCase().includes(input.toLowerCase())
-      );
+      const found = cachedUsers.find(u => {
+        const normName = u.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const normUsername = u.username.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        
+        return normName.includes(normalizedInput) || normUsername.includes(normalizedInput);
+      });
 
       if (found) {
         dispatch(fetchUserAndPosts(found.id));
@@ -101,7 +110,7 @@ export const useUserSearch = (initialUserId) => {
           type: "user/fetchById/rejected", 
           payload: { status: 404, message: "user.notFoundTitle" } 
         });
-        setSearchId(input);
+        setSearchId(cleanInput);
       }
     }
   }, [dispatch, cachedUsers]);

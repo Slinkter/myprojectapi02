@@ -19,6 +19,7 @@ import { mapRawUser, mapRawPosts } from "../domain/user.mappers";
  * @async
  * @function fetchUserProfileById
  * @param {number|string} userId - El identificador único del usuario.
+ * @param {RequestInit} [options={}] - Opciones para las peticiones fetch (ej: signal).
  * @returns {Promise<{user: Object|null, posts: Array}>} Un objeto que contiene el perfil
  * del usuario mapeado y su lista de publicaciones sanitizada.
  * 
@@ -30,13 +31,17 @@ import { mapRawUser, mapRawPosts } from "../domain/user.mappers";
  * }
  * ```
  */
-export const fetchUserProfileById = async (userId) => {
+export const fetchUserProfileById = async (userId, options = {}) => {
   if (!userId) return { user: null, posts: [] };
 
-  const [rawUser, rawPosts] = await Promise.all([
-    getUser(userId),
-    getPostsByUser(userId),
-  ]);
+  // Ejecutamos ambas promesas. No usamos Promise.all directo si queremos manejo individual resiliente.
+  const userPromise = getUser(userId, options);
+  const postsPromise = getPostsByUser(userId, options).catch(error => {
+    console.warn("Non-critical Error: Failed to fetch posts, continuing with user profile.", error);
+    return []; // Retornamos array vacío si fallan los posts, pero permitimos que el usuario cargue.
+  });
+
+  const [rawUser, rawPosts] = await Promise.all([userPromise, postsPromise]);
 
   // Si el usuario no existe o la API retornó un objeto vacío, aplicamos Early Return.
   if (!rawUser || Object.keys(rawUser).length === 0) {
@@ -56,6 +61,7 @@ export const fetchUserProfileById = async (userId) => {
  * 
  * @async
  * @function fetchAllUsers
+ * @param {RequestInit} [options={}] - Opciones para la petición fetch.
  * @returns {Promise<Array<Object>>} Una promesa que resuelve con la lista completa de
  * usuarios del dominio.
  * 
@@ -65,8 +71,8 @@ export const fetchUserProfileById = async (userId) => {
  * const activeUsers = users.filter(u => u.id > 0);
  * ```
  */
-export const fetchAllUsers = async () => {
-  const rawUsers = await getAllUsers();
+export const fetchAllUsers = async (options = {}) => {
+  const rawUsers = await getAllUsers(options);
   
   if (!Array.isArray(rawUsers)) return [];
 

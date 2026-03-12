@@ -37,6 +37,7 @@ const SearchBar = memo(({
                         placeholder="ID (1-10) o Nombre..."
                         value={value}
                         onChange={onChange}
+                        aria-describedby="search-helper"
                         className={cn(
                             "w-full px-5 py-3 bg-white/90 dark:bg-slate-800/90 border-2 rounded-xl transition-all text-slate-800 dark:text-slate-100 placeholder:text-slate-400 font-medium outline-none",
                             isError
@@ -64,6 +65,8 @@ const SearchBar = memo(({
             </div>
             {helperText && (
                 <p
+                    id="search-helper"
+                    aria-live="polite"
                     className={cn(
                         "mt-3 text-sm font-medium",
                         isError ? "text-red-500" : "text-slate-500 dark:text-slate-400"

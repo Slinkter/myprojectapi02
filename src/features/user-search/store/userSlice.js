@@ -3,11 +3,11 @@
  * Implementa la lógica de estado para la búsqueda, perfiles y caché de usuarios.
  * Sigue los principios de Redux Toolkit y Clean Code para asegurar estados
  * predecibles y selectores eficientes.
- * 
+ *
  * @module user-slice
  */
 
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
 import { fetchUserProfileById, fetchAllUsers } from "../services/user-service";
 
 // --- Async Thunks ---
@@ -15,7 +15,7 @@ import { fetchUserProfileById, fetchAllUsers } from "../services/user-service";
 /**
  * Thunk asíncrono para obtener un perfil completo (Usuario + Publicaciones) por su ID.
  * Gestiona errores de infraestructura y propaga mensajes de error localizables.
- * 
+ *
  * @function fetchUserAndPosts
  * @param {number|string} userId - ID del usuario a recuperar.
  * @param {Object} thunkAPI - API de Redux Toolkit para rejectWithValue.
@@ -23,9 +23,9 @@ import { fetchUserProfileById, fetchAllUsers } from "../services/user-service";
  */
 export const fetchUserAndPosts = createAsyncThunk(
   "user/fetchById",
-  async (userId, { rejectWithValue }) => {
+  async (userId, { rejectWithValue, signal }) => {
     try {
-      return await fetchUserProfileById(userId);
+      return await fetchUserProfileById(userId, { signal });
     } catch (error) {
       return rejectWithValue({ 
         message: error.message || "error.generic", 
@@ -33,28 +33,29 @@ export const fetchUserAndPosts = createAsyncThunk(
       });
     }
   },
-  {
-    condition: (userId, { getState }) => {
-      const { user } = getState();
-      if (user.fetchStatus === "loading") {
-        return false;
-      }
-    }
-  }
+
+    {
+        condition: (userId, { getState }) => {
+            const { user } = getState();
+            if (user.fetchStatus === "loading") {
+                return false;
+            }
+        },
+    },
 );
 
 /**
  * Thunk asíncrono para cargar la lista completa de usuarios.
  * Se utiliza principalmente para la funcionalidad de búsqueda local por nombre (caché).
- * 
+ *
  * @function fetchUsersList
  * @returns {Promise<Array<Object>>} Lista de todos los usuarios sanitizados.
  */
 export const fetchUsersList = createAsyncThunk(
   "user/fetchList",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, signal }) => {
     try {
-      return await fetchAllUsers();
+      return await fetchAllUsers({ signal });
     } catch (error) {
       return rejectWithValue({
         message: error.message || "error.list.generic",
@@ -63,6 +64,7 @@ export const fetchUsersList = createAsyncThunk(
     }
   }
 );
+
 
 // --- Slice Definition ---
 
@@ -77,68 +79,69 @@ export const fetchUsersList = createAsyncThunk(
  */
 
 const userSlice = createSlice({
-  name: "user",
-  initialState: {
-    // Estado de búsqueda individual
-    fetchStatus: "idle", 
-    error: null,
-    profileData: null,
-    userPosts: [],
-    // Estado de lista/caché (operación separada)
-    listStatus: "idle",
-    cachedUserList: [],
-  },
-  reducers: {
-    /**
-     * Reinicia el estado de búsqueda y perfil a sus valores iniciales.
-     * @param {UserState} state - Estado actual del slice.
-     */
-    resetUserState: (state) => {
-      state.fetchStatus = "idle";
-      state.profileData = null;
-      state.userPosts = [];
-      state.error = null;
-    }
-  },
-  extraReducers: (builder) => {
-    builder
-      // Búsqueda Individual
-      .addCase(fetchUserAndPosts.pending, (state) => {
-        state.fetchStatus = "loading";
-        state.error = null;
-        state.profileData = null;
-        state.userPosts = [];
-      })
-      .addCase(fetchUserAndPosts.fulfilled, (state, { payload }) => {
-        if (!payload.user) {
-          state.fetchStatus = "notFound";
-          state.profileData = null;
-          state.userPosts = [];
-          return;
-        }
-        state.fetchStatus = "succeeded";
-        state.profileData = payload.user;
-        state.userPosts = payload.posts;
-      })
-      .addCase(fetchUserAndPosts.rejected, (state, { payload }) => {
-        state.fetchStatus = payload?.status === 404 ? "notFound" : "failed";
-        state.error = payload?.message || "error.generic";
-        state.profileData = null;
-        state.userPosts = [];
-      })
-      // Carga de Lista (Caché)
-      .addCase(fetchUsersList.pending, (state) => {
-        state.listStatus = "loading";
-      })
-      .addCase(fetchUsersList.fulfilled, (state, { payload }) => {
-        state.listStatus = "succeeded";
-        state.cachedUserList = payload;
-      })
-      .addCase(fetchUsersList.rejected, (state) => {
-        state.listStatus = "failed";
-        state.cachedUserList = []; // Fallo explícito, no silencioso.
-      });
-  },
+    name: "user",
+    initialState: {
+        // Estado de búsqueda individual
+        fetchStatus: "idle",
+        error: null,
+        profileData: null,
+        userPosts: [],
+        // Estado de lista/caché (operación separada)
+        listStatus: "idle",
+        cachedUserList: [],
+    },
+    reducers: {
+        /**
+         * Reinicia el estado de búsqueda y perfil a sus valores iniciales.
+         * @param {UserState} state - Estado actual del slice.
+         */
+        resetUserState: (state) => {
+            state.fetchStatus = "idle";
+            state.profileData = null;
+            state.userPosts = [];
+            state.error = null;
+        },
+    },
+    extraReducers: (builder) => {
+        builder
+            // Búsqueda Individual
+            .addCase(fetchUserAndPosts.pending, (state) => {
+                state.fetchStatus = "loading";
+                state.error = null;
+                state.profileData = null;
+                state.userPosts = [];
+            })
+            .addCase(fetchUserAndPosts.fulfilled, (state, { payload }) => {
+                if (!payload.user) {
+                    state.fetchStatus = "notFound";
+                    state.profileData = null;
+                    state.userPosts = [];
+                    return;
+                }
+                state.fetchStatus = "succeeded";
+                state.profileData = payload.user;
+                state.userPosts = payload.posts;
+            })
+            .addCase(fetchUserAndPosts.rejected, (state, { payload }) => {
+                state.fetchStatus =
+                    payload?.status === 404 ? "notFound" : "failed";
+                state.error = payload?.message || "error.generic";
+                state.profileData = null;
+                state.userPosts = [];
+            })
+            // Carga de Lista (Caché)
+            .addCase(fetchUsersList.pending, (state) => {
+                state.listStatus = "loading";
+            })
+            .addCase(fetchUsersList.fulfilled, (state, { payload }) => {
+                state.listStatus = "succeeded";
+                state.cachedUserList = payload;
+            })
+            .addCase(fetchUsersList.rejected, (state) => {
+                state.listStatus = "failed";
+                state.cachedUserList = []; // Fallo explícito, no silencioso.
+            });
+    },
 });
 
 export const { resetUserState } = userSlice.actions;
@@ -175,5 +178,13 @@ export const selectUserFetchError = (state) => state.user.error;
  */
 export const selectCachedUsers = (state) => state.user.cachedUserList;
 
-export default userSlice.reducer;
+/**
+ * Selector memoizado para obtener la lista de usuarios en caché.
+ * Utiliza Reselect para evitar cálculos innecesarios si el estado no cambia.
+ */
+export const selectMemoizedUserList = createSelector(
+  [selectCachedUsers],
+  (cachedList) => cachedList
+);
 
+export default userSlice.reducer;

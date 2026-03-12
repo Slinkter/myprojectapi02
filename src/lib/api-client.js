@@ -6,7 +6,7 @@
  * @module api-client
  */
 
-const API_BASE_URL = "https://jsonplaceholder.typicode.com";
+import { API_BASE_URL } from "@/config/constants";
 
 /**
  * Realiza una petición HTTP GET sanitizada a la API externa.
@@ -15,6 +15,7 @@ const API_BASE_URL = "https://jsonplaceholder.typicode.com";
  * @async
  * @function fetchFromApi
  * @param {string} endpoint - El endpoint relativo al que se realizará la petición (ej: "users/1").
+ * @param {RequestInit} [options={}] - Opciones de configuración para la petición (ej: signal).
  * @returns {Promise<Object|Array>} Una promesa que resuelve con los datos parseados de la respuesta.
  * 
  * @throws {Error} Lanza un error con la propiedad `status` si la respuesta no es exitosa (4xx, 5xx).
@@ -32,11 +33,11 @@ const API_BASE_URL = "https://jsonplaceholder.typicode.com";
  * }
  * ```
  */
-export const fetchFromApi = async (endpoint) => {
+export const fetchFromApi = async (endpoint, options = {}) => {
   if (!endpoint) throw new Error("Endpoint is required");
 
   try {
-    const response = await fetch(`${API_BASE_URL}/${endpoint}`);
+    const response = await fetch(`${API_BASE_URL}/${endpoint}`, options);
 
     // Early Return: Error HTTP (4xx, 5xx)
     if (!response.ok) {
@@ -56,6 +57,9 @@ export const fetchFromApi = async (endpoint) => {
   } catch (error) {
     // Si ya es un error con status, lo relanzamos.
     if (error.status) throw error;
+
+    // Si es un error de cancelación (AbortError), lo relanzamos de forma limpia.
+    if (error.name === "AbortError") throw error;
 
     // Error de red o parseo.
     const networkError = new Error(`Network Error: ${error.message}`);
