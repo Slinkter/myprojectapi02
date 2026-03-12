@@ -4,6 +4,50 @@ Una aplicación React de alto rendimiento diseñada bajo principios de **Clean A
 
 ---
 
+## 🗺️ Guía Visual del Proyecto
+
+### 1. La "Cebolla" Arquitectónica (Capas Refinadas)
+
+```text
+                 CAPA 4: PRESENTACIÓN (UI)
+          ┌──────────────────────────────────────┐
+          │      CAPA 3: APLICACIÓN (Redux)       │
+          │   ┌──────────────────────────────┐   │
+          │   │  CAPA 2: DOMINIO (Mappers)   │   │
+          │   │   ┌──────────────────────┐   │   │
+          │   │   │CAPA 1: INFRAESTRUCTURA│  │   │
+          │   │   │ (API REST Adapters)  │   │   │
+          │   │   └──────────────────────┘   │   │
+          │   └──────────────────────────────┘   │
+          └──────────────────────────────────────┘
+```
+
+### 2. Árbol de Componentes (Jerarquía Visual)
+
+```text
+                       ┌──────────────────────┐
+                       │    MainLayout.jsx    │
+                       │    (Contenedor UI)   │
+                       └──────────────────────┘
+                                  │
+                       ┌──────────────────────┐
+                       │    UserSearchPage    │
+                       │    (Orquestador)     │
+                       └──────────────────────┘
+                       ╱                      ╲
+          ┌──────────────────────┐      ┌──────────────────────┐
+          │    SearchBar.jsx     │      │     UserView.jsx     │
+          │    Input + Botón     │      │     (State Gate)     │
+          └──────────────────────┘      └──────────────────────┘
+                                         ╱              ╲
+                          ┌──────────────────┐    ┌──────────────────┐
+                          │   UserProfile    │    │     PostList     │
+                          │    (Bio Data)    │    │   (Feed Data)    │
+                          └──────────────────┘    └──────────────────┘
+```
+
+---
+
 ## 🏗 Arquitectura y Patrones de Diseño
 
 El proyecto no es un simple buscador; es una implementación de **Screaming Architecture** (Feature-Based) que aísla la lógica de negocio de la infraestructura.
