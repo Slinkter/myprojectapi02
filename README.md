@@ -44,7 +44,41 @@ Este diagrama describe el ciclo de vida de una petición, destacando la segurida
     │ <── Success ────│ <─── Fulfilled ────│ <───── JSON ───────│
 ```
 
-### 3. Máquina de Estados (StateBoundary Logic)
+### 3. Arquitectura Cliente-Servidor (Infraestructura)
+
+Representación del ecosistema de red y protocolos utilizados.
+
+```text
+      CLIENTE (Browser)                   SERVIDOR (Cloud)
+  ┌──────────────────────┐            ┌──────────────────────┐
+  │   React / Redux App  │            │  JSONPlaceholder API │
+  │                      │            │                      │
+  │  [HTTP Client]       │── HTTPS ──>│  [REST Endpoints]    │
+  │  (Fetch + Abort)     │<─ JSON ─── │  (/users, /posts)    │
+  └──────────────────────┘            └──────────────────────┘
+             │                                   │
+      (Local Storage)                     (Cloud Database)
+      [User Cache]                        [Mock Data]
+```
+
+### 4. Diagrama de Estructura (UML Component-like)
+
+Dependencias estáticas entre módulos del sistema.
+
+```text
+   ┌───────────┐       ┌─────────────┐       ┌────────────┐
+   │  FEATURE  │──────>│   SERVICES  │──────>│    API     │
+   │  (React)   │       │  (Orchestr) │       │  (Adapters)│
+   └─────┬─────┘       └──────┬──────┘       └─────┬──────┘
+         │                    │                    │
+         V                    V                    V
+   ┌───────────┐       ┌─────────────┐       ┌────────────┐
+   │   STORE   │       │   MAPPERS   │       │   CLIENT   │
+   │  (Redux)   │<──────│  (Domain)   │       │   (Fetch)  │
+   └───────────┘       └─────────────┘       └────────────┘
+```
+
+### 5. Máquina de Estados (StateBoundary Logic)
 
 Documentación del comportamiento del orquestador de UI.
 
