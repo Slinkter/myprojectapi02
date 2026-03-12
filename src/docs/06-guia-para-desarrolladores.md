@@ -6,41 +6,30 @@ Esta guía detalla el flujo de trabajo para extender y mantener `myprojectapi02`
 
 El flujo de una búsqueda inteligente por nombre o ID sigue este camino:
 
-```ascii
-[USER] -> [SearchBar] (Input)
-           |
-           v
-[useSearchInput] (Validación & Helper Text)
-           |
-           v
-[UserSearchPage] (Orquestador)
-           |
-           v
-[useUserSearch] (Dispara Thunk: fetchUserAndPosts)
-           |
-           v
-[Redux: fetchUserAndPosts] (Thunk)
-           |
-           v
-[user-service] (Business Logic)
-           |
-      +----+----+
-      |         |
-[user.api]  [post.api] (API Fetch)
-      |         |
-      +----+----+
-           |
-           v
-[user.mappers] (Limpieza de Data / Mapeo de Entidad)
-           |
-           v
-[Redux Store] (Update State: succeeded)
-           |
-           v
-[StateBoundary] (UI Re-render)
-           |
-           v
-[UserView] (Presentación Final)
+```mermaid
+sequenceDiagram
+    participant U as USER
+    participant SB as SearchBar (Input)
+    participant USI as useSearchInput
+    participant USP as UserSearchPage
+    participant UUS as useUserSearch
+    participant R as Redux
+    participant S as user-service
+    participant API as user.api / post.api
+    participant M as user.mappers
+    participant ST as StateBoundary
+
+    U->>SB: Input
+    SB->>USI: Validación & Helper Text
+    USI->>USP: Orquestador
+    USP->>UUS: Dispara Thunk
+    UUS->>R: fetchUserAndPosts
+    R->>S: Business Logic
+    S->>API: API Fetch
+    API-->>M: Limpieza de Data
+    M-->>R: Update State (succeeded)
+    R->>ST: UI Re-render
+    ST->>U: Presentación Final
 ```
 
 ## 🛠️ Cómo agregar un nuevo campo al perfil de usuario
@@ -55,13 +44,14 @@ Si necesitas mostrar un nuevo campo de la API externa, sigue estos pasos:
 ## 🎨 Estándares de Estilo (Tailwind v4)
 
 No utilices archivos CSS externos para componentes nuevos. Usa las utilidades de Tailwind v4:
+
 - **Responsive:** `sm:`, `md:`, `lg:`.
 - **Modo Oscuro:** `dark:`.
 - **Animaciones:** `animate-in`, `fade-in`, `slide-in-from-bottom-4`.
 
 ```jsx
 <div className="bg-white dark:bg-slate-800 transition-colors duration-300">
-  {/* El color se adapta automáticamente al tema */}
+    {/* El color se adapta automáticamente al tema */}
 </div>
 ```
 
@@ -87,7 +77,7 @@ Usa siempre el hook `useTranslation` para textos visibles al usuario:
 import { useTranslation } from "@/hooks/useTranslation";
 
 function MiComponente() {
-  const { t } = useTranslation();
-  return <p>{t('mi_clave_de_traduccion')}</p>;
+    const { t } = useTranslation();
+    return <p>{t("mi_clave_de_traduccion")}</p>;
 }
 ```

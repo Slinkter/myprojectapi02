@@ -6,7 +6,7 @@ Este documento justifica las decisiones de ingeniería tomadas en el proyecto `m
 
 ## 🏗️ Criterios de Selección (Métricas)
 
-```
+```ascii
                     MÉTRICAS DE CALIDAD — DECISIONES
                     ────────────────────────────────
 
@@ -26,18 +26,18 @@ Este documento justifica las decisiones de ingeniería tomadas en el proyecto `m
 
 ## 📊 Matriz de Trade-offs Tecnológicos
 
-| Tecnología | Elegida | Alternativa Descartada | Razón del Cambio / Trade-off |
-|---|---|---|---|
-| **Estado** | Redux Toolkit | React Query / Context | Elegí Redux Toolkit por la necesidad de una orquestación compleja. |
-| **Estilos** | Tailwind v4 | CSS Modules / Styled-Comp | Tailwind v4 reduce el bundle size eliminando el runtime de JS. |
-| **Build** | Vite 5 | Create React App / Next.js | Vite ofrece una experiencia de desarrollo instantánea. |
-| **Arquitectura** | Feature-Based | Layer-Based | La organización por características facilita el escalado. |
+| Tecnología       | Elegida       | Alternativa Descartada     | Razón del Cambio / Trade-off                                       |
+| ---------------- | ------------- | -------------------------- | ------------------------------------------------------------------ |
+| **Estado**       | Redux Toolkit | React Query / Context      | Elegí Redux Toolkit por la necesidad de una orquestación compleja. |
+| **Estilos**      | Tailwind v4   | CSS Modules / Styled-Comp  | Tailwind v4 reduce el bundle size eliminando el runtime de JS.     |
+| **Build**        | Vite 5        | Create React App / Next.js | Vite ofrece una experiencia de desarrollo instantánea.             |
+| **Arquitectura** | Feature-Based | Layer-Based                | La organización por características facilita el escalado.          |
 
 ---
 
 ## 🧩 Comparación de Alternativas de Estado
 
-```
+```ascii
                     ESTADO GLOBAL — ARQUITECTURA
                     ────────────────────────────
 
@@ -54,4 +54,5 @@ Este documento justifica las decisiones de ingeniería tomadas en el proyecto `m
 ```
 
 ---
-*Documento generado bajo estándares de Senior Frontend Architecture.*
+
+_Documento generado bajo estándares de Senior Frontend Architecture._

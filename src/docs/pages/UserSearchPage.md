@@ -33,18 +33,13 @@ import UserSearchPage from '@/features/user-search/UserSearchPage'
 - **Store Redux**: Consume `userSlice` a través de los hooks de dominio.
 
 ## Diagrama
-```
-          ╔══════════════════════════╗
-         /                          /║
-        ╔══════════════════════════╗ ║
-        ║    UserSearchPage (SMART)║ ║
-        ║ Orquesta UI + Business   ║ ║
-        ╚══════════════════════════╝ ║
-          │         │         │      ║
-    ┌─────▼────┐┌───▼─────┐┌──▼──────┐
-    │SearchBar ││UserView ││StateBndry│
-    └──────────┘└──────────┘└──────────┘
-          │         │         │
-          ▼         ▼         ▼
-    [UI State] [Domain Data] [Error/Load]
+```mermaid
+graph TD
+    USP[UserSearchPage SMART<br/>Orquesta UI + Business] --> SB[SearchBar]
+    USP --> UV[UserView]
+    USP --> SBD[StateBoundary]
+    
+    SB --> UI[UI State]
+    UV --> DD[Domain Data]
+    SBD --> EL[Error/Load]
 ```

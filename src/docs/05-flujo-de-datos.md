@@ -88,26 +88,26 @@ graph TB
 
 El flujo representa el paso de un mensaje de acción a través de las capas asíncronas de Redux y los servicios de dominio.
 
-╔═══════════════════════════════════════════════════════════════════════════╗
-║                   SEQUENCE INTERACTION: USER FETCH                        ║▒
-╠═══════════════════════════════════════════════════════════════════════════╣▒
-║  USER  ▓▓▓▓▓  HOOKS  ▓▓▓▓▓  THUNK  ▓▓▓▓▓  SERVICE  ▓▓▓▓▓  API  ▓▓▓▓▓  STORE  ║▒
-║  ╔═══╗       ╔═════╗       ╔═════╗       ╔═══════╗      ╔═══╗       ╔═════╗  ║▒
-║  ║ U ║ ══>   ║  H  ║       ║  T  ║       ║   S   ║      ║ A ║       ║  St ║  ║▒
-║  ╚═══╝▒      ╚═════╝▒      ╚═════╝▒      ╚═══════╝▒     ╚═══╝▒      ╚═════╝▒ ║▒
-║    ║   ▒       ║     ▒       ║     ▒       ║       ▒      ║   ▒       ║     ▒║▒
-║    ║ [INPUT] ═>║             ║             ║             ║             ║     ║▒
-║    ║           ║ [DISPATCH] ═>             ║             ║             ║     ║▒
-║    ║           ║             ║ [PENDING] ═══════════════════════════> ║     ║▒
-║    ║           ║             ║ [CALL] ════>║             ║             ║     ║▒
-║    ║           ║             ║             ║ [FETCH] ═══>║             ║     ║▒
-║    ║           ║             ║             ║             ║ [DATA] ═>   ║     ║▒
-║    ║           ║             ║ [MAP] <═════║             ║             ║     ║▒
-║    ║           ║ [FULFILLED] ═══════════════════════════════════════> ║     ║▒
-║    ║           ║ <════════════════════════════════════════════════════ ║     ║▒
-║    ║ [RENDER] <║             ║             ║             ║             ║     ║▒
-╚═══════════════════════════════════════════════════════════════════════════╝▒
- ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+```mermaid
+sequenceDiagram
+    participant User as USER
+    participant Hooks as HOOKS
+    participant Thunk as THUNK
+    participant Service as SERVICE
+    participant API as API
+    participant Store as STORE
+
+    User->>Hooks: INPUT
+    Hooks->>Thunk: DISPATCH
+    Thunk->>Store: PENDING
+    Thunk->>Service: CALL
+    Service->>API: FETCH
+    API-->>Service: DATA
+    Service-->>Thunk: MAP
+    Thunk->>Store: FULFILLED
+    Store-->>Hooks: State Update
+    Hooks-->>User: RENDER
+```
 
 ---
 

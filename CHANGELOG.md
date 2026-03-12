@@ -1,0 +1,17 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [2.0.0] - 2026-03-05
+### Added
+- **Clean Architecture & DDD:** Separation of application services and mappers to sanitize data and keep business logic independent of UI (`user-service.js`, `user.mappers.js`).
+- **Professional i18n System:** Hierarchical internationalization using a `t()` hook with dot-notation support for scalable multi-language contexts.
+- **Pedagogical Excellence:** Created a doctoral-grade documentation ecosystem (`MASTERCLASS_INGENIERIA.md`, `CURSO_TESTING.md`, `QUE_ES_MCP.md`) turning the project into a senior teaching tool.
+
+### Changed
+- **Infrastructure Refactoring:** Complete isolation of the external API (`api.config.js` migrated to `api-client.js`).
+- **Error Management:** Implemented error handling based on HTTP status codes to protect the domain.
+- **Clean Code Standardization:** Applied systematic use of **Early Returns** and universal `camelCase`/`PascalCase` naming conventions to reduce cognitive load.

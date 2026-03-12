@@ -30,12 +30,9 @@ Componente de orquestación de UI que gestiona el renderizado condicional basado
 ```
 
 ## Diagrama
-```
-    ╔══════════════╗
-   /  StateBound  /║
-  ╔══════════════╗ ║───► if (loading) -> LoadingView
-  ║   [ Switch ] ║ ║───► if (failed)  -> ErrorMessage
-  ║   [ Status ] ║ ║───► if (success) -> children
-  ╚══════════════╝/
-   ╚───────────────╝
+```mermaid
+graph TD
+    SB[StateBoundary] -->|loading| LV[LoadingView]
+    SB -->|failed| EM[ErrorMessage]
+    SB -->|success| C[children]
 ```

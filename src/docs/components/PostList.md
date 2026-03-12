@@ -24,15 +24,9 @@ Lista responsiva de publicaciones asociadas a un usuario. Implementa estados vac
 - Utils: `cn`.
 
 ## Diagrama
-```
-    ╔══════════════╗
-   /   PostList   /║
-  ╔══════════════╗ ║
-  ║  [ Header ]  ║ ║
-  ╟──────────────╢ ║
-  ║  [ Article ] ║ ║─── Post 1
-  ╟──────────────╢ ║
-  ║  [ Article ] ║ ║─── Post 2
-  ╚══════════════╝/
-   ╚───────────────╝
+```mermaid
+graph TD
+    PL[PostList] --> H[Header]
+    PL --> A1[Article<br/>Post 1]
+    PL --> A2[Article<br/>Post 2]
 ```

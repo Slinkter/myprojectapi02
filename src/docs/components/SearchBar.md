@@ -36,12 +36,12 @@ Componente de entrada interactivo que permite realizar búsquedas por ID numéri
 - Utils: `cn` (clsx + tailwind-merge)
 
 ## Diagrama
-```
-    ╔══════════════╗
-   /              /║
-  ╔══════════════╗ ║───► [onSearch]
-  ║ [ Input ]    ║ ║◄─── [value]
-  ║ [ Button ]   ║ ║
-  ╚══════════════╝/
-   ╚───────────────╝
+```mermaid
+graph LR
+    subgraph SearchBar
+        I[Input]
+        B[Button]
+    end
+    I -- value --> Parent
+    B -- onSearch --> Parent
 ```

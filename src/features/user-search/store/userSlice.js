@@ -7,7 +7,11 @@
  * @module user-slice
  */
 
-import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import {
+    createSlice,
+    createAsyncThunk,
+    createSelector,
+} from "@reduxjs/toolkit";
 import { fetchUserProfileById, fetchAllUsers } from "../services/user-service";
 
 // --- Async Thunks ---
@@ -22,17 +26,17 @@ import { fetchUserProfileById, fetchAllUsers } from "../services/user-service";
  * @returns {Promise<Object>} Perfil de usuario y posts.
  */
 export const fetchUserAndPosts = createAsyncThunk(
-  "user/fetchById",
-  async (userId, { rejectWithValue, signal }) => {
-    try {
-      return await fetchUserProfileById(userId, { signal });
-    } catch (error) {
-      return rejectWithValue({ 
-        message: error.message || "error.generic", 
-        status: error.status 
-      });
-    }
-  },
+    "user/fetchById",
+    async (userId, { rejectWithValue, signal }) => {
+        try {
+            return await fetchUserProfileById(userId, { signal });
+        } catch (error) {
+            return rejectWithValue({
+                message: error.message || "error.generic",
+                status: error.status,
+            });
+        }
+    },
 
     {
         condition: (userId, { getState }) => {
@@ -52,19 +56,18 @@ export const fetchUserAndPosts = createAsyncThunk(
  * @returns {Promise<Array<Object>>} Lista de todos los usuarios sanitizados.
  */
 export const fetchUsersList = createAsyncThunk(
-  "user/fetchList",
-  async (_, { rejectWithValue, signal }) => {
-    try {
-      return await fetchAllUsers({ signal });
-    } catch (error) {
-      return rejectWithValue({
-        message: error.message || "error.list.generic",
-        status: error.status || 500
-      });
-    }
-  }
+    "user/fetchList",
+    async (_, { rejectWithValue, signal }) => {
+        try {
+            return await fetchAllUsers({ signal });
+        } catch (error) {
+            return rejectWithValue({
+                message: error.message || "error.list.generic",
+                status: error.status || 500,
+            });
+        }
+    },
 );
-
 
 // --- Slice Definition ---
 
@@ -183,8 +186,8 @@ export const selectCachedUsers = (state) => state.user.cachedUserList;
  * Utiliza Reselect para evitar cálculos innecesarios si el estado no cambia.
  */
 export const selectMemoizedUserList = createSelector(
-  [selectCachedUsers],
-  (cachedList) => cachedList
+    [selectCachedUsers],
+    (cachedList) => cachedList,
 );
 
 export default userSlice.reducer;

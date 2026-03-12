@@ -28,15 +28,8 @@ import ThemeToggleButton from '@/components/ui/ThemeToggleButton'
 - Icons: `SunIcon`, `MoonIcon` (@heroicons/react)
 
 ## Diagrama
-```
-    ╔══════════════╗
-   /              /║
-  ╔══════════════╗ ║
-  ║ ThemeToggle  ║ ║───► [useTheme Hook]
-  ║ Button       ║ ║◄─── (isDark status)
-  ╚══════════════╝ ║
-   ╚───────────────╝
-          │
-          ▼
-    [DOM Root Class] (.dark)
+```mermaid
+graph TD
+    TTB[ThemeToggle Button] <--> UT[useTheme Hook]
+    UT --> DOM[DOM Root Class<br/>.dark]
 ```

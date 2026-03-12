@@ -26,13 +26,8 @@ Tarjeta detallada que presenta la información de perfil de un usuario, incluyen
 - Utils: `cn`.
 
 ## Diagrama
-```
-    ╔══════════════╗
-   /   Profile    /║
-  ╔══════════════╗ ║
-  ║  [ Header ]  ║ ║─── Name, Username
-  ╟──────────────╢ ║
-  ║  [ InfoGrid ]║ ║─── Email, Web, etc.
-  ╚══════════════╝/
-   ╚───────────────╝
+```mermaid
+graph TD
+    UP[Profile] --> H[Header<br/>Name, Username]
+    UP --> IG[InfoGrid<br/>Email, Web, etc.]
 ```

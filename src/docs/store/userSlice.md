@@ -6,18 +6,20 @@ Este documento detalla la estructura del estado global para la gestión de usuar
 
 ## 🏗️ Estructura del Initial State
 
-╔══════════════════════════════════════════════════════╗
-║                   USER SLICE STATE                   ║▒
-╠══════════════════════════════════════════════════════╣▒
-║  ╔═════════════════╗        ╔══════════════════╗     ║▒
-║  ║  BÚSQUEDA INDIV ║ <════> ║  LISTA (CACHÉ)   ║     ║▒
-║  ╚════════╦════════╝▒       ╚════════╦═════════╝▒    ║▒
-║           ║          ▒               ║          ▒    ║▒
-║  ╔════════▼════════╗        ╔════════▼════════╗     ║▒
-║  ║ fetchStatus     ║ <════> ║ listStatus      ║     ║▒
-║  ╚═════════════════╝▒       ╚═════════════════╝▒    ║▒
-╚══════════════════════════════════════════════════════╝▒
- ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+```mermaid
+graph LR
+    subgraph Búsqueda Individual
+        BI[User Profile/Posts]
+        FS[fetchStatus]
+    end
+    subgraph Lista Caché
+        LC[Lista Completa]
+        LS[listStatus]
+    end
+    
+    BI <--> LC
+    FS <--> LS
+```
 
 ---
 
@@ -43,9 +45,9 @@ El Thunk gestiona 5 estados para la UI:
 
 ---
 
-## 🎯 Selectores Directos (Optimized)
+## 🎯 Selectores (Directos y Memoizados)
 
-Hemos eliminado `createSelector` para accesos directos, mejorando el rendimiento.
+Mantenemos accesos directos para datos simples, pero hemos reintroducido **`createSelector`** (Reselect) para la caché de usuarios. Esto evita re-cálculos innecesarios y re-renders excesivos en la UI cuando se realiza la búsqueda por nombre en la lista en caché, optimizando drásticamente el rendimiento del hook de búsqueda.
 
 | Selector | Retorna | Cuándo Usar |
 |---|---|---|
@@ -53,7 +55,7 @@ Hemos eliminado `createSelector` para accesos directos, mejorando el rendimiento
 | `selectCurrentUserPosts` | `Array` | Renderizar la lista de posts. |
 | `selectUserFetchStatus` | `string` | Para el `StateBoundary`. |
 | `selectUserFetchError` | `string | null` | Mostrar mensaje de error. |
-| `selectCachedUsers` | `Array` | Búsqueda por nombre en el hook. |
+| `selectMemoizedUserList` | `Array` | Búsqueda por nombre en el hook (Memoizado con `createSelector`). |
 
 ---
 
