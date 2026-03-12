@@ -1,17 +1,14 @@
 /**
- * @fileoverview Redux Slice para la gestión del estado de Usuarios.
+ * @fileoverview
+ * Gestión del estado de Usuarios.
  * Implementa la lógica de estado para la búsqueda, perfiles y caché de usuarios.
- * Sigue los principios de Redux Toolkit y Clean Code para asegurar estados
- * predecibles y selectores eficientes.
  *
  * @module user-slice
  */
 
-import {
-    createSlice,
-    createAsyncThunk,
-    createSelector,
-} from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createSelector } from "@reduxjs/toolkit";
 import { fetchUserProfileById, fetchAllUsers } from "../services/user-service";
 
 // --- Async Thunks ---
@@ -82,20 +79,23 @@ export const fetchUsersList = createAsyncThunk(
  */
 
 const userSlice = createSlice({
-    name: "user",
+    name: "user", // Nombre del slice, usado para generar los action types (ej: 'user/resetUserState')
     initialState: {
+        // --- Estado de la Bóveda (Datos iniciales) ---
         // Estado de búsqueda individual
-        fetchStatus: "idle",
-        error: null,
-        profileData: null,
-        userPosts: [],
+        fetchStatus: "idle", // Máquina de estados: 'idle', 'loading', 'succeeded', 'failed', 'notFound'
+        error: null,         // Almacena el motivo si la petición falla
+        profileData: null,   // Los datos del usuario (el tesoro)
+        userPosts: [],       // Los posts del usuario
         // Estado de lista/caché (operación separada)
-        listStatus: "idle",
-        cachedUserList: [],
+        listStatus: "idle",  // Estado de la descarga de toda la base de datos
+        cachedUserList: [],  // Lista en memoria para búsquedas instantáneas
     },
     reducers: {
+        // --- Reducers Síncronos (Los Cajeros Rápidos) ---
         /**
          * Reinicia el estado de búsqueda y perfil a sus valores iniciales.
+         * RTK usa Immer por debajo, permitiendo "mutar" el state directamente.
          * @param {UserState} state - Estado actual del slice.
          */
         resetUserState: (state) => {
@@ -106,39 +106,45 @@ const userSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
+        // --- Extra Reducers (Los Cajeros que atienden a los Camiones Blindados / Thunks) ---
         builder
-            // Búsqueda Individual
+            // Búsqueda Individual (fetchUserAndPosts)
             .addCase(fetchUserAndPosts.pending, (state) => {
+                // El camión acaba de salir. Ponemos el cartel de "Cargando".
                 state.fetchStatus = "loading";
                 state.error = null;
                 state.profileData = null;
                 state.userPosts = [];
             })
             .addCase(fetchUserAndPosts.fulfilled, (state, { payload }) => {
+                // El camión volvió con éxito.
                 if (!payload.user) {
+                    // Volvió con las manos vacías (Usuario no existe)
                     state.fetchStatus = "notFound";
                     state.profileData = null;
                     state.userPosts = [];
                     return;
                 }
+                // ¡Éxito real! Guardamos el botín en la bóveda.
                 state.fetchStatus = "succeeded";
                 state.profileData = payload.user;
                 state.userPosts = payload.posts;
             })
             .addCase(fetchUserAndPosts.rejected, (state, { payload }) => {
+                // El camión chocó (Fallo de red o error 500).
                 state.fetchStatus =
                     payload?.status === 404 ? "notFound" : "failed";
                 state.error = payload?.message || "error.generic";
                 state.profileData = null;
                 state.userPosts = [];
             })
-            // Carga de Lista (Caché)
+            // Carga de Lista (fetchUsersList)
             .addCase(fetchUsersList.pending, (state) => {
                 state.listStatus = "loading";
             })
             .addCase(fetchUsersList.fulfilled, (state, { payload }) => {
                 state.listStatus = "succeeded";
-                state.cachedUserList = payload;
+                state.cachedUserList = payload; // Guardamos la caché
             })
             .addCase(fetchUsersList.rejected, (state) => {
                 state.listStatus = "failed";
@@ -149,7 +155,7 @@ const userSlice = createSlice({
 
 export const { resetUserState } = userSlice.actions;
 
-// --- Direct Selectors (Optimized) ---
+// --- Selectores (Las pantallas de visualización) ---
 
 /**
  * Selector directo para los datos del perfil del usuario actual.
@@ -165,6 +171,7 @@ export const selectCurrentUserPosts = (state) => state.user.userPosts;
 
 /**
  * Selector directo para el estado de la petición individual (status).
+ * Útil para que la UI sepa si debe mostrar un Skeleton o el contenido.
  * @param {Object} state - Estado global de Redux.
  */
 export const selectUserFetchStatus = (state) => state.user.fetchStatus;
@@ -184,6 +191,7 @@ export const selectCachedUsers = (state) => state.user.cachedUserList;
 /**
  * Selector memoizado para obtener la lista de usuarios en caché.
  * Utiliza Reselect para evitar cálculos innecesarios si el estado no cambia.
+ * Fundamental para el rendimiento en búsquedas de listas grandes.
  */
 export const selectMemoizedUserList = createSelector(
     [selectCachedUsers],
