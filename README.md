@@ -1,104 +1,67 @@
-# UserApp Pro (v2.2)
+# UserApp Pro - Enterprise API Consumer
 
-> SPA de búsqueda de perfiles construida con React 18 + Redux Toolkit.
-> Una demostración técnica de **Clean Architecture**, **Data Mappers** y **State Management** profesional.
-
-![React 18](https://img.shields.io/badge/React-18.3-blue)
-![Vite 5](https://img.shields.io/badge/Vite-5.4-646CFF)
-![Tailwind v4](https://img.shields.io/badge/Tailwind-v4.0-38B2AC)
-![Redux Toolkit](https://img.shields.io/badge/Redux-Toolkit-764ABC)
+Una aplicación React de alto rendimiento diseñada bajo principios de **Clean Architecture**, enfocada en la resiliencia de datos, optimización de UX y patrones de diseño avanzados.
 
 ---
 
-## 🗺️ Guía Visual del Proyecto
+## 🏗 Arquitectura y Patrones de Diseño
 
-### 1. La "Cebolla" Arquitectónica (Capas Refinadas)
+El proyecto no es un simple buscador; es una implementación de **Screaming Architecture** (Feature-Based) que aísla la lógica de negocio de la infraestructura.
 
-```
-                 CAPA 4: PRESENTACIÓN (UI)
-          ┌──────────────────────────────────────┐
-          │      CAPA 3: APLICACIÓN (Redux)       │
-          │   ┌──────────────────────────────┐   │
-          │   │  CAPA 2: DOMINIO (Mappers)   │   │
-          │   │   ┌──────────────────────┐   │   │
-          │   │   │CAPA 1: INFRAESTRUCTURA│  │   │
-          │   │   │ (API REST Adapters)  │   │   │
-          │   │   └──────────────────────┘   │   │
-          │   └──────────────────────────────┘   │
-          └──────────────────────────────────────┘
-```
+### 1. Layered Architecture (Separación de Capas)
+*   **Infrastructure Layer (`api/`, `lib/api-client.js`):** Abstracción pura de red utilizando `fetch` con soporte nativo para `AbortController` (cancelación de peticiones) para prevenir *race conditions*.
+*   **Domain Layer (`domain/user.mappers.js`):** Implementación de **Mappers** que actúan como una *Anti-Corruption Layer (ACL)*, sanitizando y transformando los datos crudos de la API externa en entidades seguras para la UI.
+*   **Application/Service Layer (`services/`):** Orquestación de lógica compleja, como el **Modo Degradado**, que permite cargar el perfil del usuario incluso si la consulta de sus publicaciones falla.
+*   **State Management (`store/`):** Uso de **Redux Toolkit** con selectores memoizados (`createSelector`) para optimizar el rendimiento computacional.
 
-### 2. Árbol de Componentes (Jerarquía Visual)
-
-```
-                       ┌──────────────────────┐
-                       │    MainLayout.jsx    │
-                       │    (Contenedor UI)   │
-                       └──────────────────────┘
-                                  │
-                       ┌──────────────────────┐
-                       │    UserSearchPage    │
-                       │    (Orquestador)     │
-                       └──────────────────────┘
-                       ╱                      ╲
-          ┌──────────────────────┐      ┌──────────────────────┐
-          │    SearchBar.jsx     │      │     UserView.jsx     │
-          │    Input + Botón     │      │     (State Gate)     │
-          └──────────────────────┘      └──────────────────────┘
-                                         ╱              ╲
-                          ┌──────────────────┐    ┌──────────────────┐
-                          │   UserProfile    │    │     PostList     │
-                          │    (Bio Data)    │    │   (Feed Data)    │
-                          └──────────────────┘    └──────────────────┘
-```
-
-### 3. El "Camino Feliz" (Data Flow)
-
-```
-    ① INPUT                ② DOMAIN HOOK           ③ DATA MAPPER
-    ───────                ─────────────           ─────────────
-
-    ┌──────────────┐       ┌──────────────┐         ┌──────────────────┐
-    │   Usuario    │       │useUserSearch │         │  user.mappers.js │
-    │   "id: 1"    │──────►│   dispatch   │────────►│   mapRawUser()   │
-    │   (Events)   │       │   (Logic)    │         │   (Pure Data)    │
-    └──────────────┘       └──────────────┘         └──────────────────┘
-```
+### 2. Patrones de UI Avanzados
+*   **State Boundary Pattern:** Gestión declarativa de estados laterales (Loading, Error, NotFound, Success) mediante un componente de orden superior que centraliza el flujo visual.
+*   **Headless Hooks:** Lógica de validación (`useSearchInput`) y de dominio (`useUserSearch`) totalmente desacoplada de los componentes visuales.
+*   **Container/Presentational:** Clara distinción entre componentes lógicos y componentes puros de renderizado.
 
 ---
 
-## 📦 Stack Tecnológico y Trade-offs
+## 🚀 Optimizaciones de Ingeniería
 
-| Tecnología        | Razón de la elección                              | Trade-off (Lo malo)                               |
-| ----------------- | ------------------------------------------------- | ------------------------------------------------- |
-| **Redux Toolkit** | Flujo de datos 100% predecible y centralizado.    | Añade más archivos que usar un simple `useState`. |
-| **Tailwind v4**   | Estilizado ultra-rápido sin archivos CSS pesados. | Las clases en el HTML pueden verse desordenadas.  |
-| **Data Mappers**  | Protege la UI de cambios en la API externa.       | Requiere escribir código extra de transformación. |
-| **Vite**          | Recarga instantánea y construcción optimizada.    | Configuración mínima pero rígida.                 |
+### Resiliencia y Rendimiento
+*   **Gestión de Concurrencia:** Implementación de `AbortSignal` en toda la cadena de llamadas para abortar peticiones obsoletas durante el tipado rápido.
+*   **Búsqueda Normalizada:** Algoritmo de búsqueda inteligente que ignora acentos (`normalize("NFD")`), mayúsculas y espacios innecesarios, mejorando la tasa de éxito de búsqueda por nombre.
+*   **Debouncing de Validación:** Optimización del hilo principal mediante el retraso de validaciones sintácticas mientras el usuario escribe.
+
+### Experiencia de Usuario (UX/DX)
+*   **Feedback Instantáneo:** Mensajes de asistencia dinámicos basados en constantes configurables (`src/config/constants.js`).
+*   **Accesibilidad (A11y):** Uso de `aria-live="polite"` y `aria-describedby` para asegurar que los cambios de estado sean comunicados correctamente a lectores de pantalla.
+*   **Transiciones Fluídas:** Animaciones de entrada (`fade-in`) y esqueletos de carga (`ProfileSkeleton`) para reducir la carga cognitiva durante la espera de datos.
 
 ---
 
-## 🛠️ Instalación Rápida
+## 🛠 Tech Stack
 
+*   **Core:** React 18 (Hooks, Memo, Suspense Patterns)
+*   **State:** Redux Toolkit + Reselect
+*   **Styling:** Tailwind CSS 4 + Lucide/Heroicons
+*   **Infrastructure:** Vite + ESLint (Standard Strict)
+*   **Tools:** AbortController API, String Normalization API
+
+---
+
+## 📖 Guía de Desarrollo
+
+### Instalación
 ```bash
 pnpm install
-pnpm run dev    # Desarrollo (http://localhost:5173)
-pnpm run build  # Producción
+```
+
+### Ejecución
+```bash
+pnpm dev
+```
+
+### Calidad de Código (Linting)
+```bash
+pnpm lint
 ```
 
 ---
 
-## 📚 Documentación Profunda
-
-- [📖 Masterclass de Ingeniería](./src/docs/MASTERCLASS_INGENIERIA.md): Explicación línea a línea de los patrones.
-- [🏗️ Arquitectura](./src/docs/architecture.md): Diagramas técnicos y flujo de datos.
-- [🩺 Diagnóstico Técnico](./src/docs/00-diagnostico-tecnico.md): Por qué elegí este stack.
-
----
-
-## 👤 Autor
-
-**Luis J. Cueva** — Frontend Architect
-[LinkedIn](https://www.linkedin.com/in/slinkter/) | [GitHub](https://github.com/Slinkter)
-
-MIT © 2026
+> **Nota de Ingeniería:** Este proyecto cumple con los estándares de **Clean Code**, evitando el uso de "hardcoding" mediante un sistema de configuración centralizado y garantizando que cada función tenga una única responsabilidad (SRP).
