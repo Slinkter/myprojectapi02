@@ -38,9 +38,10 @@ export const fetchFromApi = async (endpoint, options = {}) => {
     if (!endpoint) throw new Error("Endpoint is required");
 
     try {
-        const response = await fetch(`${API_BASE_URL}/${endpoint}`, options);
+        const url = `${API_BASE_URL}/${endpoint}`;
+        const response = await fetch(url, options);
 
-        // Early Return: Error HTTP (4xx, 5xx)
+        // responde != 200 , Early Return: Error HTTP (4xx, 5xx)
         if (!response.ok) {
             const error = new Error(`Infrastructure Error: ${response.status}`);
             error.status = response.status;

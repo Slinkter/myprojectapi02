@@ -13,14 +13,14 @@ graph TD
     subgraph "CAPA 4: PRESENTACIÓN (UI)"
         UI[React Components]
     end
-    subgraph "CAPA 3: APLICACIÓN (Redux)"
-        STATE[Redux Thunks / Slices]
+    subgraph "CAPA 3: APLICACIÓN (State/Hooks)"
+        STATE[Redux Thunks / Slices / Context]
     end
     subgraph "CAPA 2: DOMINIO (Mappers)"
         DOMAIN[Sanitizers / Entidades]
     end
     subgraph "CAPA 1: INFRAESTRUCTURA"
-        API[API REST Adapters]
+        API[API REST Adapters / Fetch]
     end
 
     UI --> STATE
@@ -58,95 +58,69 @@ sequenceDiagram
     UI-->>User: Success (Render)
 ```
 
-### 3. Arquitectura Cliente-Servidor (Infraestructura)
+---
 
-```mermaid
-architecture-beta
-    group client(cloud)[CLIENTE]
-    service browser(internet)[React / Redux App] in client
-    
-    group server(cloud)[SERVIDOR]
-    service api(server)[JSONPlaceholder API] in server
-    
-    browser:R -- L:api
-```
+## 🏗 Arquitectura y Capas
 
-### 4. Máquina de Estados (StateBoundary Logic)
+El proyecto implementa una **Arquitectura de Capas (Onion Architecture)** que aísla la lógica de negocio de la infraestructura externa:
 
-```mermaid
-stateDiagram-v2
-    [*] --> IDLE
-    IDLE --> LOADING : Búsqueda
-    LOADING --> SUCCESS : Resuelto
-    LOADING --> ERROR : Fallo Red/404
-    SUCCESS --> LOADING : Nueva Búsqueda
-    ERROR --> LOADING : Reintentar
-```
+1.  **Infraestructura (`api/`, `lib/`):** Adaptadores REST y configuración de red. Usa `fetch` con `AbortController`.
+2.  **Dominio (`domain/`):** Implementación de **Mappers** (Capa Anti-Corrupción) para transformar datos de la API en entidades limpias.
+3.  **Aplicación (`store/`, `hooks/`):** Gestión de estado global y hooks de orquestación.
+4.  **Presentación (`components/`):** Componentes React puros y orquestadores (Smart/Dumb Components).
 
 ---
 
-## 🏗 Arquitectura y Patrones de Diseño
+## 🧠 Estrategia de Gestión de Estado
 
-El proyecto no es un simple buscador; es una implementación de **Screaming Architecture** (Feature-Based) que aísla la lógica de negocio de la infraestructura.
+Manejamos un enfoque híbrido para garantizar escalabilidad:
 
-### 1. Layered Architecture (Separación de Capas)
-
-- **Infrastructure Layer (`api/`, `lib/api-client.js`):** Abstracción pura de red utilizando `fetch` con soporte nativo para `AbortController`.
-- **Domain Layer (`domain/user.mappers.js`):** Implementación de **Mappers** (Anti-Corruption Layer) que sanitizan y transforman los datos crudos.
-- **Application/Service Layer (`services/`):** Orquestación de lógica compleja (Modo Degradado).
-- **State Management (`store/`):** Uso de **Redux Toolkit** con selectores memoizados (`createSelector`).
+-   **Redux Toolkit:** Gestión del estado global y datos del dominio (Usuarios, Posts). Uso intensivo de Thunks y Selectores memoizados.
+-   **Context API:** Utilizado para estados de UI transversales (ej. Sistema de Temas Dark/Light).
+-   **useState:** Limitado estrictamente a estados locales efímeros de componentes.
 
 ---
 
 ## 🚀 Optimizaciones de Ingeniería
 
-### Resiliencia y Rendimiento
-
-- **Gestión de Concurrencia:** Implementación de `AbortSignal` para abortar peticiones obsoletas.
-- **Búsqueda Normalizada:** Algoritmo que ignora acentos, mayúsculas y espacios.
-- **Debouncing de Validación:** Optimización del hilo principal durante el tipado.
+-   **Resiliencia:** Implementación de `AbortSignal` en todas las peticiones para evitar condiciones de carrera.
+-   **Normalización:** Búsqueda insensible a acentos y mayúsculas.
+-   **UX:** Uso de `StateBoundary` para manejar estados de carga, error y "no encontrado" de forma centralizada.
 
 ---
 
-## 📦 Stack Tecnológico y Trade-offs
+## 📦 Stack Tecnológico
 
-| Tecnología        | Razón de la elección                              | Trade-off (Lo malo)                               |
-| ----------------- | ------------------------------------------------- | ------------------------------------------------- |
-| **Redux Toolkit** | Flujo de datos 100% predecible y centralizado.    | Añade más archivos que usar un simple `useState`. |
-| **Tailwind v4**   | Estilizado ultra-rápido sin archivos CSS pesados. | Las clases en el HTML pueden verse desordenadas.  |
-| **Data Mappers**  | Protege la UI de cambios en la API externa.       | Requiere escribir código extra de transformación. |
-| **Vite**          | Recarga instantánea y construcción optimizada.    | Configuración mínima pero rígida.                 |
-
----
-
-## 📚 Documentación Profunda
-
-- [📖 Masterclass de Ingeniería](./src/docs/MASTERCLASS_INGENIERIA.md): Explicación línea a línea de los patrones.
-- [🏗️ Arquitectura](./src/docs/architecture.md): Diagramas técnicos y flujo de datos.
-- [🩺 Diagnóstico Técnico](./src/docs/00-diagnostico-tecnico.md): Por qué elegí este stack.
+| Tecnología | Razón de la elección |
+| :--- | :--- |
+| **React 18** | UI declarativa y concurrente. |
+| **Redux Toolkit** | Flujo de datos predecible y centralizado. |
+| **Tailwind CSS v4** | Estilizado ultra-rápido basado en utilidades de última generación. |
+| **Vite** | Herramienta de construcción instantánea. |
 
 ---
 
 ## 📖 Guía de Desarrollo
 
-### Instalación
+### Requisitos Previos
+- **Node.js:** v18 o superior.
+- **pnpm:** Gestor de paquetes recomendado.
 
+### Instalación
 ```bash
 pnpm install
 ```
 
 ### Ejecución
-
 ```bash
 pnpm dev
 ```
 
-### Calidad de Código (Linting)
-
-```bash
-pnpm lint
-```
+### Comandos Útiles
+- `pnpm build`: Genera el bundle de producción.
+- `pnpm lint`: Ejecuta el análisis de calidad de código.
+- `pnpm deploy`: Despliega a GitHub Pages.
 
 ---
 
-> **Nota de Ingeniería:** Este proyecto cumple con los estándares de **Clean Code**, evitando el uso de "hardcoding" y garantizando que cada función tenga una única responsabilidad (SRP).
+> **Referencia Técnica:** Para convenciones detalladas de codificación y guías de extensión, consulta el archivo [GEMINI.md](./GEMINI.md).

@@ -36,7 +36,8 @@ export const getUser = async (id, options = {}) => {
     if (!id) return {};
 
     try {
-        return await fetchFromApi(`users/${id}`, options);
+        const endpoint = `users/${id}`;
+        return await fetchFromApi(endpoint, options);
     } catch (error) {
         // Si es un 404, retornamos objeto vacío de forma segura para la capa de servicios.
         if (error.status === 404) return {};
@@ -63,7 +64,8 @@ export const getUser = async (id, options = {}) => {
  */
 export const getAllUsers = async (options = {}) => {
     try {
-        const users = await fetchFromApi("users", options);
+        const endpoint = "users";
+        const users = await fetchFromApi(endpoint, options);
         return Array.isArray(users) ? users : [];
     } catch (error) {
         // Error silencioso para la lista completa para no bloquear la app.
