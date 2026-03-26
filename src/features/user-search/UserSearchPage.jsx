@@ -41,10 +41,18 @@ LoadingView.displayName = "LoadingView";
 const Header = memo(() => {
     return (
         <header className={cn("text-center mb-12")}>
-            <h2 className={cn("text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4")}>
+            <h2
+                className={cn(
+                    "text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4",
+                )}
+            >
                 Buscador de Usuarios
             </h2>
-            <p className={cn("text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto")}>
+            <p
+                className={cn(
+                    "text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto",
+                )}
+            >
                 Busca por ID numérico (1-10) o por nombre de usuario.
             </p>
         </header>

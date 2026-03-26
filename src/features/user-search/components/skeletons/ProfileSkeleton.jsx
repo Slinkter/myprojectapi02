@@ -27,7 +27,7 @@ function ProfileSkeleton() {
       
       <div className={cn("p-6 grid grid-cols-1 md:grid-cols-2 gap-6")}>
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className={cn("flex items-start gap-3")}>
+          <div key={`profile-field-${i}`} className={cn("flex items-start gap-3")}>
             <div className={cn("h-6 w-6 bg-slate-200 rounded shrink-0")}></div>
             <div className={cn("flex-1")}>
               <div className={cn("h-3 bg-slate-200 rounded w-1/4 mb-2")}></div>

@@ -16,8 +16,12 @@ Bienvenido a la documentación técnica del proyecto `myprojectapi02`. Este sist
 - [Arquitectura (Definitiva)](./architecture.md) — Capas, mappers y diagramas.
 - [Masterclass de Ingeniería](./MASTERCLASS_INGENIERIA.md) — Desglose pedagógico de patrones.
 
-### 📚 Guías y Recursos
+### 📚 Tutoriales y Guías
 - [Tutorial Completo](./tutorial_completo.md) — Construcción de la app desde cero.
+- [Ejercicios Prácticos](./tutoriales/ejercicios-practicos.md) — 8 ejercicios para dominar React.
+- [Conceptos Teóricos](./tutoriales/conceptos-teoricos.md) — Fundamentos de ingeniería de software.
+- [Testing con Vitest](./tutoriales/testing-vitest.md) — Guía completa de testing.
+- [Cómo Agregar Features](./tutoriales/agregar-features.md) — Feature-Driven Development.
 - [Glosario](./GLOSSARY.md) — Terminología unificada del proyecto.
 
 ### 🧪 Testing
@@ -26,6 +30,7 @@ Bienvenido a la documentación técnica del proyecto `myprojectapi02`. Este sist
 
 ### 🧩 Componentes (UI)
 - [Index de Componentes](./components/index.md)
+- [MainLayout](./components/MainLayout.md)
 - [PostList](./components/PostList.md)
 - [SearchBar](./components/SearchBar.md)
 - [StateBoundary](./components/StateBoundary.md)

@@ -25,7 +25,7 @@ const PostListSkeleton = memo(() => {
 
       <div className={cn("grid gap-6")}>
         {[1, 2, 3].map((i) => (
-          <div key={i} className={cn("bg-white/30 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700 p-6 rounded-xl shadow-sm")}>
+          <div key={`post-skeleton-${i}`} className={cn("bg-white/30 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700 p-6 rounded-xl shadow-sm")}>
             <div className={cn("h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-4")}></div>
             <div className={cn("h-4 bg-slate-100 dark:bg-slate-800 rounded w-full mb-2")}></div>
             <div className={cn("h-4 bg-slate-100 dark:bg-slate-800 rounded w-full mb-2")}></div>

@@ -1,7 +1,7 @@
 # ✅ Calidad y Riesgos
 
 > **Proyecto:** myprojectapi02  
-> **Última Actualización:** 12 de Enero, 2026
+> **Última Actualización:** 26 Marzo, 2026
 
 ---
 
@@ -26,9 +26,10 @@
 | **Líneas por Componente** | < 150 | < 200 | ✅ Cumple |
 | **Warnings de ESLint** | 0 | 0 | ✅ Cumple |
 | **Dependencias Desactualizadas** | 0 | 0 | ✅ Cumple |
-| **Bundle Size** | ~200KB | < 500KB | ✅ Cumple |
+| **Bundle Size** | ~260KB | < 500KB | ✅ Cumple |
 | **Lighthouse Performance** | ~90 | > 80 | ✅ Cumple |
 | **Lighthouse Accessibility** | ~85 | > 90 | ⚠️ Mejorable |
+| **React Doctor Score** | 99/100 | 100 | ✅ Excelente |
 
 ---
 

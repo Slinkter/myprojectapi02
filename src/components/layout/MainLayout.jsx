@@ -8,6 +8,7 @@
 
 import PropTypes from "prop-types";
 import { cn } from "@/lib/utils";
+import ThemeToggleButton from "@/components/ui/ThemeToggleButton";
 
 /**
  * Componente que define la estructura general de la página.
@@ -29,6 +30,9 @@ import { cn } from "@/lib/utils";
 function MainLayout({ children }) {
     return (
         <div className={cn("min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300")}>
+            <header className={cn("flex justify-end p-4")}>
+                <ThemeToggleButton />
+            </header>
             <main className={cn("max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8")}>
                 {children}
             </main>
