@@ -1,7 +1,7 @@
 # 📖 Glosario de Términos
 
 > **Proyecto:** myprojectapi02  
-> **Última Actualización:** 12 de Enero, 2026
+> **Última Actualización:** 26 Marzo, 2026
 
 ---
 
@@ -422,23 +422,88 @@ Librería para testear componentes React de manera que simula el uso real.
 
 ## 🔧 Patrones de Diseño
 
-### SOLID Principles
-Conjunto de 5 principios de diseño orientado a objetos.
+### Los 23 Patrones Clásicos (Gang of Four)
 
-- **S**ingle Responsibility
-- **O**pen/Closed
-- **L**iskov Substitution
-- **I**nterface Segregation
-- **D**ependency Inversion
+Se dividen en **3 categorías**:
 
-### DRY (Don't Repeat Yourself)
-Principio que promueve la reutilización de código.
+| Categoría | Patrones |
+|-----------|----------|
+| **Creacionales** | Factory, Abstract Factory, Builder, Prototype, Singleton |
+| **Estructurales** | Adapter, Bridge, Composite, Decorator, Facade, Flyweight, Proxy |
+| **Comportamentales** | Chain of Responsibility, Command, Interpreter, Iterator, Mediator, Memento, Observer, State, Strategy, Template Method, Visitor |
 
-### KISS (Keep It Simple, Stupid)
-Principio que favorece soluciones simples sobre complejas.
+### Patrones Aplicados en React (Este Proyecto)
 
-### YAGNI (You Aren't Gonna Need It)
-Principio que desaconseja agregar funcionalidad hasta que sea necesaria.
+| Patrón | Ubicación | Descripción |
+|--------|-----------|-------------|
+| **Observer** | `useState` + `useEffect`, Redux subscriptions | Suscripción a cambios de estado |
+| **Composite** | Componentes anidados | Composición de componentes (`div > div > span`) |
+| **State** | `useState`, `useReducer`, Redux slices | Gestión de estado |
+| **Strategy** | Diferentes validaciones según tipo | Lógica interchangeable |
+| **Factory** | Componentes que crean otros | Creación dinámica de componentes |
+| **Container/Presentational** | `UserSearchPage` + `SearchBar` | Separación lógica/UI |
+| **Higher-Order Component** | `memo()`, `connect()` | Composición enhance |
+| **Render Props** | `children` como función | Compartir código entre componentes |
+| **Hook** | `useUserSearch`, `useSearchInput` | Lógica reutilizable |
+| **Context** | `ThemeContext` | Estado global sin props drilling |
+| **Error Boundary** | `ErrorBoundary.jsx` | Manejo de errores en componentes hijos |
+| **Provider** | `Redux Provider`, `ThemeProvider` | Inyección de dependencias |
+| **Facade** | `api-client.js` | API simplificada para operaciones complejas |
+| **Proxy** | Custom hooks | Intercepción de operaciones |
+
+### Ejemplos de Patrones en el Proyecto
+
+#### Observer (React)
+```javascript
+useEffect(() => {
+    // Se "suscribe" a cambios en userId
+    fetchUser(userId);
+}, [userId]); // <- dependency array = suscripciones
+```
+
+#### Container/Presentational
+```javascript
+// Container - tiene lógica
+function UserSearchPage() {
+    const { user, handleSearch } = useUserSearch();
+    return <UserProfile user={user} onSearch={handleSearch} />;
+}
+
+// Presentational - solo renderiza
+function UserProfile({ user, onSearch }) {
+    return <div>{user.name}</div>;
+}
+```
+
+#### Higher-Order Component
+```javascript
+// memo es un HOC que memoiza el componente
+const MemoizedComponent = memo(Component);
+```
+
+#### Facade
+```javascript
+// api-client.js simplifica fetch
+export const api = {
+    getUser: (id) => fetch(`/users/${id}`).then(r => r.json()),
+    getPosts: (userId) => fetch(`/posts?userId=${userId}`).then(r => r.json())
+};
+// Uso: const user = await api.getUser(1);
+```
+
+### Principios SOLID Aplicados
+
+- **S**ingle Responsibility: Cada hook/componente hace una cosa
+- **O**pen/Closed: Extensible sin modificar código existente
+- **L**iskov Substitution: Componentes interchangeables
+- **I**nterface Segregation: Props específicas, no genéricas
+- **D**ependency Inversion: Dependencias via props/context
+
+### Otros Principios
+
+- **DRY** (Don't Repeat Yourself): Reutilización via hooks
+- **KISS** (Keep It Simple, Stupid): Componentes simples
+- **YAGNI** (You Aren't Gonna Need It): Solo implementar lo necesario
 
 ---
 

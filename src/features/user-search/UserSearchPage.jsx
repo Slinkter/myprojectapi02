@@ -72,7 +72,7 @@ Header.displayName = "Header";
 const UserSearchPage = memo(() => {
     // Gestión del estado local del input y validaciones.
     const { searchValue, helperMessage, hasError, onInputChange } =
-        useSearchInput("1");
+        useSearchInput(1);
 
     // Gestión del estado global, búsqueda y orquestación de la API.
     const { user, posts, status, error, searchId, performSearch, handleRetry } =
@@ -106,7 +106,7 @@ const UserSearchPage = memo(() => {
                 isError={hasError}
             />
 
-            <main className={cn("min-h-[400px]")}>
+            <main className={cn("min-h-100")}>
                 {/* Límite de estado: gestiona carga, error, no encontrado y éxito. */}
                 <StateBoundary
                     status={status}

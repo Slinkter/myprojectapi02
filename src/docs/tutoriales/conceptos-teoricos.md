@@ -461,6 +461,35 @@ function useCounter(initial = 0) {
 | 10 | Idempotency | useEffect, API calls |
 | 11 | SRP | Componentes pequeños |
 | 12 | Closure | Hooks, callbacks |
+| 13 | Inmutabilidad | Redux, React.memo |
+| 14 | DI (Dependency Injection) | Testing, hooks |
+
+---
+
+## 📐 13. Patrones de Diseño (Design Patterns)
+
+### Los 23 Patrones Clásicos (Gang of Four)
+
+| Categoría | Patrones |
+|-----------|----------|
+| **Creacionales** | Factory, Abstract Factory, Builder, Prototype, Singleton |
+| **Estructurales** | Adapter, Bridge, Composite, Decorator, Facade, Flyweight, Proxy |
+| **Comportamentales** | Chain of Responsibility, Command, Interpreter, Iterator, Mediator, Memento, Observer, State, Strategy, Template Method, Visitor |
+
+### Patrones en React
+
+| Patrón | Ejemplo en Proyecto |
+|--------|---------------------|
+| **Observer** | `useEffect(() => {...}, [userId])` |
+| **State** | `useState`, Redux slices |
+| **Composite** | `<div><div><span/></div></div>` |
+| **Container/Presentational** | `UserSearchPage` + `SearchBar` |
+| **Facade** | `api-client.js` |
+| **Context/Provider** | Theme con `useTheme` |
+| **Error Boundary** | `ErrorBoundary.jsx` |
+| **Hook** | `useUserSearch.js` |
+| **Strategy** | Validación condicional en `useSearchInput` |
+| **Higher-Order Component** | `memo(Component)` |
 
 ---
 

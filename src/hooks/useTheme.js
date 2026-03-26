@@ -73,76 +73,76 @@ import { useState, useEffect } from "react";
  * @version 1.0.0
  */
 export const useTheme = () => {
-  /**
-   * Estado que indica si el tema oscuro está activo.
-   * Se inicializa leyendo el valor guardado en localStorage.
-   *
-   * @type {boolean}
-   */
-  const [isDark, setIsDark] = useState(() => {
-    // Leer el tema guardado en localStorage al inicializar
-    const savedTheme = localStorage.getItem("theme");
-    return savedTheme === "dark";
-  });
+    /**
+     * Estado que indica si el tema oscuro está activo.
+     * Se inicializa leyendo el valor guardado en localStorage.
+     *
+     * @type {boolean}
+     */
+    const [isDark, setIsDark] = useState(() => {
+        // Leer el tema guardado en localStorage al inicializar
+        const savedTheme = localStorage.getItem("theme");
+        return savedTheme === "dark";
+    });
 
-  /**
-   * Efecto que se ejecuta cada vez que cambia el tema.
-   * Aplica o remueve la clase 'dark' del elemento HTML
-   * y guarda la preferencia en localStorage.
-   */
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    
-    const handleChange = (e) => {
-      // Solo actualizamos si el usuario no tiene una preferencia guardada manualmente
-      if (!localStorage.getItem("theme")) {
-        setIsDark(e.matches);
-      }
+    /**
+     * Efecto que se ejecuta cada vez que cambia el tema.
+     * Aplica o remueve la clase 'dark' del elemento HTML
+     * y guarda la preferencia en localStorage.
+     */
+    useEffect(() => {
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+        const handleChange = (e) => {
+            // Solo actualizamos si el usuario no tiene una preferencia guardada manualmente
+            if (!localStorage.getItem("theme")) {
+                setIsDark(e.matches);
+            }
+        };
+
+        // Soporte para navegadores antiguos y modernos
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener("change", handleChange);
+        } else {
+            mediaQuery.addListener(handleChange);
+        }
+
+        return () => {
+            if (mediaQuery.removeEventListener) {
+                mediaQuery.removeEventListener("change", handleChange);
+            } else {
+                mediaQuery.removeListener(handleChange);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        const htmlElement = document.documentElement;
+
+        if (isDark) {
+            htmlElement.classList.add("dark");
+            localStorage.setItem("theme", "dark");
+        } else {
+            htmlElement.classList.remove("dark");
+            localStorage.setItem("theme", "light");
+        }
+    }, [isDark]);
+
+    /**
+     * Alterna entre el tema claro y oscuro.
+     *
+     * @function toggleTheme
+     * @returns {void}
+     *
+     * @example
+     * <button onClick={toggleTheme}>Cambiar Tema</button>
+     */
+    const toggleTheme = () => {
+        setIsDark((prevIsDark) => !prevIsDark);
     };
 
-    // Soporte para navegadores antiguos y modernos
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener("change", handleChange);
-    } else {
-      mediaQuery.addListener(handleChange);
-    }
-
-    return () => {
-      if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener("change", handleChange);
-      } else {
-        mediaQuery.removeListener(handleChange);
-      }
+    return {
+        isDark,
+        toggleTheme,
     };
-  }, []);
-
-  useEffect(() => {
-    const htmlElement = document.documentElement;
-
-    if (isDark) {
-      htmlElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      htmlElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [isDark]);
-
-  /**
-   * Alterna entre el tema claro y oscuro.
-   *
-   * @function toggleTheme
-   * @returns {void}
-   *
-   * @example
-   * <button onClick={toggleTheme}>Cambiar Tema</button>
-   */
-  const toggleTheme = () => {
-    setIsDark((prevIsDark) => !prevIsDark);
-  };
-
-  return {
-    isDark,
-    toggleTheme,
-  };
 };

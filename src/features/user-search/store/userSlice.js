@@ -195,7 +195,7 @@ export const selectCachedUsers = (state) => state.user.cachedUserList;
  */
 export const selectMemoizedUserList = createSelector(
     [selectCachedUsers],
-    (cachedList) => cachedList,
+    (cachedList) => cachedList ?? [],
 );
 
 export default userSlice.reducer;

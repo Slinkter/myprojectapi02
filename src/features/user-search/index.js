@@ -1,7 +1,7 @@
 /**
  * @fileoverview Punto de entrada público (Barrel File) para la funcionalidad de búsqueda de usuarios.
  * Facilita el acceso limpio a los componentes, hooks y páginas de este contexto de dominio.
- * 
+ *
  * @module user-search-feature
  */
 

@@ -17,32 +17,37 @@ import { cn } from "@/lib/utils";
  *
  * @component
  */
-const SearchBar = memo(({
-    value,
-    onChange,
-    onSearch,
-    onPrefetch,
-    isLoading,
-    helperText,
-    isError,
-}) => {
+const SearchBar = memo((props) => {
+    const {
+        value,
+        onChange,
+        onSearch,
+        onPrefetch,
+        isLoading,
+        helperText,
+        isError,
+    } = props;
+
     return (
-        <div className={cn("flex flex-col items-center w-full max-w-lg mx-auto my-8 px-4")}>
-            <div className={cn("flex flex-col sm:flex-row gap-4 w-full")}>
+        <div
+            className={
+                "flex flex-col  items-center w-full max-w-lg mx-auto my-8 px-4"
+            }
+        >
+            <div className={cn("flex flex-col sm:flex-row gap-4 w-full ")}>
                 <div className={cn("relative w-full group")}>
-                    <label htmlFor="userId" className="sr-only">Buscar por ID de usuario o nombre</label>
                     <input
                         id="userId"
                         type="text"
+                        aria-describedby="search-helper"
                         placeholder="ID (1-10) o Nombre..."
                         value={value}
                         onChange={onChange}
-                        aria-describedby="search-helper"
                         className={cn(
                             "w-full px-5 py-3 bg-white/90 dark:bg-slate-800/90 border-2 rounded-xl transition-all text-slate-800 dark:text-slate-100 placeholder:text-slate-400 font-medium outline-none",
                             isError
                                 ? "border-red-400 focus:ring-red-500/20"
-                                : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                : "border-slate-200 dark:border-slate-700  ",
                         )}
                     />
                 </div>
@@ -52,11 +57,15 @@ const SearchBar = memo(({
                     disabled={!value || isLoading || isError}
                     aria-busy={isLoading}
                     className={cn(
-                        "w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 outline-none"
+                        "w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 outline-none",
                     )}
                 >
                     {isLoading ? (
-                        <div className={cn("w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin")} />
+                        <div
+                            className={cn(
+                                "w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin",
+                            )}
+                        />
                     ) : (
                         <MagnifyingGlassIcon className={cn("h-5 w-5")} />
                     )}
@@ -69,7 +78,9 @@ const SearchBar = memo(({
                     aria-live="polite"
                     className={cn(
                         "mt-3 text-sm font-medium",
-                        isError ? "text-red-500" : "text-slate-500 dark:text-slate-400"
+                        isError
+                            ? "text-red-500"
+                            : "text-slate-500 dark:text-slate-400",
                     )}
                 >
                     {helperText}
