@@ -7,7 +7,7 @@
 
 import { memo } from "react";
 import PropTypes from "prop-types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Renderiza una colección de artículos (posts) asociados a un perfil de usuario.

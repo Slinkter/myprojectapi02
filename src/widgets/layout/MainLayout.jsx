@@ -7,8 +7,8 @@
  */
 
 import PropTypes from "prop-types";
-import { cn } from "@/lib/utils";
-import ThemeToggleButton from "@/components/ui/ThemeToggleButton";
+import { cn } from "@/shared/lib/utils";
+import ThemeToggleButton from "@/shared/ui/ThemeToggleButton";
 
 /**
  * Componente que define la estructura general de la página.

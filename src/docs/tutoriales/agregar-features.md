@@ -201,7 +201,7 @@ export function useSearchHistory() {
 // src/features/search-history/components/HistoryItem.jsx
 import { memo } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 const HistoryItem = memo(({ item, onSelect, onRemove }) => {
   return (

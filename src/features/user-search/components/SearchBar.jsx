@@ -9,7 +9,7 @@
 import { memo } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import PropTypes from "prop-types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Campo de búsqueda responsivo que soporta entrada de texto e IDs.

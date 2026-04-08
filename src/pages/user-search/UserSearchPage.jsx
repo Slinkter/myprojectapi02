@@ -6,16 +6,16 @@
  */
 
 import { useCallback, memo } from "react";
-import ProfileSkeleton from "@/features/user-search/components/skeletons/ProfileSkeleton";
-import PostListSkeleton from "@/features/user-search/components/skeletons/PostListSkeleton";
-import ErrorMessage from "@/components/ui/ErrorMessage";
-import NotFoundCard from "@/components/ui/NotFoundCard";
-import StateBoundary from "@/components/ui/StateBoundary";
+import ProfileSkeleton from "@/entities/user/ui/skeletons/ProfileSkeleton";
+import PostListSkeleton from "@/entities/post/ui/skeletons/PostListSkeleton";
+import ErrorMessage from "@/shared/ui/ErrorMessage";
+import NotFoundCard from "@/shared/ui/NotFoundCard";
+import StateBoundary from "@/shared/ui/StateBoundary";
 import SearchBar from "@/features/user-search/components/SearchBar";
-import UserView from "@/features/user-search/components/UserView";
+import UserView from "@/widgets/user-view/UserView";
 import { useUserSearch } from "@/features/user-search/hooks/useUserSearch";
 import { useSearchInput } from "@/features/user-search/hooks/useSearchInput";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Vista de carga que agrupa esqueletos de perfil y publicaciones.

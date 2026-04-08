@@ -5,7 +5,7 @@
  * @module ProfileSkeleton
  */
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Renderiza una estructura de carga que imita la disposición de UserProfile.

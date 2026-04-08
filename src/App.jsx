@@ -6,9 +6,9 @@
  * @module App
  */
 
-import ErrorBoundary from "@/components/ui/ErrorBoundary";
-import MainLayout from "@/components/layout/MainLayout";
-import { UserSearchPage } from "@/features/user-search";
+import ErrorBoundary from "@/shared/ui/ErrorBoundary";
+import MainLayout from "@/widgets/layout/MainLayout";
+import UserSearchPage from "@/pages/user-search/UserSearchPage";
 
 /**
  * Componente principal de la aplicación.

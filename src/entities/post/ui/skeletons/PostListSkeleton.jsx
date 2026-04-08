@@ -6,7 +6,7 @@
  */
 
 import { memo } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Renderiza una estructura de carga que imita la disposición de PostList.

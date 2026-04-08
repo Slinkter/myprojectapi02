@@ -9,7 +9,7 @@ import { memo } from "react";
 import PropTypes from 'prop-types';
 import UserProfile from "@/features/user-search/components/UserProfile";
 import PostList from "@/features/user-search/components/PostList";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Vista integrada de resultados de usuario.

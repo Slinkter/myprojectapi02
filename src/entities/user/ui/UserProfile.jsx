@@ -15,7 +15,7 @@ import {
   MapPinIcon,
 } from "@heroicons/react/24/outline";
 import PropTypes from 'prop-types';
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Subcomponente para renderizar una fila de información con icono.
