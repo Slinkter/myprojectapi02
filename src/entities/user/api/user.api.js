@@ -7,7 +7,7 @@
  * @module user-api
  */
 
-import { fetchFromApi } from "@/lib/api-client";
+import { fetchFromApi } from "@/shared/api/api-client";
 
 /**
  * Obtiene la información detallada de un usuario por su ID.

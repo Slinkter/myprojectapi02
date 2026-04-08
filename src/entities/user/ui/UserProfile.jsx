@@ -26,12 +26,12 @@ const InfoItem = memo(({ icon: Icon, label, value, subValue, isLink }) => {
   return (
     <div className={cn("flex items-start gap-4 group min-w-0")}>
       <div className={cn("p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors shrink-0")}>
-        <Icon className={cn("h-6 w-6 text-blue-600 dark:text-blue-400")} />
+        <Icon className={cn("h-5 w-5 text-blue-600 dark:text-blue-400")} aria-hidden="true" />
       </div>
       <div className={cn("min-w-0 flex-1")}>
-        <p className={cn("text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] mb-1")}>{label}</p>
+        <p className={cn("text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1")}>{label}</p>
         <p className={cn(
-          "text-slate-800 dark:text-slate-200 font-semibold break-words transition-colors",
+          "text-slate-800 dark:text-slate-200 font-semibold break-words transition-colors leading-relaxed",
           isLink && "text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
         )}>
           {value}
@@ -71,14 +71,14 @@ const UserProfile = memo(({ user }) => {
   if (!user) return null;
 
   return (
-    <div className={cn("bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-white/40 dark:border-slate-700/40 shadow-2xl rounded-3xl overflow-hidden max-w-2xl mx-auto my-10 animate-in fade-in zoom-in duration-500 transition-colors")}>
+    <div className={cn("bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-slate-700 shadow-xl rounded-3xl overflow-hidden max-w-2xl mx-auto my-10 animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out transition-colors")}>
       <div className={cn("bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white flex flex-col sm:flex-row items-center gap-6")}>
         <div className={cn("p-4 bg-white/20 backdrop-blur-sm rounded-2xl shadow-inner border border-white/20")}>
-          <UserIcon className={cn("h-12 w-12")} />
+          <UserIcon className={cn("h-10 w-10")} aria-hidden="true" />
         </div>
         <div className={cn("text-center sm:text-left")}>
-          <h2 className={cn("text-3xl font-extrabold tracking-tight")}>{user.name}</h2>
-          <p className={cn("text-blue-100 font-medium text-lg")}>@{user.username}</p>
+          <h2 className={cn("text-2xl font-extrabold tracking-tight")}>{user.name}</h2>
+          <p className={cn("text-blue-100 font-medium text-base")}>@{user.username}</p>
         </div>
       </div>
       

@@ -51,4 +51,4 @@ function BuscadorDumb() {
 
 ## Dependencias
 - React: `useState`, `useCallback`, `useEffect`, `useRef`.
-- Configuración: Constantes centralizadas `SEARCH_LIMITS` y `UX_CONFIG` desde `@/config/constants`.
+- Configuración: Constantes centralizadas `SEARCH_LIMITS` y `UX_CONFIG` desde `@/shared/config/constants`.

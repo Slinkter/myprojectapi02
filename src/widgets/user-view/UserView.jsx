@@ -7,8 +7,8 @@
 
 import { memo } from "react";
 import PropTypes from 'prop-types';
-import UserProfile from "@/features/user-search/components/UserProfile";
-import PostList from "@/features/user-search/components/PostList";
+import UserProfile from "@/entities/user/ui/UserProfile";
+import PostList from "@/entities/post/ui/PostList";
 import { cn } from "@/shared/lib/utils";
 
 /**

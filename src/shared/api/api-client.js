@@ -7,7 +7,7 @@
  * @module api-client
  */
 
-import { API_BASE_URL } from "@/config/constants";
+import { API_BASE_URL } from "@/shared/config/constants";
 
 /**
  * Realiza una petición HTTP GET sanitizada a la API externa.

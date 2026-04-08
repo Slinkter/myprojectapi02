@@ -7,8 +7,8 @@
 
 import { memo } from "react";
 import { SunIcon, MoonIcon } from "@heroicons/react/24/outline";
-import { useTheme } from "@/hooks/useTheme";
-import { cn } from "@/lib/utils";
+import { useTheme } from "@/shared/hooks/useTheme";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Botón interactivo para cambiar el tema de la aplicación.

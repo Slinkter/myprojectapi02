@@ -8,7 +8,7 @@
 
 import { memo } from "react";
 import PropTypes from "prop-types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Componente que orquesta el renderizado condicional basado en el estado de una petición.
@@ -32,23 +32,40 @@ const StateBoundary = memo(
                 return Loading ? (
                     <Loading />
                 ) : (
-                    <p className="animate-pulse text-slate-500">Cargando...</p>
+                    <div className={cn("flex items-center justify-center p-8 animate-pulse text-slate-500 dark:text-slate-400")}>
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="w-8 h-8 border-4 border-slate-300 dark:border-slate-600 border-t-blue-600 rounded-full animate-spin" />
+                            <p className="text-sm font-medium">Cargando contenido...</p>
+                        </div>
+                    </div>
                 );
 
             case "failed":
                 return ErrorComp ? (
                     <ErrorComp message={error} onRetry={onRetry} />
                 ) : (
-                    <p className="text-red-500 font-medium">{error}</p>
+                    <div className={cn("p-8 text-center border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 rounded-2xl")}>
+                        <p className="text-red-600 dark:text-red-400 font-semibold">{error || "Error inesperado"}</p>
+                        {onRetry && (
+                            <button 
+                                onClick={onRetry} 
+                                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 transition-colors"
+                            >
+                                Reintentar
+                            </button>
+                        )}
+                    </div>
                 );
 
             case "notFound":
                 return NotFound ? (
                     <NotFound />
                 ) : (
-                    <p className="text-orange-500 font-medium">
-                        Recurso no encontrado.
-                    </p>
+                    <div className={cn("p-8 text-center border border-orange-200 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-900/10 rounded-2xl")}>
+                        <p className="text-orange-600 dark:text-orange-400 font-semibold">
+                            Recurso no encontrado.
+                        </p>
+                    </div>
                 );
 
             case "succeeded":

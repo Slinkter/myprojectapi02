@@ -8,7 +8,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { SEARCH_LIMITS, UX_CONFIG } from "@/config/constants";
+import { SEARCH_LIMITS, UX_CONFIG } from "@/shared/config/constants";
 
 /**
  * Hook para controlar el estado y validación del campo de búsqueda.

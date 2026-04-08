@@ -6,7 +6,7 @@
  * @module post-api
  */
 
-import { fetchFromApi } from "@/lib/api-client";
+import { fetchFromApi } from "@/shared/api/api-client";
 
 /**
  * Obtiene todas las publicaciones de un usuario específico.

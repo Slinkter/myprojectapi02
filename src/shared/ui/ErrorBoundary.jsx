@@ -8,7 +8,7 @@
 
 import { Component } from "react";
 import PropTypes from "prop-types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 /**
  * Componente de clase que implementa el patrón Error Boundary de React.

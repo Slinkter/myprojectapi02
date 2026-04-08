@@ -20,9 +20,9 @@ const PostList = memo(({ userPosts }) => {
   if (!userPosts || userPosts.length === 0) {
     return (
       <div className={cn(
-        "bg-white/50 dark:bg-slate-900/50 rounded-3xl p-8 text-center border border-dashed border-slate-300 dark:border-slate-700"
+        "bg-slate-50 dark:bg-slate-900/50 rounded-3xl p-12 text-center border border-dashed border-slate-300 dark:border-slate-700 animate-in fade-in duration-300"
       )}>
-        <p className={cn("text-slate-500 dark:text-slate-400")}>
+        <p className={cn("text-slate-500 dark:text-slate-400 font-medium")}>
           Este usuario aún no tiene publicaciones.
         </p>
       </div>
@@ -31,8 +31,8 @@ const PostList = memo(({ userPosts }) => {
 
   return (
     <section className={cn("space-y-6")}>
-      <h3 className={cn("text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 px-2")}>
-        <span className={cn("w-2 h-8 bg-blue-600 rounded-full")}></span>
+      <h3 className={cn("text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3 px-2")}>
+        <span className={cn("w-1.5 h-8 bg-blue-600 rounded-full")}></span>
         Publicaciones
       </h3>
       <div className={cn("grid gap-6 sm:grid-cols-2")}>
@@ -41,7 +41,7 @@ const PostList = memo(({ userPosts }) => {
             key={post.id} 
             className={cn(
               "group bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800",
-              "hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              "hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out"
             )}
           >
             <h4 className={cn("text-lg font-bold text-slate-800 dark:text-slate-100 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors")}>
