@@ -1,91 +1,40 @@
-# UserApp Pro - Enterprise API Consumer
+# UserApp Pro - Consumidor de API Empresarial
 
-Una aplicación React de alto rendimiento diseñada bajo principios de **Clean Architecture**, enfocada en la resiliencia de datos, optimización de UX y patrones de diseño avanzados.
-
----
-
-## 🗺️ Guía Visual del Proyecto
-
-### 1. La "Cebolla" Arquitectónica (Capas Refinadas)
-
-```mermaid
-graph TD
-    subgraph "CAPA 4: PRESENTACIÓN (UI)"
-        UI[React Components]
-    end
-    subgraph "CAPA 3: APLICACIÓN (State/Hooks)"
-        STATE[Redux Thunks / Slices / Context]
-    end
-    subgraph "CAPA 2: DOMINIO (Mappers)"
-        DOMAIN[Sanitizers / Entidades]
-    end
-    subgraph "CAPA 1: INFRAESTRUCTURA"
-        API[API REST Adapters / Fetch]
-    end
-
-    UI --> STATE
-    STATE --> DOMAIN
-    DOMAIN --> API
-
-    style UI fill:#e1f5ff
-    style STATE fill:#fff9c4
-    style DOMAIN fill:#f3e5f5
-    style API fill:#e8f5e9
-```
-
-### 2. Diagrama de Secuencia: Flujo de Búsqueda con AbortController
-
-Este diagrama describe el ciclo de vida de una petición, destacando la seguridad ante _race conditions_.
-
-```mermaid
-sequenceDiagram
-    actor User as Usuario
-    participant UI as UI (Hooks)
-    participant Redux as Redux (Thunk)
-    participant API as API Client
-
-    User->>UI: Search(id)
-    UI->>Redux: fetchUser(id) + (signal)
-    Redux->>API: GET /users/1 (Pending)
-    
-    User->>UI: New Search (id2)
-    UI->>Redux: ABORT previous
-    Redux-->>API: (Request Cancelled)
-    UI->>Redux: fetchUser(id2) + (new signal)
-    Redux->>API: GET /users/2
-    API-->>Redux: JSON Response
-    Redux-->>UI: Fulfilled
-    UI-->>User: Success (Render)
-```
+Una aplicación React de alto rendimiento diseñada bajo los estándares de **Feature-Sliced Design (FSD)**, enfocada en la resiliencia de datos, optimización de UX y excelencia en ingeniería de software.
 
 ---
 
-## 🏗 Arquitectura y Capas
+## 🗺️ Arquitectura FSD (Feature-Sliced Design)
 
-El proyecto implementa una **Arquitectura de Capas (Onion Architecture)** que aísla la lógica de negocio de la infraestructura externa:
+El proyecto ha sido migrado a una arquitectura de capas estrictas para garantizar la escalabilidad y el desacoplamiento total:
 
-1.  **Infraestructura (`api/`, `lib/`):** Adaptadores REST y configuración de red. Usa `fetch` con `AbortController`.
-2.  **Dominio (`domain/`):** Implementación de **Mappers** (Capa Anti-Corrupción) para transformar datos de la API en entidades limpias.
-3.  **Aplicación (`store/`, `hooks/`):** Gestión de estado global y hooks de orquestación.
-4.  **Presentación (`components/`):** Componentes React puros y orquestadores (Smart/Dumb Components).
-
----
-
-## 🧠 Estrategia de Gestión de Estado
-
-Manejamos un enfoque híbrido para garantizar escalabilidad:
-
--   **Redux Toolkit:** Gestión del estado global y datos del dominio (Usuarios, Posts). Uso intensivo de Thunks y Selectores memoizados.
--   **Context API:** Utilizado para estados de UI transversales (ej. Sistema de Temas Dark/Light).
--   **useState:** Limitado estrictamente a estados locales efímeros de componentes.
+### 🏗️ Estructura de Capas
+- **`app/`**: Configuración global, Providers y Store root.
+- **`pages/`**: Vistas compuestas que orquestan widgets y features.
+- **`widgets/`**: Componentes complejos que combinan múltiples entidades (ej. `UserView`).
+- **`features/`**: Lógica de negocio interactiva y acciones del usuario (ej. `user-search`).
+- **`entities/`**: Modelos de negocio, Mappers, Slices de estado y UI básica (ej. `user`, `post`).
+- **`shared/`**: UI Kit atómico, hooks globales, clientes de API y utilidades.
 
 ---
 
 ## 🚀 Optimizaciones de Ingeniería
 
--   **Resiliencia:** Implementación de `AbortSignal` en todas las peticiones para evitar condiciones de carrera.
--   **Normalización:** Búsqueda insensible a acentos y mayúsculas.
--   **UX:** Uso de `StateBoundary` para manejar estados de carga, error y "no encontrado" de forma centralizada.
+### 🧠 Lógica de Negocio & State
+- **Domain-Driven**: Separación estricta entre la API externa y el dominio interno mediante **Mappers** (Capa Anti-Corrupción).
+- **Smart Search**: Motor de búsqueda desacoplado (`search-engine.js`) con normalización de texto (NFD) para búsquedas insensibles a acentos y mayúsculas.
+- **Resiliencia**: Implementación de `AbortController` para evitar *race conditions* y manejo de errores parciales (si fallan los posts, el perfil sigue cargando).
+
+### 🎨 Design System & UX
+- **Tailwind CSS v4**: Implementación de un sistema de diseño moderno con sombras refinadas y radios `rounded-3xl`.
+- **Accesibilidad (a11y)**: Uso de roles ARIA y semántica HTML para soporte de lectores de pantalla.
+- **State Boundary**: Gestión centralizada de estados `loading`, `error` y `notFound` para una experiencia de usuario coherente.
+
+### 🧪 Quality Assurance
+- **Pirámide de Testing**: Suite completa implementada con **Vitest** y **React Testing Library**.
+    - **Unit**: Lógica de búsqueda y mappers.
+    - **Hooks**: Orquestación de estado y Redux.
+    - **Integration**: Flujos completos de la página de búsqueda.
 
 ---
 
@@ -97,30 +46,28 @@ Manejamos un enfoque híbrido para garantizar escalabilidad:
 | **Redux Toolkit** | Flujo de datos predecible y centralizado. |
 | **Tailwind CSS v4** | Estilizado ultra-rápido basado en utilidades de última generación. |
 | **Vite** | Herramienta de construcción instantánea. |
+| **Vitest** | Framework de testing moderno y nativo de Vite. |
 
 ---
 
 ## 📖 Guía de Desarrollo
 
-### Requisitos Previos
-- **Node.js:** v18 o superior.
-- **pnpm:** Gestor de paquetes recomendado.
-
-### Instalación
+### Instalación y Ejecución
 ```bash
 pnpm install
+pnpm dev     # Desarrollo
+pnpm build   # Producción
+pnpm test    # Suite de pruebas
+pnpm lint    # Calidad de código
 ```
 
-### Ejecución
-```bash
-pnpm dev
-```
-
-### Comandos Útiles
-- `pnpm build`: Genera el bundle de producción.
-- `pnpm lint`: Ejecuta el análisis de calidad de código.
-- `pnpm deploy`: Despliega a GitHub Pages.
+### Flujo de Trabajo (FSD)
+Para añadir una nueva funcionalidad:
+1.  Define la **Entidad** (`src/entities/`) $\rightarrow$ API, Mapper y Store.
+2.  Crea la **Feature** (`src/features/`) $\rightarrow$ Hooks de acción y UI interactiva.
+3.  Monta la **Page** (`src/pages/`) $\rightarrow$ Orquestación de la vista.
+4.  Escribe los **Tests** $\rightarrow$ Valida la lógica en `src/test/`.
 
 ---
 
-> **Referencia Técnica:** Para convenciones detalladas de codificación y guías de extensión, consulta el archivo [GEMINI.md](./GEMINI.md).
+> **Referencia Técnica:** Para convenciones detalladas de codificación y guías de extensión, consulta el archivo [AGENTS.md](./AGENTS.md).

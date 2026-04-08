@@ -1,57 +1,41 @@
-# 🌐 Portfolio Architecture — Index
+# Technical Documentation - UserApp Pro
 
-Bienvenido a la documentación técnica del proyecto `myprojectapi02`. Este sistema utiliza un stack moderno de React 18, Tailwind CSS v4 y Redux Toolkit, siguiendo principios de Clean Architecture y Domain-Driven Design (DDD).
-
-## 📂 Estructura de Documentación
-
-### 🏛️ Núcleo del Sistema y Arquitectura
-- [00 - Diagnóstico Técnico](./00-diagnostico-tecnico.md) — Análisis forense y decisiones.
-- [01 - Overview del Sistema](./01-overview-del-sistema.md) — Visión general y alcance.
-- [03 - Casos de Uso](./03-casos-de-uso.md) — Comportamiento esperado.
-- [04 - Requerimientos](./04-requerimientos.md) — RFs y RNFs.
-- [05 - Flujo de Datos](./05-flujo-de-datos.md) — Ciclo de vida asíncrono y Redux.
-- [06 - Guía para Desarrolladores](./06-guia-para-desarrolladores.md) — Estándares y onboarding.
-- [07 - Calidad y Riesgos](./07-calidad-y-riesgos.md) — Deuda técnica y métricas.
-- [08 - Cierre del Proyecto](./08-cierre-del-proyecto.md) — Resumen ejecutivo.
-- [Arquitectura (Definitiva)](./architecture.md) — Capas, mappers y diagramas.
-- [Masterclass de Ingeniería](./MASTERCLASS_INGENIERIA.md) — Desglose pedagógico de patrones.
-
-### 📚 Tutoriales y Guías
-- [Tutorial Completo](./tutorial_completo.md) — Construcción de la app desde cero.
-- [Ejercicios Prácticos](./tutoriales/ejercicios-practicos.md) — 8 ejercicios para dominar React.
-- [Conceptos Teóricos](./tutoriales/conceptos-teoricos.md) — Fundamentos de ingeniería de software.
-- [Testing con Vitest](./tutoriales/testing-vitest.md) — Guía completa de testing.
-- [Cómo Agregar Features](./tutoriales/agregar-features.md) — Feature-Driven Development.
-- [Glosario](./GLOSSARY.md) — Terminología unificada del proyecto.
-
-### 🧪 Testing
-- [Curso de Testing](./testing/CURSO_TESTING.md) — Guía introductoria sobre Vitest.
-- [TODO Testing](./testing/TODO-TESTING.md) — Roadmap accionable de cobertura de pruebas.
-
-### 🧩 Componentes (UI)
-- [Index de Componentes](./components/index.md)
-- [MainLayout](./components/MainLayout.md)
-- [PostList](./components/PostList.md)
-- [SearchBar](./components/SearchBar.md)
-- [StateBoundary](./components/StateBoundary.md)
-- [ThemeToggleButton](./components/ThemeToggleButton.md)
-- [UserProfile](./components/UserProfile.md)
-
-### 🪝 Hooks de Lógica
-- [useUserSearch](./hooks/useUserSearch.md) — Hook de dominio.
-- [useSearchInput](./hooks/useSearchInput.md) — Hook de UI.
-
-### 📄 Páginas y Secciones
-- [UserSearchPage](./pages/UserSearchPage.md) — Orquestador de búsqueda principal.
-
-### 📦 Gestión de Estado (Redux)
-- [Project Store (userSlice)](./store/userSlice.md) — Organización del estado global y selectores.
+Bienvenido a la documentación técnica de **UserApp Pro**. Para facilitar el _onboarding_ (incorporación) de nuevos ingenieros al equipo, hemos estructurado la documentación en un orden lógico de lectura, desde el "qué" del sistema hasta el "cómo" de su implementación y prueba.
 
 ---
 
-## 📐 Estándares de Ingeniería
+## 📖 Ruta de Lectura Recomendada
 
-1.  **React**: Todos los componentes usan `memo()`, `displayName` y `PropTypes`.
-2.  **Tailwind v4**: Configuración vía `@theme` en CSS. Sin `tailwind.config.js`.
-3.  **Redux**: Slices con selectores memorizados (`createSelector`).
-4.  **Utils**: Uso obligatorio de `cn()` para gestión de clases.
+### 1. El Producto y sus Objetivos
+- **[01 - Requirements & Use Cases](./01-REQUIREMENTS.md)**
+  _Empieza aquí._ Comprende qué hace el sistema, los casos de uso que cubre y los requisitos funcionales de negocio (ej. manejo de la API JSONPlaceholder).
+
+### 2. El Diseño Estructural
+- **[02 - Architectural Overview](./02-ARCHITECTURE.md)**
+  Visión global del sistema. Conoce nuestras capas (Onion Architecture), la estrategia de modularidad (Entities, Features, Widgets) y el stack tecnológico.
+
+### 3. El Movimiento de Información
+- **[03 - Technical Data Lifecycle](./03-DATA_LIFECYCLE.md)**
+  Detalle técnico del flujo de datos, desde la API externa a través de nuestra **Capa Anti-Corrupción (Mappers)** hasta el store global gestionado por Redux Toolkit.
+
+### 4. La Operativa y el Código
+- **[04 - Developer Guide](./04-DEVELOPMENT_GUIDE.md)**
+  El manual del desarrollador. Incluye estándares de código (ej. reglas para Tailwind v4), setup del entorno y el paso a paso para agregar nuevas características sin romper la arquitectura.
+
+### 5. La Seguridad y Estabilidad
+- **[05 - Testing & Quality Strategy](./05-TESTING_STRATEGY.md)**
+  Cómo probamos el software. Detalles de la suite de pruebas (Vitest + React Testing Library) dividida por capas lógicas (Hooks de UI y Mappers de Dominio).
+
+### 6. El Lenguaje del Dominio
+- **[06 - Terminology & Glossary](./06-GLOSSARY.md)**
+  Diccionario formal de términos. Útil para consultar definiciones específicas empleadas a lo largo de los manuales y en el código.
+
+---
+
+## 📁 Archivo Histórico
+- **[Archive/Legacy](./archive/)**
+  Carpeta de solo lectura con diagnósticos iniciales, planes de refactorización antiguos y reportes pasados.
+
+---
+
+> **Nota para Desarrolladores:** La documentación granular a nivel de componentes individuales y funciones se mantiene estrictamente en el código fuente utilizando **JSDoc**. Esto garantiza que la documentación siempre evolucione a la par que la implementación técnica.

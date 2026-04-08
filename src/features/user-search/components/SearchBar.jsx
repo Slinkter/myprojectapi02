@@ -31,23 +31,28 @@ const SearchBar = memo((props) => {
     return (
         <div
             className={
-                "flex flex-col  items-center w-full max-w-lg mx-auto my-8 px-4"
+                "flex flex-col items-center w-full max-w-lg mx-auto mb-golden-lg px-golden-sm"
             }
         >
-            <div className={cn("flex flex-col sm:flex-row gap-4 w-full ")}>
+            <div className={cn("flex flex-col sm:flex-row gap-golden-base w-full")}>
                 <div className={cn("relative w-full group")}>
+                    {/* A11Y: Etiqueta visible o para lectores de pantalla obligatoria */}
+                    <label htmlFor="userId" className="sr-only">
+                        ID numérico o nombre de usuario
+                    </label>
                     <input
                         id="userId"
                         type="text"
-                        aria-describedby="search-helper"
+                        aria-describedby={helperText ? "search-helper" : undefined}
                         placeholder="ID (1-10) o Nombre..."
                         value={value}
                         onChange={onChange}
                         className={cn(
-                            "w-full px-5 py-3 bg-white/90 dark:bg-slate-800/90 border-2 rounded-xl transition-all text-slate-800 dark:text-slate-100 placeholder:text-slate-400 font-medium outline-none",
+                            /* UX: Min-height 48px para touch target (Mobile First), Contraste del placeholder mejorado a slate-500 */
+                            "w-full min-h-[48px] px-golden-base py-golden-sm bg-white/90 dark:bg-slate-800/90 border-2 rounded-xl transition-all text-slate-800 dark:text-slate-100 placeholder:text-slate-500 font-medium outline-none text-golden-p",
                             isError
-                                ? "border-red-400 focus:ring-red-500/20"
-                                : "border-slate-200 dark:border-slate-700  ",
+                                ? "border-red-500 focus:ring-red-500/20"
+                                : "border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-400",
                         )}
                     />
                 </div>
@@ -57,7 +62,8 @@ const SearchBar = memo((props) => {
                     disabled={!value || isLoading || isError}
                     aria-busy={isLoading}
                     className={cn(
-                        "w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 outline-none",
+                        /* UX: Diseño de alto contraste absoluto (estilo Vercel/Enterprise). Fondo oscuro en modo claro y azul vibrante en modo oscuro. Letras siempre blancas. */
+                        "w-full sm:w-auto min-h-[48px] px-8 py-golden-sm bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-500 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-slate-900 dark:focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900 text-golden-p",
                     )}
                 >
                     {isLoading ? (

@@ -40,17 +40,17 @@ LoadingView.displayName = "LoadingView";
  */
 const Header = memo(() => {
     return (
-        <header className={cn("text-center mb-12")}>
+        <header className={cn("text-center mb-golden-xl")}>
             <h2
                 className={cn(
-                    "text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4",
+                    "text-golden-h2 md:text-golden-h1 font-extrabold text-slate-900 dark:text-white tracking-tight mb-golden-sm leading-tight",
                 )}
             >
                 Buscador de Usuarios
             </h2>
             <p
                 className={cn(
-                    "text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto",
+                    "text-golden-p md:text-golden-h3 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed",
                 )}
             >
                 Busca por ID numérico (1-10) o por nombre de usuario.
@@ -94,7 +94,7 @@ const UserSearchPage = memo(() => {
     }, [hasError, searchValue]);
 
     return (
-        <div className={cn("w-full max-w-6xl mx-auto px-4 py-8")}>
+        <div className={cn("w-full max-w-6xl mx-auto px-golden-base py-golden-lg lg:py-golden-xl")}>
             <Header />
 
             <SearchBar

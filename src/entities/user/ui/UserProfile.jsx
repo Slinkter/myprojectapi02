@@ -1,7 +1,8 @@
 /**
  * @fileoverview Componente para la visualización del perfil de usuario.
  * Presenta información detallada del usuario en una tarjeta con diseño moderno,
- * gradientes y soporte completo para modo oscuro.
+ * gradientes y soporte completo para modo oscuro. Implementa diseño Mobile First
+ * y proporciones áureas en tipografía y espaciado.
  * 
  * @module UserProfile
  */
@@ -24,20 +25,35 @@ import { cn } from "@/shared/lib/utils";
  */
 const InfoItem = memo(({ icon: Icon, label, value, subValue, isLink }) => {
   return (
-    <div className={cn("flex items-start gap-4 group min-w-0")}>
-      <div className={cn("p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors shrink-0")}>
+    <div className={cn(
+      "flex flex-row items-start gap-golden-sm min-w-0",
+      "p-golden-sm sm:p-0 rounded-2xl sm:rounded-none bg-slate-50/50 dark:bg-slate-800/50 sm:bg-transparent sm:dark:bg-transparent"
+    )}>
+      <div className={cn("p-2 bg-blue-50 dark:bg-blue-900/30 rounded-xl group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors shrink-0")}>
         <Icon className={cn("h-5 w-5 text-blue-600 dark:text-blue-400")} aria-hidden="true" />
       </div>
       <div className={cn("min-w-0 flex-1")}>
-        <p className={cn("text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1")}>{label}</p>
-        <p className={cn(
-          "text-slate-800 dark:text-slate-200 font-semibold break-words transition-colors leading-relaxed",
-          isLink && "text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
-        )}>
-          {value}
-        </p>
+        {/* UX: Aumento de fuente mínima (text-xs) y contraste (slate-500) */}
+        <p className={cn("text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1")}>{label}</p>
+        {isLink ? (
+          <a
+            href={label === "Email" ? `mailto:${value}` : `https://${value}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "block text-slate-800 dark:text-slate-200 font-semibold break-words transition-colors leading-relaxed text-golden-p text-blue-600 dark:text-blue-400 hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-md"
+            )}
+          >
+            {value}
+          </a>
+        ) : (
+          <p className={cn("text-slate-800 dark:text-slate-200 font-semibold break-words transition-colors leading-relaxed text-golden-p")}>
+            {value}
+          </p>
+        )}
         {subValue && (
-          <p className={cn("text-xs text-slate-500 dark:text-slate-400 italic mt-0.5 leading-tight transition-colors break-words")}>
+          /* UX: Contraste mejorado en subValue a slate-600 (Light Mode) */
+          <p className={cn("text-xs text-slate-600 dark:text-slate-400 italic mt-0.5 leading-tight transition-colors break-words")}>
             {subValue}
           </p>
         )}
@@ -63,7 +79,7 @@ InfoItem.propTypes = {
 
 /**
  * Muestra el perfil de un usuario con su información de contacto y laboral.
- * Diseñado con una cabecera visualmente atractiva y una rejilla de datos.
+ * Diseñado con una cabecera visualmente atractiva y una rejilla de datos Mobile First.
  * 
  * @component
  */
@@ -71,18 +87,31 @@ const UserProfile = memo(({ user }) => {
   if (!user) return null;
 
   return (
-    <div className={cn("bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-slate-700 shadow-xl rounded-3xl overflow-hidden max-w-2xl mx-auto my-10 animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out transition-colors")}>
-      <div className={cn("bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white flex flex-col sm:flex-row items-center gap-6")}>
-        <div className={cn("p-4 bg-white/20 backdrop-blur-sm rounded-2xl shadow-inner border border-white/20")}>
-          <UserIcon className={cn("h-10 w-10")} aria-hidden="true" />
+    <div className={cn(
+      "bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-slate-700 shadow-xl rounded-3xl overflow-hidden w-full transition-colors",
+      "mb-golden-md lg:mb-0" // Margen inferior en móvil
+    )}>
+      {/* Cabecera Áurea */}
+      <div className={cn(
+        "bg-gradient-to-br from-blue-600 to-indigo-700 text-white",
+        // Mobile First: padding base y elementos centrados. LG: padding áureo y flex-row
+        "p-golden-base lg:p-golden-md flex flex-col lg:flex-row items-center lg:items-start gap-golden-base text-center lg:text-left"
+      )}>
+        <div className={cn("p-golden-sm bg-white/20 backdrop-blur-sm rounded-2xl shadow-inner border border-white/20")}>
+          <UserIcon className={cn("h-12 w-12")} aria-hidden="true" />
         </div>
-        <div className={cn("text-center sm:text-left")}>
-          <h2 className={cn("text-2xl font-extrabold tracking-tight")}>{user.name}</h2>
-          <p className={cn("text-blue-100 font-medium text-base")}>@{user.username}</p>
+        <div>
+          {/* Tipografía Áurea para h3 y p */}
+          <h2 className={cn("text-golden-h3 font-extrabold tracking-tight leading-tight")}>{user.name}</h2>
+          <p className={cn("text-blue-100 font-medium text-golden-p mt-1")}>@{user.username}</p>
         </div>
       </div>
       
-      <div className={cn("p-8 grid grid-cols-1 md:grid-cols-2 gap-8")}>
+      {/* Cuerpo del Perfil */}
+      <div className={cn(
+        // Mobile First: 1 columna. MD: 2 columnas en grid
+        "p-golden-base lg:p-golden-md grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-golden-sm lg:gap-golden-base"
+      )}>
         <InfoItem icon={EnvelopeIcon} label="Email" value={user.email} isLink />
         <InfoItem icon={GlobeAltIcon} label="Website" value={user.website} />
         <InfoItem 

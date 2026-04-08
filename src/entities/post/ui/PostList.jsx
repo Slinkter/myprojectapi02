@@ -30,21 +30,21 @@ const PostList = memo(({ userPosts }) => {
   }
 
   return (
-    <section className={cn("space-y-6")}>
-      <h3 className={cn("text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3 px-2")}>
+    <section className={cn("space-y-golden-md")}>
+      <h3 className={cn("text-golden-h3 font-bold text-slate-900 dark:text-white flex items-center gap-3 px-2")}>
         <span className={cn("w-1.5 h-8 bg-blue-600 rounded-full")}></span>
         Publicaciones
       </h3>
-      <div className={cn("grid gap-6 sm:grid-cols-2")}>
+      <div className={cn("grid gap-golden-base sm:grid-cols-2")}>
         {userPosts.map((post) => (
           <article 
             key={post.id} 
             className={cn(
-              "group bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800",
+              "group bg-white/60 dark:bg-slate-900/60 backdrop-blur-md p-golden-base rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800",
               "hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out"
             )}
           >
-            <h4 className={cn("text-lg font-bold text-slate-800 dark:text-slate-100 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors")}>
+            <h4 className={cn("text-golden-p font-bold text-slate-800 dark:text-slate-100 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors")}>
               {post.title}
             </h4>
             <p className={cn("text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-3")}>

@@ -35,7 +35,7 @@ function MainLayout({ children }) {
             )}
         >
             <header
-                className={cn("flex justify-end p-4 absolute right-0 top-0")}
+                className={cn("flex justify-end p-golden-base absolute right-0 top-0")}
             >
                 <ThemeToggleButton />
             </header>
