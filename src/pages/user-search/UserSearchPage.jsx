@@ -75,8 +75,9 @@ const UserSearchPage = memo(() => {
         useSearchInput(1);
 
     // Gestión del estado global, búsqueda y orquestación de la API.
-    const { user, posts, status, error, searchId, performSearch, handleRetry } =
+    const { user, posts, status, error, lastSearchQuery, performSearch, handleRetry } =
         useUserSearch(1);
+
 
     /** Maneja la ejecución de la búsqueda al pulsar el botón. */
     const handleSearch = useCallback(() => {
@@ -115,8 +116,9 @@ const UserSearchPage = memo(() => {
                     loadingComponent={LoadingView}
                     errorComponent={ErrorMessage}
                     notFoundComponent={() => (
-                        <NotFoundCard attemptedId={searchId} />
+                        <NotFoundCard attemptedId={lastSearchQuery} />
                     )}
+
                 >
                     {user && <UserView user={user} posts={posts} />}
                 </StateBoundary>

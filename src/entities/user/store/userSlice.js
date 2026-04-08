@@ -9,7 +9,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createSelector } from "@reduxjs/toolkit";
-import { fetchUserProfileById, fetchAllUsers } from "@/features/user-search/services/user-service";
+import { fetchUserProfileById, fetchAllUsers } from "@/entities/user/services/user-service";
 
 // --- Async Thunks ---
 
@@ -73,8 +73,8 @@ export const fetchUsersList = createAsyncThunk(
  * @property {string} fetchStatus - Estado de la petición individual ('idle', 'loading', 'succeeded', 'failed', 'notFound').
  * @property {string} listStatus - Estado de la petición de lista ('idle', 'loading', 'succeeded', 'failed').
  * @property {string|null} error - Mensaje de error actual o clave de traducción.
- * @property {Object|null} profileData - Datos del perfil del usuario actual.
- * @property {Array<Object>} userPosts - Lista de publicaciones del usuario actual.
+ * @property {Object|null} currentUser - Datos del perfil del usuario actual.
+ * @property {Array<Object>} currentUserPosts - Lista de publicaciones del usuario la actual.
  * @property {Array<Object>} cachedUserList - Caché local de todos los usuarios para búsqueda.
  */
 
@@ -85,8 +85,8 @@ const userSlice = createSlice({
         // Estado de búsqueda individual
         fetchStatus: "idle", // Máquina de estados: 'idle', 'loading', 'succeeded', 'failed', 'notFound'
         error: null,         // Almacena el motivo si la petición falla
-        profileData: null,   // Los datos del usuario (el tesoro)
-        userPosts: [],       // Los posts del usuario
+        currentUser: null,   // Los datos del usuario (el tesoro)
+        currentUserPosts: [],   // Los posts del usuario
         // Estado de lista/caché (operación separada)
         listStatus: "idle",  // Estado de la descarga de toda la base de datos
         cachedUserList: [],  // Lista en memoria para búsquedas instantáneas
@@ -100,8 +100,8 @@ const userSlice = createSlice({
          */
         resetUserState: (state) => {
             state.fetchStatus = "idle";
-            state.profileData = null;
-            state.userPosts = [];
+            state.currentUser = null;
+            state.currentUserPosts = [];
             state.error = null;
         },
     },
@@ -109,35 +109,36 @@ const userSlice = createSlice({
         // --- Extra Reducers (Los Cajeros que atienden a los Camiones Blindados / Thunks) ---
         builder
             // Búsqueda Individual (fetchUserAndPosts)
-            .addCase(fetchUserAndPosts.pending, (state) => {
-                // El camión acaba de salir. Ponemos el cartel de "Cargando".
-                state.fetchStatus = "loading";
-                state.error = null;
-                state.profileData = null;
-                state.userPosts = [];
-            })
-            .addCase(fetchUserAndPosts.fulfilled, (state, { payload }) => {
-                // El camión volvió con éxito.
-                if (!payload.user) {
-                    // Volvió con las manos vacías (Usuario no existe)
-                    state.fetchStatus = "notFound";
-                    state.profileData = null;
-                    state.userPosts = [];
-                    return;
-                }
-                // ¡Éxito real! Guardamos el botín en la bóveda.
-                state.fetchStatus = "succeeded";
-                state.profileData = payload.user;
-                state.userPosts = payload.posts;
-            })
-            .addCase(fetchUserAndPosts.rejected, (state, { payload }) => {
-                // El camión chocó (Fallo de red o error 500).
-                state.fetchStatus =
-                    payload?.status === 404 ? "notFound" : "failed";
-                state.error = payload?.message || "error.generic";
-                state.profileData = null;
-                state.userPosts = [];
-            })
+             .addCase(fetchUserAndPosts.pending, (state) => {
+                 // El camión acaba de salir. Ponemos el cartel de "Cargando".
+                 state.fetchStatus = "loading";
+                 state.error = null;
+                 state.currentUser = null;
+                 state.currentUserPosts = [];
+             })
+             .addCase(fetchUserAndPosts.fulfilled, (state, { payload }) => {
+                 // El camión volvió con éxito.
+                 if (!payload.user) {
+                     // Volvió con las manos vacías (Usuario no existe)
+                     state.fetchStatus = "notFound";
+                     state.currentUser = null;
+                     state.currentUserPosts = [];
+                     return;
+                 }
+                 // ¡Éxito real! Guardamos el botín en la bóveda.
+                 state.fetchStatus = "succeeded";
+                 state.currentUser = payload.user;
+                 state.currentUserPosts = payload.posts;
+             })
+             .addCase(fetchUserAndPosts.rejected, (state, { payload }) => {
+                 // El camión chocó (Fallo de red o error 500).
+                 state.fetchStatus =
+                     payload?.status === 404 ? "notFound" : "failed";
+                 state.error = payload?.message || "error.generic";
+                 state.currentUser = null;
+                 state.currentUserPosts = [];
+             })
+
             // Carga de Lista (fetchUsersList)
             .addCase(fetchUsersList.pending, (state) => {
                 state.listStatus = "loading";
@@ -161,13 +162,13 @@ export const { resetUserState } = userSlice.actions;
  * Selector directo para los datos del perfil del usuario actual.
  * @param {Object} state - Estado global de Redux.
  */
-export const selectCurrentUserProfile = (state) => state.user.profileData;
+export const selectCurrentUserProfile = (state) => state.user.currentUser;
 
 /**
  * Selector directo para las publicaciones del usuario actual.
  * @param {Object} state - Estado global de Redux.
  */
-export const selectCurrentUserPosts = (state) => state.user.userPosts;
+export const selectCurrentUserPosts = (state) => state.user.currentUserPosts;
 
 /**
  * Selector directo para el estado de la petición individual (status).

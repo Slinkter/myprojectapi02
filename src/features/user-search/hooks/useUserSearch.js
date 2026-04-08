@@ -9,14 +9,15 @@
 
 import { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserAndPosts, fetchUsersList } from "@/features/user-search/store/userSlice";
+import { fetchUserAndPosts, fetchUsersList } from "@/entities/user/store/userSlice";
 import { 
   selectCurrentUserProfile, 
   selectCurrentUserPosts, 
   selectUserFetchStatus, 
   selectUserFetchError, 
   selectMemoizedUserList as selectCachedUsers 
-} from "@/features/user-search/store/userSlice";
+} from "@/entities/user/store/userSlice";
+import { resolveSearchQuery } from "@/features/user-search/services/search-engine";
 
 /**
  * Hook personalizado para gestionar la búsqueda de perfiles de usuario.
@@ -51,7 +52,8 @@ export const useUserSearch = (initialUserId) => {
   const error = useSelector(selectUserFetchError);
   const cachedUsers = useSelector(selectCachedUsers);
 
-  const [searchId, setSearchId] = useState(initialUserId);
+  const [lastSearchQuery, setLastSearchQuery] = useState(initialUserId);
+
 
   /**
    * Efecto de sincronización para cargar la lista de usuarios en caché.
@@ -67,14 +69,14 @@ export const useUserSearch = (initialUserId) => {
   useEffect(() => {
     if (initialUserId) {
       dispatch(fetchUserAndPosts(initialUserId));
-      setSearchId(initialUserId);
+      setLastSearchQuery(initialUserId);
     }
   }, [dispatch, initialUserId]);
 
+
   /**
-   * Orquesta la lógica de búsqueda inteligente.
-   * - Si el input es puramente numérico, busca directamente por ID en la API.
-   * - Si es texto, busca coincidencia parcial en la lista de usuarios en caché.
+   * Orquesta la lógica de búsqueda inteligente delegando la resolución del ID
+   * al motor de búsqueda especializado.
    * 
    * @function performSearch
    * @param {string|number} input - Término de búsqueda (ID o Nombre).
@@ -82,53 +84,36 @@ export const useUserSearch = (initialUserId) => {
   const performSearch = useCallback((input) => {
     if (!input) return;
 
-    // Normalización de la entrada: limpiar espacios y remover acentos.
-    const cleanInput = String(input).trim();
-    const normalizedInput = cleanInput
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
+    const resolvedId = resolveSearchQuery(input, cachedUsers);
 
-    if (/^\d+$/.test(cleanInput)) {
-      const userId = Number(cleanInput);
-      dispatch(fetchUserAndPosts(userId));
-      setSearchId(userId);
+    if (resolvedId) {
+      dispatch(fetchUserAndPosts(resolvedId));
+      setLastSearchQuery(resolvedId);
     } else {
-      const found = cachedUsers.find(u => {
-        const normName = u.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const normUsername = u.username.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        
-        return normName.includes(normalizedInput) || normUsername.includes(normalizedInput);
+      // Fallback: Si no se encuentra en caché, forzamos un estado 404.
+      dispatch({ 
+        type: "user/fetchById/rejected", 
+        payload: { status: 404, message: "user.notFoundTitle" } 
       });
-
-      if (found) {
-        dispatch(fetchUserAndPosts(found.id));
-        setSearchId(found.id);
-      } else {
-        // Fallback: Si no se encuentra en caché, forzamos un estado 404.
-        dispatch({ 
-          type: "user/fetchById/rejected", 
-          payload: { status: 404, message: "user.notFoundTitle" } 
-        });
-        setSearchId(cleanInput);
-      }
+      setLastSearchQuery(input);
     }
   }, [dispatch, cachedUsers]);
+
 
   /**
    * Reintenta la búsqueda actual utilizando el último identificador registrado.
    * @function handleRetry
    */
   const handleRetry = useCallback(() => {
-    if (searchId) performSearch(searchId);
-  }, [performSearch, searchId]);
+    if (lastSearchQuery) performSearch(lastSearchQuery);
+  }, [performSearch, lastSearchQuery]);
 
   return {
     user,
     posts,
     status,
     error,
-    searchId,
+    lastSearchQuery,
     performSearch,
     handleRetry,
   };
