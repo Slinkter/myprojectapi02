@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "@/entities/user/store/userSlice";
+import postReducer from "@/entities/post/store/post.slice";
 import uiReducer from "@/app/store/uiSlice";
 
 /**
@@ -8,11 +9,13 @@ import uiReducer from "@/app/store/uiSlice";
  *
  * @type {Object}
  * @property {Object} user - Estado del dominio de usuarios.
+ * @property {Object} post - Estado del dominio de publicaciones.
  * @property {Object} ui - Estado transversal de la interfaz de usuario.
  */
 export const store = configureStore({
     reducer: {
         user: userReducer,
+        post: postReducer,
         ui: uiReducer,
     },
 });

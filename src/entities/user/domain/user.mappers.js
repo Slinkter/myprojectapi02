@@ -1,78 +1,77 @@
+import { UserSchema } from "@/shared/lib/schemas/user.schema";
+
 /**
- * @fileoverview Domain Mappers para Usuarios y Posts.
- * Sanitizan y transforman los datos de infraestructura (API cruda) para proteger
- * la integridad del dominio. Implementan el patrón Defensive Programming
- * asegurando que los componentes UI reciban estructuras de datos consistentes.
+ * @typedef {Object} UserDomain
+ * @property {number} id
+ * @property {string} name
+ * @property {string} username
+ * @property {string} email
+ * @property {string} phone
+ * @property {string} website
+ * @property {{ name: string, catchPhrase: string }} company
+ * @property {{ street: string, suite: string, city: string, zipcode: string }} address
+ */
+
+/**
+ * @fileoverview Domain Mappers para la entidad Usuario.
+ * Actúa como Capa Anti-Corrupción (ACL), transformando datos crudos de la API
+ * en modelos de dominio sanitizados y consistentes.
  * 
  * @module user-mappers
  */
 
 /**
  * Mapea la respuesta cruda de la API a una entidad de usuario sanitizada.
- * Implementa el patrón Early Return para gestionar entradas nulas o inválidas.
- * Asegura que todas las propiedades tengan un tipo y valor por defecto consistente.
+ * Garantiza la integridad de los datos mediante Zod y proporciona valores
+ * por defecto para evitar estados inconsistentes en la UI.
  * 
  * @function mapRawUser
- * @param {Object} raw - Datos crudos recibidos desde JSONPlaceholder.
- * @returns {Object|null} El usuario mapeado con estructura del dominio o `null` si los datos son inválidos.
- * 
- * @example
- * ```javascript
- * const rawApiData = { id: 1, name: "Leanne", ... };
- * const user = mapRawUser(rawApiData);
- * console.log(user.name); // "Leanne"
- * ```
+ * @param {unknown} raw - Datos crudos recibidos de la infraestructura.
+ * @returns {UserDomain|null} Entidad de usuario mapeada o null si la validación falla críticamente.
  */
 export const mapRawUser = (raw) => {
-  // Early Return: Validación mínima necesaria para considerar un usuario válido.
-  if (!raw || typeof raw !== "object" || !raw.id) return null;
-  
-  const safeId = Number(raw.id);
-  if (isNaN(safeId)) return null;
+  if (!raw) return null;
+
+  const result = UserSchema.safeParse(raw);
+
+  if (!result.success) {
+    return null;
+  }
+
+  const { data } = result;
 
   return {
-    id: safeId,
-    name: raw.name ? String(raw.name) : "Unknown User",
-    username: raw.username ? String(raw.username) : "guest",
-    email: raw.email ? String(raw.email) : "",
-    phone: String(raw.phone || ""),
-    website: raw.website ? String(raw.website) : "",
+    id: data.id,
+    name: data.name || "Unknown",
+    username: data.username || "Unknown",
+    email: data.email || "Unknown",
+    phone: data.phone || "Unknown",
+    website: data.website || "Unknown",
     company: {
-      name: raw.company?.name ? String(raw.company.name) : "N/A",
-      catchPhrase: raw.company?.catchPhrase ? String(raw.company.catchPhrase) : ""
+      name: data.company?.name || "Unknown",
+      catchPhrase: data.company?.catchPhrase || "Unknown",
     },
     address: {
-      street: raw.address?.street ? String(raw.address.street) : "",
-      suite: raw.address?.suite ? String(raw.address.suite) : "",
-      city: raw.address?.city ? String(raw.address.city) : "",
-      zipcode: raw.address?.zipcode ? String(raw.address.zipcode) : ""
-    }
+      street: data.address?.street || "Unknown",
+      suite: data.address?.suite || "N/A",
+      city: data.address?.city || "Unknown",
+      zipcode: data.address?.zipcode || "Unknown",
+    },
   };
 };
 
 /**
- * Transforma una lista de publicaciones crudas en una colección sanitizada.
- * Filtra registros corruptos o incompletos y garantiza que el contenido sea de tipo String.
+ * Mapea una colección de respuestas crudas de la API a entidades de usuario.
+ * Filtra cualquier elemento que no pase la validación del esquema.
  * 
- * @function mapRawPosts
- * @param {Array<Object>} rawList - Lista de publicaciones crudas de la API.
- * @returns {Array<Object>} Una lista de publicaciones procesadas y seguras para el dominio.
- * 
- * @example
- * ```javascript
- * const rawPosts = [{ id: 101, title: "Hello World", body: "Content..." }];
- * const cleanPosts = mapRawPosts(rawPosts);
- * ```
+ * @function mapRawUsers
+ * @param {unknown[]} rawArray - Array de datos crudos recibidos de la infraestructura.
+ * @returns {UserDomain[]} Array de usuarios mapeados y sanitizados.
  */
-export const mapRawPosts = (rawList) => {
-  if (!Array.isArray(rawList)) return [];
+export const mapRawUsers = (rawArray) => {
+  if (!Array.isArray(rawArray)) return [];
   
-  return rawList
-    .filter(p => p && p.id && p.title) // Filtrado defensivo de posts inválidos.
-    .map(p => ({
-      id: Number(p.id),
-      userId: Number(p.userId), // Necesario para filtrado futuro.
-      title: String(p.title),
-      body: String(p.body || "")
-    }));
+  return rawArray
+    .map(mapRawUser)
+    .filter((user) => user !== null);
 };

@@ -80,45 +80,25 @@ export const useTheme = () => {
      * @type {boolean}
      */
     const [isDark, setIsDark] = useState(() => {
-        // Leer el tema guardado en localStorage al inicializar
         const savedTheme = localStorage.getItem("theme");
-        return savedTheme === "dark";
+        if (savedTheme) return savedTheme === "dark";
+        return window.matchMedia("(prefers-color-scheme: dark)").matches;
     });
 
-    /**
-     * Efecto que se ejecuta cada vez que cambia el tema.
-     * Aplica o remueve la clase 'dark' del elemento HTML
-     * y guarda la preferencia en localStorage.
-     */
     useEffect(() => {
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
         const handleChange = (e) => {
-            // Solo actualizamos si el usuario no tiene una preferencia guardada manualmente
             if (!localStorage.getItem("theme")) {
                 setIsDark(e.matches);
             }
         };
 
-        // Soporte para navegadores antiguos y modernos
-        if (mediaQuery.addEventListener) {
-            mediaQuery.addEventListener("change", handleChange);
-        } else {
-            mediaQuery.addListener(handleChange);
-        }
-
-        return () => {
-            if (mediaQuery.removeEventListener) {
-                mediaQuery.removeEventListener("change", handleChange);
-            } else {
-                mediaQuery.removeListener(handleChange);
-            }
-        };
+        mediaQuery.addEventListener("change", handleChange);
+        return () => mediaQuery.removeEventListener("change", handleChange);
     }, []);
 
     useEffect(() => {
         const htmlElement = document.documentElement;
-
         if (isDark) {
             htmlElement.classList.add("dark");
             localStorage.setItem("theme", "dark");

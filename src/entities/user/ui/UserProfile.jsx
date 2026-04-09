@@ -1,8 +1,8 @@
 /**
  * @fileoverview Componente para la visualización del perfil de usuario.
- * Presenta información detallada del usuario en una tarjeta con diseño moderno,
- * gradientes y soporte completo para modo oscuro. Implementa diseño Mobile First
- * y proporciones áureas en tipografía y espaciado.
+ * Presenta información detallada del usuario en una tarjeta con diseño Glassmorphism,
+ * alto contraste y soporte completo para modo oscuro. Implementa diseño Mobile First
+ * y accesibilidad WCAG.
  * 
  * @module UserProfile
  */
@@ -20,40 +20,46 @@ import { cn } from "@/shared/lib/utils";
 
 /**
  * Subcomponente para renderizar una fila de información con icono.
+ * Diseñado para máximo contraste y legibilidad.
  * 
  * @component
  */
 const InfoItem = memo(({ icon: Icon, label, value, subValue, isLink }) => {
   return (
     <div className={cn(
-      "flex flex-row items-start gap-golden-sm min-w-0",
-      "p-golden-sm sm:p-0 rounded-2xl sm:rounded-none bg-slate-50/50 dark:bg-slate-800/50 sm:bg-transparent sm:dark:bg-transparent"
+      "flex flex-row items-start gap-golden-sm min-w-0 group",
+      "p-golden-sm sm:p-0 rounded-2xl sm:rounded-none transition-colors",
+      "bg-slate-100/50 dark:bg-slate-800/50 sm:bg-transparent"
     )}>
-      <div className={cn("p-2 bg-blue-50 dark:bg-blue-900/30 rounded-xl group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors shrink-0")}>
-        <Icon className={cn("h-5 w-5 text-blue-600 dark:text-blue-400")} aria-hidden="true" />
+      <div className={cn(
+        "p-2 bg-blue-600 dark:bg-blue-500 rounded-xl transition-transform group-hover:scale-110 shrink-0",
+        "shadow-sm"
+      )}>
+        <Icon className={cn("h-5 w-5 text-white")} aria-hidden="true" />
       </div>
       <div className={cn("min-w-0 flex-1")}>
-        {/* UX: Aumento de fuente mínima (text-xs) y contraste (slate-500) */}
-        <p className={cn("text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1")}>{label}</p>
+        <p className={cn("text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5")}>
+          {label}
+        </p>
         {isLink ? (
           <a
             href={label === "Email" ? `mailto:${value}` : `https://${value}`}
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
-              "block text-slate-800 dark:text-slate-200 font-semibold break-words transition-colors leading-relaxed text-golden-p text-blue-600 dark:text-blue-400 hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-md"
+              "block text-slate-900 dark:text-white font-bold break-words transition-colors leading-relaxed text-golden-p",
+              "text-blue-600 dark:text-blue-400 hover:underline transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-md"
             )}
           >
             {value}
           </a>
         ) : (
-          <p className={cn("text-slate-800 dark:text-slate-200 font-semibold break-words transition-colors leading-relaxed text-golden-p")}>
+          <p className={cn("text-slate-900 dark:text-white font-bold break-words transition-colors leading-relaxed text-golden-p")}>
             {value}
           </p>
         )}
         {subValue && (
-          /* UX: Contraste mejorado en subValue a slate-600 (Light Mode) */
-          <p className={cn("text-xs text-slate-600 dark:text-slate-400 italic mt-0.5 leading-tight transition-colors break-words")}>
+          <p className={cn("text-sm text-slate-600 dark:text-slate-300 italic mt-0.5 leading-tight transition-colors break-words")}>
             {subValue}
           </p>
         )}
@@ -79,7 +85,7 @@ InfoItem.propTypes = {
 
 /**
  * Muestra el perfil de un usuario con su información de contacto y laboral.
- * Diseñado con una cabecera visualmente atractiva y una rejilla de datos Mobile First.
+ * Implementa el patrón de "Dumb Component" recibiendo datos vía props.
  * 
  * @component
  */
@@ -88,32 +94,42 @@ const UserProfile = memo(({ user }) => {
 
   return (
     <div className={cn(
-      "bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-slate-700 shadow-xl rounded-3xl overflow-hidden w-full transition-colors",
-      "mb-golden-md lg:mb-0" // Margen inferior en móvil
+      "glass rounded-3xl overflow-hidden w-full transition-all duration-300",
+      "mb-golden-md lg:mb-0 border-slate-200 dark:border-slate-700",
+      "shadow-2xl"
     )}>
-      {/* Cabecera Áurea */}
+      {/* Cabecera de Alto Impacto */}
       <div className={cn(
-        "bg-gradient-to-br from-blue-600 to-indigo-700 text-white",
-        // Mobile First: padding base y elementos centrados. LG: padding áureo y flex-row
-        "p-golden-base lg:p-golden-md flex flex-col lg:flex-row items-center lg:items-start gap-golden-base text-center lg:text-left"
+        "bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 text-white",
+        "p-golden-base lg:p-golden-md flex flex-col lg:flex-row items-center lg:items-start gap-golden-base text-center lg:text-left",
+        "relative overflow-hidden"
       )}>
-        <div className={cn("p-golden-sm bg-white/20 backdrop-blur-sm rounded-2xl shadow-inner border border-white/20")}>
+        {/* Elemento decorativo para profundidad */}
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
+        
+        <div className={cn(
+          "p-golden-sm bg-white/20 backdrop-blur-md rounded-2xl shadow-inner border border-white/30",
+          "relative z-10"
+        )}>
           <UserIcon className={cn("h-12 w-12")} aria-hidden="true" />
         </div>
-        <div>
-          {/* Tipografía Áurea para h3 y p */}
-          <h2 className={cn("text-golden-h3 font-extrabold tracking-tight leading-tight")}>{user.name}</h2>
-          <p className={cn("text-blue-100 font-medium text-golden-p mt-1")}>@{user.username}</p>
+        <div className="relative z-10">
+          <h2 className={cn("text-golden-h3 font-black tracking-tight leading-tight")}>
+            {user.name}
+          </h2>
+          <p className={cn("text-blue-100 font-medium text-golden-p mt-1 opacity-90")}>
+            @{user.username}
+          </p>
         </div>
       </div>
       
-      {/* Cuerpo del Perfil */}
+      {/* Cuerpo del Perfil - Grid Responsivo */}
       <div className={cn(
-        // Mobile First: 1 columna. MD: 2 columnas en grid
-        "p-golden-base lg:p-golden-md grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-golden-sm lg:gap-golden-base"
+        "p-golden-base lg:p-golden-md grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-golden-sm lg:gap-golden-base",
+        "bg-white/40 dark:bg-slate-900/40"
       )}>
         <InfoItem icon={EnvelopeIcon} label="Email" value={user.email} isLink />
-        <InfoItem icon={GlobeAltIcon} label="Website" value={user.website} />
+        <InfoItem icon={GlobeAltIcon} label="Website" value={user.website} isLink />
         <InfoItem 
           icon={BriefcaseIcon} 
           label="Company" 

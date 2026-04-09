@@ -6,6 +6,7 @@
  */
 
 import { cn } from "@/shared/lib/utils";
+import Shimmer from "@/shared/ui/Shimmer";
 
 /**
  * Renderiza una estructura de carga que imita la disposición de UserProfile.
@@ -16,7 +17,8 @@ import { cn } from "@/shared/lib/utils";
  */
 function ProfileSkeleton() {
   return (
-    <div className={cn("bg-white/50 backdrop-blur-md border border-slate-200 shadow-lg rounded-2xl overflow-hidden max-w-2xl mx-auto my-8 animate-pulse")}>
+    <div className={cn("relative overflow-hidden glass rounded-2xl max-w-2xl mx-auto my-8")}>
+      <Shimmer />
       <div className={cn("bg-slate-200 p-6 flex items-center gap-4 h-32")}>
         <div className={cn("p-3 bg-slate-300 rounded-full h-16 w-16")}></div>
         <div className={cn("flex-1")}>

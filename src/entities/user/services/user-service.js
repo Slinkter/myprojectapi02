@@ -11,7 +11,8 @@
 
 import { getUser, getAllUsers } from "@/entities/user/api/user.api";
 import { getPostsByUser } from "@/entities/post/api/post.api";
-import { mapRawUser, mapRawPosts } from "@/entities/user/domain/user.mappers";
+import { mapRawUser } from "@/entities/user/domain/user.mappers";
+import { mapRawPosts } from "@/entities/post/domain/post.mappers";
 
 /**
  * @typedef {Object} UserEntity

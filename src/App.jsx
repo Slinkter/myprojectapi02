@@ -1,11 +1,3 @@
-/**
- * @fileoverview Componente raíz de la aplicación UserApp Pro.
- * Coordina la estructura de alto nivel envolviendo la lógica principal en
- * límites de error (ErrorBoundary) y layouts estructurales.
- *
- * @module App
- */
-
 import ErrorBoundary from "@/shared/ui/ErrorBoundary";
 import MainLayout from "@/widgets/layout/MainLayout";
 import UserSearchPage from "@/pages/user-search/UserSearchPage";

@@ -8,32 +8,58 @@
 import { normalizeText } from "@/shared/lib/utils";
 
 /**
- * Resuelve el valor de búsqueda ingresado por el usuario.
+ * Verifica si una cadena representa un identificador numérico válido.
  * 
- * @param {string} input - El la entrada del usuario.
- * @param {Array} cachedUsers - Lista de usuarios cargados en el estado global.
- * @returns {string|number|null} El ID del usuario resuelto o null si no se encuentra.
- * 
- * @example
- * resolveSearchQuery("1", []) -> 1
- * resolveSearchQuery("john_doe", [{username: "John Doe", id: 2}, {username: "Jane Doe", id: 5}]) -> 2
- * resolveSearchQuery("unknown", []) -> null
+ * @param {string} input - La cadena a validar.
+ * @returns {boolean} True si el input consiste únicamente en dígitos.
  */
-export const resolveSearchQuery = (input, cachedUsers = []) => {
-  const trimmedInput = input.trim();
-  
-  if (!trimmedInput) return null;
+export const isNumericId = (input) => /^\d+$/.test(input);
 
-  // Caso 1: El input es un ID numérico
-  if (/^\d+$/.test(trimmedInput)) {
-    return parseInt(trimmedInput, 10);
-  }
+/**
+ * Busca un usuario en la lista de caché basándose en la normalización del nombre de usuario.
+ * 
+ * @param {string} username - Nombre de usuario a buscar.
+ * @param {Array<Object>} cachedUsers - Lista de usuarios cargados en el estado global.
+ * @returns {number|null} El ID del usuario si se encuentra, de lo contrario null.
+ */
+export const findUserByUsername = (username, cachedUsers = []) => {
+  if (!Array.isArray(cachedUsers)) return null;
 
-  // Caso 2: El input es un nombre de usuario
-  const normalizedInput = normalizeText(trimmedInput);
+  const normalizedInput = normalizeText(username);
   const foundUser = cachedUsers.find(user => 
-    normalizeText(user.username) === normalizedInput
+    user && normalizeText(user.username) === normalizedInput
   );
 
   return foundUser ? foundUser.id : null;
+};
+
+/**
+ * Resuelve el valor de búsqueda ingresado por el usuario a un ID numérico.
+ * 
+ * Implementa una lógica de resolución priorizando IDs numéricos y luego
+ * buscando en la caché de usuarios por nombre de usuario.
+ * 
+ * @param {string} input - El término de búsqueda ingresado por el usuario.
+ * @param {Array<Object>} cachedUsers - Lista de usuarios en caché para resolución por nombre.
+ * @returns {number|null} El ID del usuario resuelto o null si no es posible determinar la identidad.
+ * 
+ * @example
+ * resolveSearchQuery("123", []) -> 123
+ * resolveSearchQuery("john_doe", [{username: "John Doe", id: 10}]) -> 10
+ * resolveSearchQuery("unknown", []) -> null
+ * resolveSearchQuery("", []) -> null
+ */
+export const resolveSearchQuery = (input, cachedUsers = []) => {
+  if (typeof input !== "string") return null;
+
+  const trimmedInput = input.trim();
+  if (!trimmedInput) return null;
+
+  // Caso 1: El input es un ID numérico directo
+  if (isNumericId(trimmedInput)) {
+    return parseInt(trimmedInput, 10);
+  }
+
+  // Caso 2: El input es un nombre de usuario que debe resolverse contra la caché
+  return findUserByUsername(trimmedInput, cachedUsers);
 };

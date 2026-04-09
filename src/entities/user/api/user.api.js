@@ -2,74 +2,65 @@
  * @fileoverview
  * Adaptador de Infraestructura para Usuarios.
  * Proporciona métodos para interactuar con el endpoint `/users` de la API externa,
- * aislando la lógica de comunicación del resto del dominio.
+ * aislando la lógica de comunicación del resto del dominio mediante mappers.
  *
  * @module user-api
  */
 
 import { fetchFromApi } from "@/shared/api/api-client";
+import { mapRawUser, mapRawUsers } from "@/entities/user/domain/user.mappers";
 
 /**
  * Obtiene la información detallada de un usuario por su ID.
  * Implementa una estrategia de recuperación resiliente: si el usuario no existe (404),
- * retorna un objeto vacío en lugar de lanzar una excepción, facilitando el manejo
- * en las capas superiores.
+ * retorna null, facilitando el manejo de estados "notFound" en la capa de Store.
  *
  * @async
  * @function getUser
- * @param {number|string} id - El identificador único del usuario en el sistema externo.
- * @param {RequestInit} [options={}] - Opciones para la petición fetch.
- * @returns {Promise<Object>} Una promesa que resuelve con los datos crudos del usuario
- * o un objeto vacío `{}` si el usuario no fue encontrado.
+ * @param {number|string} id - El identificador único del usuario.
+ * @param {RequestInit} [options={}] - Opciones para la petición fetch (incluye AbortSignal).
+ * @returns {Promise<Object|null>} Usuario mapeado al dominio o null si no fue encontrado/inválido.
  *
- * @throws {Error} Lanza un error si ocurre un fallo de red o un error de servidor (5xx).
+ * @throws {ApiError} Lanza un error si ocurre un fallo de red o un error de servidor (5xx).
  *
  * @example
- * ```javascript
- * const user = await getUser(1);
- * if (user.id) {
- *   console.log(`Usuario encontrado: ${user.username}`);
- * }
- * ```
+ * const user = await getUser(1, { signal: controller.signal });
+ * if (user) console.log(user.name);
  */
 export const getUser = async (id, options = {}) => {
-    if (!id) return {};
+    if (!id) return null;
 
     try {
         const endpoint = `users/${id}`;
-        return await fetchFromApi(endpoint, options);
+        const rawUser = await fetchFromApi(endpoint, options);
+        
+        return mapRawUser(rawUser);
     } catch (error) {
-        // Si es un 404, retornamos objeto vacío de forma segura para la capa de servicios.
-        if (error.status === 404) return {};
+        // Si es un 404, retornamos null para indicar "no encontrado" sin romper el flujo.
+        if (error.status === 404) return null;
         throw error;
     }
 };
 
 /**
  * Obtiene la lista completa de todos los usuarios disponibles en el sistema.
- * Diseñado para ser no bloqueante: en caso de error crítico, retorna una lista vacía
- * y registra el error en la consola.
+ * Cada elemento de la lista es procesado a través de un mapper para asegurar
+ * la consistencia de los datos en toda la aplicación.
  *
  * @async
  * @function getAllUsers
- * @param {RequestInit} [options={}] - Opciones para la petición fetch.
- * @returns {Promise<Array<Object>>} Una promesa que resuelve con un array de objetos
- * de usuario crudos. Retorna `[]` si ocurre un error o no hay datos.
+ * @param {RequestInit} [options={}] - Opciones para la petición fetch (incluye AbortSignal).
+ * @returns {Promise<Array<Object>>} Lista de usuarios mapeados al dominio.
  *
  * @example
- * ```javascript
- * const allUsers = await getAllUsers();
- * console.log(`Total de usuarios recuperados: ${allUsers.length}`);
- * ```
+ * const users = await getAllUsers();
+ * console.log(users.length);
  */
 export const getAllUsers = async (options = {}) => {
-    try {
-        const endpoint = "users";
-        const users = await fetchFromApi(endpoint, options);
-        return Array.isArray(users) ? users : [];
-    } catch (error) {
-        // Error silencioso para la lista completa para no bloquear la app.
-        console.error("Critical Error fetching all users:", error);
-        return [];
-    }
+    const endpoint = "users";
+    const rawUsers = await fetchFromApi(endpoint, options);
+    
+    if (!Array.isArray(rawUsers)) return [];
+    
+    return mapRawUsers(rawUsers);
 };

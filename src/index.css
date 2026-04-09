@@ -5,19 +5,19 @@
     --color-glass-border: rgba(255, 255, 255, 0.4);
     --glass-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
     --font-inter: Inter, system-ui, sans-serif;
-    
+
     /* Escala Tipográfica Áurea (Base 16px = 1rem * 1.618) */
-    --font-size-golden-p: 1rem;         /* 16px */
-    --font-size-golden-h3: 1.618rem;    /* ~26px */
-    --font-size-golden-h2: 2.618rem;    /* ~42px */
-    --font-size-golden-h1: 4.236rem;    /* ~68px */
+    --font-size-golden-p: 1rem; /* 16px */
+    --font-size-golden-h3: 1.618rem; /* ~26px */
+    --font-size-golden-h2: 2.618rem; /* ~42px */
+    --font-size-golden-h1: 4.236rem; /* ~68px */
 
     /* Espaciado Áureo */
-    --spacing-golden-sm: 0.618rem;      /* ~10px */
-    --spacing-golden-base: 1rem;        /* 16px */
-    --spacing-golden-md: 1.618rem;      /* ~26px */
-    --spacing-golden-lg: 2.618rem;      /* ~42px */
-    --spacing-golden-xl: 4.236rem;      /* ~68px */
+    --spacing-golden-sm: 0.618rem; /* ~10px */
+    --spacing-golden-base: 1rem; /* 16px */
+    --spacing-golden-md: 1.618rem; /* ~26px */
+    --spacing-golden-lg: 2.618rem; /* ~42px */
+    --spacing-golden-xl: 4.236rem; /* ~68px */
 }
 
 /* Configuración de Modo Oscuro para Tailwind v4 */
@@ -26,19 +26,20 @@
 @layer base {
     :root {
         font-family: var(--font-inter);
-        line-height: 1.618; /* Altura de línea áurea */
+        line-height: 1.618;
         font-weight: 400;
         color-scheme: light;
-        background-color: #f1f5f9;
-        color: #1e293b;
+        background-color: #f8fafc; /* slate-50 */
+        color: #0f172a; /* slate-900 */
         transition:
             background-color 0.3s ease,
             color 0.3s ease;
     }
 
-    /* Cuando la clase .dark está en el HTML */
     .dark {
         color-scheme: dark;
+        background-color: #0f172a; /* slate-900 */
+        color: #f8fafc; /* slate-50 */
     }
 }
 
@@ -54,7 +55,7 @@ body {
 
 /* Mejoras de Accesibilidad: Anillo de Enfoque Global */
 *:focus-visible {
-    outline: 2px solid #2563eb;
+    outline: 2px solid #3b82f6; /* blue-500 */
     outline-offset: 2px;
 }
 

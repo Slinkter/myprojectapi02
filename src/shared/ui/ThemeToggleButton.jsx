@@ -29,8 +29,8 @@ const ThemeToggleButton = memo(() => {
                 isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"
             }
             className={cn(
-                "p-2.5 rounded-4xl transition-all duration-300 group shadow-sm active:scale-95 focus:ring-2 focus:ring-blue-500 outline-none",
-                "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-blue-400",
+                "glass p-2.5 rounded-4xl transition-all duration-300 group shadow-sm active:scale-95 focus-visible:ring-2 focus-visible:ring-blue-500",
+                "hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-blue-400",
             )}
         >
             {isDark ? (

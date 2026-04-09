@@ -7,7 +7,7 @@
  * @category Hooks
  */
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { SEARCH_LIMITS, UX_CONFIG } from "@/shared/config/constants";
 
 /**
@@ -23,88 +23,72 @@ import { SEARCH_LIMITS, UX_CONFIG } from "@/shared/config/constants";
  * @returns {boolean} returns.hasError - `true` si la validación actual ha fallado.
  * @returns {Function} returns.onInputChange - Manejador de evento para cambios en el input.
  * @returns {Function} returns.setSearchValue - Función para actualizar el valor manualmente.
- *
- * @example
- * ```tsx
- * const { searchValue, onInputChange, helperMessage } = useSearchInput("");
- *
- * return <input value={searchValue} onChange={onInputChange} />;
- * ```
  */
-export const useSearchInput = (initialSearch = 1) => {
+export const useSearchInput = (initialSearch = "") => {
     const [searchValue, setSearchValue] = useState(initialSearch.toString());
     const [helperMessage, setHelperMessage] = useState("");
     const [hasError, setHasError] = useState(false);
     const debounceRef = useRef(null);
 
     /**
-     * Ejecuta la lógica de validación y genera mensajes de ayuda.
-     * Se separa del input directo para permitir debouncing.
+     * Ejecuta la lógica de validación y retorna el estado del input.
+     * @param {string} value - Valor a validar.
+     * @returns {{message: string, error: boolean}} Resultado de la validación.
      */
-    const validateInput = useCallback((value) => {
-        // Early Return: Caso de input vacío.
-        if (!value) {
-            setHelperMessage("");
-            setHasError(false);
-            return;
-        }
+    const validate = useCallback((value) => {
+        if (!value) return { message: "", error: false };
 
-        // Validación de ID Numérico (Rango Dinámico).
+        // Validación de ID Numérico (Rango Dinámico)
         if (/^\d+$/.test(value)) {
             const numericId = parseInt(value, 10);
 
-            // La API externa JSONPlaceholder solo tiene un conjunto limitado de usuarios estables.
-            if (
-                numericId < SEARCH_LIMITS.MIN_ID ||
-                numericId > SEARCH_LIMITS.MAX_ID
-            ) {
-                setHelperMessage(
-                    `La API solo soporta IDs del ${SEARCH_LIMITS.MIN_ID} al ${SEARCH_LIMITS.MAX_ID}.`,
-                );
-                setHasError(true);
-                return;
+            if (numericId < SEARCH_LIMITS.MIN_ID || numericId > SEARCH_LIMITS.MAX_ID) {
+                return {
+                    message: `La API solo soporta IDs del ${SEARCH_LIMITS.MIN_ID} al ${SEARCH_LIMITS.MAX_ID}.`,
+                    error: true,
+                };
             }
 
-            setHelperMessage("Buscando por ID numérico.");
-            setHasError(false);
-            return;
+            return { message: "Buscando por ID numérico.", error: false };
         }
 
-        // Feedback para búsqueda por Texto (Nombre/Username).
-        setHelperMessage("Buscando por nombre o usuario.");
-        setHasError(false);
+        // Feedback para búsqueda por Texto (Nombre/Username)
+        return { message: "Buscando por nombre o usuario.", error: false };
     }, []);
 
     /**
-     * Efecto para manejar el debouncing de la validación.
-     * Mejora el rendimiento al no re-validar en cada pulsación de tecla.
-     */
-    useEffect(() => {
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-
-        debounceRef.current = setTimeout(() => {
-            validateInput(searchValue);
-        }, UX_CONFIG.DEBOUNCE_DELAY);
-
-        return () => clearTimeout(debounceRef.current);
-    }, [searchValue, validateInput]);
-
-    /**
      * Maneja los cambios en el input de búsqueda.
-     * Actualiza el valor de forma inmediata para mantener la UI reactiva.
+     * Actualiza el valor de forma inmediata para mantener la UI reactiva y 
+     * dispara la validación debounced para evitar re-renders excesivos.
      *
      * @function onInputChange
      * @param {React.ChangeEvent<HTMLInputElement>} event - Evento de cambio nativo.
      */
     const onInputChange = useCallback((event) => {
-        setSearchValue(event.target.value);
+        const value = event.target.value;
+        setSearchValue(value);
+
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+
+        debounceRef.current = setTimeout(() => {
+            const { message, error } = validate(value);
+            setHelperMessage(message);
+            setHasError(error);
+        }, UX_CONFIG.DEBOUNCE_DELAY);
+    }, [validate]);
+
+    useEffect(() => {
+        return () => {
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
     }, []);
 
-    return {
+    return useMemo(() => ({
         searchValue,
         helperMessage,
         hasError,
         onInputChange,
         setSearchValue,
-    };
+    }), [searchValue, helperMessage, hasError, onInputChange, setSearchValue]);
+
 };

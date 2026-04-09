@@ -11,10 +11,16 @@ import { cn } from "@/shared/lib/utils";
 
 /**
  * Muestra una tarjeta de error estilizada con opción de reintento.
+ * Es un componente puramente presentacional (Dumb Component).
  *
  * @component
+ * @param {Object} props - Propiedades del componente.
+ * @param {string} [props.message] - Mensaje o descripción del error.
+ * @param {function} [props.onRetry] - Función que se dispara al pulsar el botón de reintentar.
+ * @param {string} [props.className] - Clases de Tailwind adicionales para el contenedor.
+ * @returns {JSX.Element} El componente de mensaje de error.
  */
-const ErrorMessage = memo(({ message, onRetry }) => {
+const ErrorMessage = memo(({ message, onRetry, className }) => {
     const displayMessage = message || "¡Ups! Algo salió mal";
 
     return (
@@ -22,7 +28,8 @@ const ErrorMessage = memo(({ message, onRetry }) => {
             role="alert"
             aria-live="assertive"
             className={cn(
-                "bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/50 rounded-3xl p-8 text-center shadow-sm animate-in fade-in slide-in-from-top-4 duration-300 ease-out",
+                "glass rounded-3xl p-8 text-center animate-in fade-in slide-in-from-top-4 duration-300 ease-out",
+                className
             )}
         >
             <div
@@ -56,7 +63,8 @@ const ErrorMessage = memo(({ message, onRetry }) => {
                     }}
                     aria-label="Reintentar la operación"
                     className={cn(
-                        "px-8 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all shadow-sm active:scale-95 outline-none focus:ring-2 focus:ring-red-500/50",
+                                "px-8 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all shadow-sm active:scale-95 outline-none focus-visible:ring-2 focus-visible:ring-red-500/50",
+
                     )}
                 >
                     Reintentar
@@ -73,6 +81,8 @@ ErrorMessage.propTypes = {
     message: PropTypes.string,
     /** Función que se dispara al pulsar el botón de reintentar. */
     onRetry: PropTypes.func,
+    /** Clases de Tailwind adicionales para el contenedor. */
+    className: PropTypes.string,
 };
 
 export default ErrorMessage;

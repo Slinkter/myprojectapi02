@@ -80,7 +80,7 @@ describe("useUserSearch", () => {
     });
 
     // Assert
-    expect(fetchUserAndPosts).toHaveBeenCalledWith(123);
+    expect(fetchUserAndPosts).toHaveBeenCalledWith(searchTerm);
   });
 
   /**
@@ -97,7 +97,7 @@ describe("useUserSearch", () => {
     });
 
     // Assert
-    expect(fetchUserAndPosts).toHaveBeenCalledWith(10);
+    expect(fetchUserAndPosts).toHaveBeenCalledWith(searchTerm);
   });
 
   /**

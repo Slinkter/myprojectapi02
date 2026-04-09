@@ -9,12 +9,24 @@
 import { memo } from "react";
 import PropTypes from "prop-types";
 import { cn } from "@/shared/lib/utils";
+import ErrorMessage from "@/shared/ui/ErrorMessage";
+import NotFoundCard from "@/shared/ui/NotFoundCard";
 
 /**
  * Componente que orquesta el renderizado condicional basado en el estado de una petición.
- * Permite inyectar componentes personalizados para cada estado o utilizar fallbacks.
+ * Actúa como un coordinador de componentes presentacionales.
  *
  * @component
+ * @param {Object} props - Propiedades del componente.
+ * @param {string} props.status - Estado actual de la operación asíncrona ("idle", "loading", "succeeded", "failed", "notFound").
+ * @param {string} [props.error] - Mensaje de error opcional.
+ * @param {function} [props.onRetry] - Callback para reintentar una operación fallida.
+ * @param {React.ElementType} [props.loadingComponent] - Componente personalizado para el estado de carga.
+ * @param {React.ElementType} [props.errorComponent] - Componente personalizado para el estado de error.
+ * @param {React.ElementType} [props.notFoundComponent] - Componente personalizado para el estado no encontrado.
+ * @param {string} [props.className] - Clase CSS adicional para el contenedor de éxito.
+ * @param {React.ReactNode} props.children - Contenido para el estado de éxito.
+ * @returns {JSX.Element|null} El componente correspondiente al estado actual o null.
  */
 const StateBoundary = memo(
     ({
@@ -40,33 +52,15 @@ const StateBoundary = memo(
                     </div>
                 );
 
-            case "failed":
-                return ErrorComp ? (
-                    <ErrorComp message={error} onRetry={onRetry} />
-                ) : (
-                    <div className={cn("p-8 text-center border border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 rounded-2xl")}>
-                        <p className="text-red-600 dark:text-red-400 font-semibold">{error || "Error inesperado"}</p>
-                        {onRetry && (
-                            <button 
-                                onClick={onRetry} 
-                                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 transition-colors"
-                            >
-                                Reintentar
-                            </button>
-                        )}
-                    </div>
-                );
+            case "failed": {
+                const ErrorUI = ErrorComp || ErrorMessage;
+                return <ErrorUI message={error} onRetry={onRetry} />;
+            }
 
-            case "notFound":
-                return NotFound ? (
-                    <NotFound />
-                ) : (
-                    <div className={cn("p-8 text-center border border-orange-200 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-900/10 rounded-2xl")}>
-                        <p className="text-orange-600 dark:text-orange-400 font-semibold">
-                            Recurso no encontrado.
-                        </p>
-                    </div>
-                );
+            case "notFound": {
+                const NotFoundUI = NotFound || NotFoundCard;
+                return <NotFoundUI attemptedId={error} />;
+            }
 
             case "succeeded":
                 return <div className={cn(className)}>{children}</div>;
@@ -89,7 +83,7 @@ StateBoundary.propTypes = {
         "failed",
         "notFound",
     ]).isRequired,
-    /** Mensaje de error opcional. */
+    /** Mensaje de error o identificador no encontrado. */
     error: PropTypes.string,
     /** Callback para reintentar una operación fallida. */
     onRetry: PropTypes.func,

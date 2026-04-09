@@ -1,32 +1,55 @@
 /**
  * @fileoverview
  * Gestión del estado de Usuarios.
- * Implementa la lógica de estado para la búsqueda, perfiles y caché de usuarios.
+ * Implementa la lógica de estado para la búsqueda, perfiles y caché de usuarios
+ * siguiendo una máquina de estados estricta para el control de flujo de la UI.
  *
  * @module user-slice
  */
 
-import { createSlice } from "@reduxjs/toolkit";
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { createSelector } from "@reduxjs/toolkit";
-import { fetchUserProfileById, fetchAllUsers } from "@/entities/user/services/user-service";
+import {
+    createSlice,
+    createAsyncThunk,
+    createSelector,
+} from "@reduxjs/toolkit";
+import {
+    fetchUserProfileById,
+    fetchAllUsers,
+} from "@/entities/user/services/user-service";
+import { resolveSearchQuery } from "@/features/user-search/services/search-engine";
+
+/**
+ * Estados posibles para las peticiones de usuario.
+ * @typedef {"idle" | "loading" | "succeeded" | "failed" | "notFound"} FetchStatus
+ */
 
 // --- Async Thunks ---
 
 /**
- * Thunk asíncrono para obtener un perfil completo (Usuario + Publicaciones) por su ID.
- * Gestiona errores de infraestructura y propaga mensajes de error localizables.
+ * Thunk asíncrono para obtener un perfil completo (Usuario + Publicaciones) basándose
+ * en una consulta de búsqueda (ID o nombre de usuario).
+ * Propaga la señal de AbortController para evitar race conditions en navegaciones rápidas.
  *
  * @function fetchUserAndPosts
- * @param {number|string} userId - ID del usuario a recuperar.
- * @param {Object} thunkAPI - API de Redux Toolkit para rejectWithValue.
+ * @param {number|string} searchQuery - ID o nombre de usuario a recuperar.
  * @returns {Promise<Object>} Perfil de usuario y posts.
  */
 export const fetchUserAndPosts = createAsyncThunk(
     "user/fetchById",
-    async (userId, { rejectWithValue, signal }) => {
+    async (searchQuery, { rejectWithValue, signal, getState }) => {
+        const { user } = getState();
+        const resolvedId = resolveSearchQuery(searchQuery, user.cachedUserList);
+
+        if (!resolvedId) {
+            return rejectWithValue({
+                status: 404,
+                message: "user.notFoundTitle",
+            });
+        }
+
         try {
-            return await fetchUserProfileById(userId, { signal });
+            // Propagamos el signal al servicio para permitir la cancelación de la petición HTTP
+            return await fetchUserProfileById(resolvedId, { signal });
         } catch (error) {
             return rejectWithValue({
                 message: error.message || "error.generic",
@@ -34,23 +57,20 @@ export const fetchUserAndPosts = createAsyncThunk(
             });
         }
     },
-
     {
-        condition: (userId, { getState }) => {
+        condition: (searchQuery, { getState }) => {
             const { user } = getState();
-            if (user.fetchStatus === "loading") {
-                return false;
-            }
+            // Evitamos peticiones duplicadas si ya estamos cargando
+            if (user.fetchStatus === "loading") return false;
         },
     },
 );
 
 /**
- * Thunk asíncrono para cargar la lista completa de usuarios.
- * Se utiliza principalmente para la funcionalidad de búsqueda local por nombre (caché).
+ * Thunk asíncrono para cargar la lista completa de usuarios en la caché local.
  *
  * @function fetchUsersList
- * @returns {Promise<Array<Object>>} Lista de todos los usuarios sanitizados.
+ * @returns {Promise<Array<Object>>} Lista de usuarios sanitizados.
  */
 export const fetchUsersList = createAsyncThunk(
     "user/fetchList",
@@ -70,33 +90,29 @@ export const fetchUsersList = createAsyncThunk(
 
 /**
  * @typedef {Object} UserState
- * @property {string} fetchStatus - Estado de la petición individual ('idle', 'loading', 'succeeded', 'failed', 'notFound').
- * @property {string} listStatus - Estado de la petición de lista ('idle', 'loading', 'succeeded', 'failed').
- * @property {string|null} error - Mensaje de error actual o clave de traducción.
- * @property {Object|null} currentUser - Datos del perfil del usuario actual.
- * @property {Array<Object>} currentUserPosts - Lista de publicaciones del usuario la actual.
- * @property {Array<Object>} cachedUserList - Caché local de todos los usuarios para búsqueda.
+ * @property {FetchStatus} fetchStatus - Estado de la petición del perfil actual.
+ * @property {FetchStatus} listStatus - Estado de la petición de la lista de usuarios.
+ * @property {string|null} error - Mensaje de error o clave de traducción.
+ * @property {Object|null} currentUser - Entidad del usuario actual mapeada al dominio.
+ * @property {Array<Object>} currentUserPosts - Publicaciones asociadas al usuario actual.
+ * @property {Array<Object>} cachedUserList - Caché de usuarios para búsqueda instantánea.
  */
 
+const initialState = {
+    fetchStatus: "idle",
+    listStatus: "idle",
+    error: null,
+    currentUser: null,
+    cachedUserList: [],
+};
+
 const userSlice = createSlice({
-    name: "user", // Nombre del slice, usado para generar los action types (ej: 'user/resetUserState')
-    initialState: {
-        // --- Estado de la Bóveda (Datos iniciales) ---
-        // Estado de búsqueda individual
-        fetchStatus: "idle", // Máquina de estados: 'idle', 'loading', 'succeeded', 'failed', 'notFound'
-        error: null,         // Almacena el motivo si la petición falla
-        currentUser: null,   // Los datos del usuario (el tesoro)
-        currentUserPosts: [],   // Los posts del usuario
-        // Estado de lista/caché (operación separada)
-        listStatus: "idle",  // Estado de la descarga de toda la base de datos
-        cachedUserList: [],  // Lista en memoria para búsquedas instantáneas
-    },
+    name: "user",
+    initialState,
     reducers: {
-        // --- Reducers Síncronos (Los Cajeros Rápidos) ---
         /**
-         * Reinicia el estado de búsqueda y perfil a sus valores iniciales.
-         * RTK usa Immer por debajo, permitiendo "mutar" el state directamente.
-         * @param {UserState} state - Estado actual del slice.
+         * Reinicia el estado del perfil al valor inicial.
+         * @param {UserState} state
          */
         resetUserState: (state) => {
             state.fetchStatus = "idle";
@@ -106,143 +122,81 @@ const userSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        // --- Extra Reducers (Los Cajeros que atienden a los Camiones Blindados / Thunks) ---
         builder
-            // Búsqueda Individual (fetchUserAndPosts)
-             .addCase(fetchUserAndPosts.pending, (state) => {
-                 // El camión acaba de salir. Ponemos el cartel de "Cargando".
-                 state.fetchStatus = "loading";
-                 state.error = null;
-                 state.currentUser = null;
-                 state.currentUserPosts = [];
-             })
-             .addCase(fetchUserAndPosts.fulfilled, (state, { payload }) => {
-                 // El camión volvió con éxito.
-                 if (!payload.user) {
-                     // Volvió con las manos vacías (Usuario no existe)
-                     state.fetchStatus = "notFound";
-                     state.currentUser = null;
-                     state.currentUserPosts = [];
-                     return;
-                 }
-                 // ¡Éxito real! Guardamos el botín en la bóveda.
-                 state.fetchStatus = "succeeded";
-                 state.currentUser = payload.user;
-                 state.currentUserPosts = payload.posts;
-             })
-             .addCase(fetchUserAndPosts.rejected, (state, { payload }) => {
-                 // El camión chocó (Fallo de red o error 500).
-                 state.fetchStatus =
-                     payload?.status === 404 ? "notFound" : "failed";
-                 state.error = payload?.message || "error.generic";
-                 state.currentUser = null;
-                 state.currentUserPosts = [];
-             })
-
-            // Carga de Lista (fetchUsersList)
+            // Perfil Individual
+            .addCase(fetchUserAndPosts.pending, (state) => {
+                state.fetchStatus = "loading";
+                state.error = null;
+            })
+            .addCase(fetchUserAndPosts.fulfilled, (state, { payload }) => {
+                if (!payload.user) {
+                    state.fetchStatus = "notFound";
+                    state.currentUser = null;
+                    return;
+                }
+                state.fetchStatus = "succeeded";
+                state.currentUser = payload.user;
+            })
+            .addCase(fetchUserAndPosts.rejected, (state, { payload }) => {
+                state.fetchStatus =
+                    payload?.status === 404 ? "notFound" : "failed";
+                state.error = payload?.message || "error.generic";
+                state.currentUser = null;
+            })
+            // Lista de Usuarios
             .addCase(fetchUsersList.pending, (state) => {
                 state.listStatus = "loading";
             })
             .addCase(fetchUsersList.fulfilled, (state, { payload }) => {
                 state.listStatus = "succeeded";
-                state.cachedUserList = payload; // Guardamos la caché
+                state.cachedUserList = payload;
             })
             .addCase(fetchUsersList.rejected, (state) => {
                 state.listStatus = "failed";
-                state.cachedUserList = []; // Fallo explícito, no silencioso.
+                state.cachedUserList = [];
             });
     },
 });
 
 export const { resetUserState } = userSlice.actions;
 
-// --- Selectores (Las pantallas de visualización) ---
+// --- Selectors ---
 
 /**
- * Selector directo para los datos del perfil del usuario actual.
- * @param {Object} state - Estado global de Redux.
+ * Selector para el usuario actual.
  */
-export const selectCurrentUserProfile = (state) => state.user.currentUser;
+export const selectCurrentUser = (state) => state.user.currentUser;
 
 /**
- * Selector directo para las publicaciones del usuario actual.
- * @param {Object} state - Estado global de Redux.
- */
-export const selectCurrentUserPosts = (state) => state.user.currentUserPosts;
-
-/**
- * Selector directo para el estado de la petición individual (status).
- * Útil para que la UI sepa si debe mostrar un Skeleton o el contenido.
- * @param {Object} state - Estado global de Redux.
+ * Selector para el estado de carga del usuario.
  */
 export const selectUserFetchStatus = (state) => state.user.fetchStatus;
 
 /**
- * Selector directo para el mensaje de error actual.
- * @param {Object} state - Estado global de Redux.
+ * Selector para el error de carga del usuario.
  */
 export const selectUserFetchError = (state) => state.user.error;
 
 /**
- * Selector directo para la lista de usuarios en caché.
- * @param {Object} state - Estado global de Redux.
+ * Selector para la lista de usuarios en caché.
  */
-export const selectCachedUsers = (state) => state.user.cachedUserList;
+const selectRawUserList = (state) => state.user.cachedUserList;
 
 /**
- * Selector memoizado para obtener la lista de usuarios en caché.
- * Utiliza Reselect para evitar cálculos innecesarios si el estado no cambia.
- * Fundamental para el rendimiento en búsquedas de listas grandes.
+ * Selector memoizado para la lista de usuarios.
+ * Garantiza que la UI no se re-renderice a menos que la lista cambie realmente.
  */
 export const selectMemoizedUserList = createSelector(
-    [selectCachedUsers],
-    (cachedList) => cachedList ?? [],
+    [selectRawUserList],
+    (list) => list ?? [],
+);
+
+/**
+ * Selector memoizado para el perfil del usuario actual.
+ */
+export const selectMemoizedCurrentUser = createSelector(
+    [selectCurrentUser],
+    (user) => user ?? null,
 );
 
 export default userSlice.reducer;
-
-/*
- * ============================================================================
- *                          USER SLICE ARCHITECTURE
- * ============================================================================
- * 
- *                     [ Component (UI) ]
- *                             |
- *                      (dispatch action)
- *                             |
- *                             v
- *        +-----------------------------------------+
- *        |                Thunks                   |
- *        | - fetchUserAndPosts (API Call)          |
- *        | - fetchUsersList    (API Call)          |
- *        +-----------------------------------------+
- *                             |
- *                       (status & data)
- *                             v
- *        +-----------------------------------------+
- *        |             Extra Reducers              |
- *        |  [pending] -> fetchStatus = 'loading'   |
- *        |  [fulfilled]-> profileData = payload    |
- *        |  [rejected] -> error = payload.msg      |
- *        +-----------------------------------------+
- *                             |
- *                        (updates)
- *                             v
- *        +-----------------------------------------+
- *        |           State (La Bóveda)             |
- *        | { fetchStatus, profileData, error ... } |
- *        +-----------------------------------------+
- *                             |
- *                          (reads)
- *                             v
- *        +-----------------------------------------+
- *        |              Selectors                  |
- *        | - selectCurrentUserProfile              |
- *        | - selectUserFetchStatus                 |
- *        +-----------------------------------------+
- *                             |
- *                        (returns)
- *                             v
- *                     [ Component (UI) ]
- * ============================================================================
- */
