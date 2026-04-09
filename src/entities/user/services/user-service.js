@@ -59,8 +59,9 @@ import { mapRawPosts } from "@/entities/post/domain/post.mappers";
  * ```
  */
 export const fetchUserProfileById = async (userId, options = {}) => {
+    console.log("[DEBUG: user-service] fetchUserProfileById called for userId:", userId);
     if (!userId) return { user: null, posts: [] };
-
+    
     // Ejecutamos ambas promesas. No usamos Promise.all directo si queremos manejo individual resiliente.
     const userPromise = getUser(userId, options);
     const postsPromise = getPostsByUser(userId, options).catch((error) => {
@@ -70,17 +71,22 @@ export const fetchUserProfileById = async (userId, options = {}) => {
         );
         return []; // Retornamos array vacío si fallan los posts, pero permitimos que el usuario cargue.
     });
-
+    
     const [rawUser, rawPosts] = await Promise.all([userPromise, postsPromise]);
-
+    console.log("[DEBUG: user-service] rawUser received:", rawUser);
+    console.log("[DEBUG: user-service] rawPosts received:", rawPosts);
+    
     // Si el usuario no existe o la API retornó un objeto vacío, aplicamos Early Return.
     if (!rawUser || Object.keys(rawUser).length === 0) {
+        console.warn("[DEBUG: user-service] rawUser is null or empty. Returning notFound state.");
         return { user: null, posts: [] };
     }
-
+    
     const user = mapRawUser(rawUser);
     const posts = mapRawPosts(rawPosts);
-
+    console.log("[DEBUG: user-service] mappedUser:", user);
+    console.log("[DEBUG: user-service] mappedPosts:", posts);
+    
     return { user, posts };
 };
 

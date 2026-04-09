@@ -7,10 +7,8 @@
  * @module useUserProfile
  */
 
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { 
-    fetchUserAndPosts, 
     selectMemoizedCurrentUser, 
     selectUserFetchStatus, 
     selectUserFetchError 
@@ -22,21 +20,15 @@ import {
 } from '@/entities/post/store/post.slice';
 
 /**
- * Hook para gestionar la carga y sincronización de un perfil de usuario y sus publicaciones.
+ * Hook para acceder al estado unificado de un perfil de usuario y sus publicaciones.
+ * A diferencia de los hooks de búsqueda, este hook es puramente reactivo:
+ * consume la información ya presente en el Store.
  * 
- * @function useUserProfile
- * @param {number|string} userId - ID del usuario cuyo perfil se desea cargar.
+ * @hook
+ * @param {number|string} userId - ID del usuario para validar la propiedad de los datos.
  * @returns {Object} Objeto de estado unificado para la UI.
- * @property {Object|null} user - Datos del usuario mapeados al dominio.
- * @property {Array<Object>} posts - Lista de publicaciones del usuario.
- * @property {boolean} isLoading - Indica si cualquiera de las peticiones está en curso.
- * @property {string|null} error - Mensaje de error unificado.
- * @property {boolean} isNotFound - Indica si el usuario no fue encontrado (404).
  */
 export const useUserProfile = (userId) => {
-    const dispatch = useDispatch();
-
-    // --- Selectors ---
     const user = useSelector(selectMemoizedCurrentUser);
     const posts = useSelector(selectMemoizedPosts);
     const userStatus = useSelector(selectUserFetchStatus);
@@ -44,21 +36,11 @@ export const useUserProfile = (userId) => {
     const userError = useSelector(selectUserFetchError);
     const postError = useSelector(selectPostFetchError);
 
-    useEffect(() => {
-        if (!userId) return;
-
-        const controller = new AbortController();
-        
-        // Despachamos la acción que orquestará la carga en ambos slices
-        dispatch(fetchUserAndPosts(userId));
-
-        return () => controller.abort();
-    }, [userId, dispatch]);
-
     // --- Logic / Derived State ---
-
-    // Early Return: Si no hay userId, devolvemos estado vacío
-    if (!userId) {
+    
+    // Si no hay userId o el usuario en el store no coincide con el solicitado,
+    // devolvemos estado vacío para evitar mostrar datos de otro usuario.
+    if (!userId || (user && user.id !== userId)) {
         return {
             user: null,
             posts: [],

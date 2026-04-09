@@ -37,10 +37,13 @@ import { resolveSearchQuery } from "@/features/user-search/services/search-engin
 export const fetchUserAndPosts = createAsyncThunk(
     "user/fetchById",
     async (searchQuery, { rejectWithValue, signal, getState }) => {
+        console.log("[DEBUG: userSlice] fetchUserAndPosts started. Query:", searchQuery);
         const { user } = getState();
         const resolvedId = resolveSearchQuery(searchQuery, user.cachedUserList);
+        console.log("[DEBUG: userSlice] resolvedId:", resolvedId);
 
         if (!resolvedId) {
+            console.warn("[DEBUG: userSlice] No resolvedId found. Returning 404.");
             return rejectWithValue({
                 status: 404,
                 message: "user.notFoundTitle",
@@ -186,17 +189,11 @@ const selectRawUserList = (state) => state.user.cachedUserList;
  * Selector memoizado para la lista de usuarios.
  * Garantiza que la UI no se re-renderice a menos que la lista cambie realmente.
  */
-export const selectMemoizedUserList = createSelector(
-    [selectRawUserList],
-    (list) => list ?? [],
-);
-
+export const selectMemoizedUserList = (state) => state.user.cachedUserList ?? [];
+ 
 /**
  * Selector memoizado para el perfil del usuario actual.
  */
-export const selectMemoizedCurrentUser = createSelector(
-    [selectCurrentUser],
-    (user) => user ?? null,
-);
+export const selectMemoizedCurrentUser = (state) => state.user.currentUser;
 
 export default userSlice.reducer;

@@ -84,6 +84,7 @@ const UserSearchPage = memo(() => {
      * @param {string|number} term - Término de búsqueda (ID o Nombre).
      */
     const handleSearch = useCallback((term) => {
+        console.log("[DEBUG: UserSearchPage] handleSearch called with term:", term);
         performSearch(term);
     }, [performSearch]);
 

@@ -135,9 +135,6 @@ export const selectPostFetchError = (state) => state.post.error;
  * Selector memoizado para obtener la lista de publicaciones.
  * Asegura que se devuelva siempre un array, evitando errores de renderizado.
  */
-export const selectMemoizedPosts = createSelector(
-    [selectPosts],
-    (posts) => posts ?? [],
-);
+export const selectMemoizedPosts = (state) => state.post.posts ?? [];
 
 export default postSlice.reducer;
