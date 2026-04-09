@@ -6,7 +6,7 @@
  * @module UserSearchPage
  */
 
-import { useCallback, memo } from "react";
+import { memo, useDeferredValue } from "react";
 import ProfileSkeleton from "@/entities/user/ui/skeletons/ProfileSkeleton";
 import PostListSkeleton from "@/entities/post/ui/skeletons/PostListSkeleton";
 import ErrorMessage from "@/shared/ui/ErrorMessage";
@@ -63,42 +63,31 @@ Header.displayName = "Header";
  * Página principal de búsqueda de usuarios.
  * Coordina la interacción entre la búsqueda (SearchBar) y la visualización (UserView).
  * Utiliza un StateBoundary para gestionar los estados de la petición de forma declarativa.
+ * Implementa useDeferredValue para diferir el renderizado de componentes pesados.
  *
  * @component
  * @returns {JSX.Element} El layout completo de la página de búsqueda.
  */
 const UserSearchPage = memo(() => {
-    // Orquestación de estado y acciones de búsqueda desde el hook de dominio.
-    const { 
-        user, 
-        status, 
-        error, 
-        lastSearchQuery, 
-        performSearch, 
-        handleRetry 
-    } = useUserSearch(1);
+    const { user, status, error, lastSearchQuery, performSearch, handleRetry } =
+        useUserSearch(1);
 
-    /**
-     * Maneja la ejecución de la búsqueda basada en el término proporcionado.
-     * @function handleSearch
-     * @param {string|number} term - Término de búsqueda (ID o Nombre).
-     */
-    const handleSearch = useCallback((term) => {
-        console.log("[DEBUG: UserSearchPage] handleSearch called with term:", term);
-        performSearch(term);
-    }, [performSearch]);
+    const deferredUserId = useDeferredValue(user?.id);
 
-    /**
-     * Gestiona la pre-recuperación de datos para optimizar la percepción de velocidad.
-     * @function handlePrefetch
-     * @param {string|number} term - Término para pre-fetch.
-     */
-    const handlePrefetch = useCallback((term) => {
+    const handleSearch = (term) => {
         performSearch(term);
-    }, [performSearch]);
+    };
+
+    const handlePrefetch = (term) => {
+        performSearch(term);
+    };
 
     return (
-        <div className={cn("w-full max-w-6xl mx-auto px-golden-base py-golden-lg lg:py-golden-xl")}>
+        <div
+            className={cn(
+                "w-full max-w-6xl mx-auto px-golden-base py-golden-lg lg:py-golden-xl",
+            )}
+        >
             <Header />
 
             <SearchBar
@@ -118,7 +107,7 @@ const UserSearchPage = memo(() => {
                         <NotFoundCard attemptedId={lastSearchQuery} />
                     )}
                 >
-                    {user && <UserView userId={user.id} />}
+                    {user && <UserView userId={deferredUserId} />}
                 </StateBoundary>
             </main>
         </div>

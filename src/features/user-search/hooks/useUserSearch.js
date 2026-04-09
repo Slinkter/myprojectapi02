@@ -7,7 +7,7 @@
  * @category Hooks
  */
 
-import React, { useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     fetchUserAndPosts,
@@ -44,26 +44,17 @@ import { selectMemoizedPosts } from "@/entities/post/store/post.slice";
 export const useUserSearch = (initialUserId) => {
     const dispatch = useDispatch();
 
-    // --- Selectores ---
-    // Acceso al estado global mediante selectores memoizados para optimizar renders.
     const user = useSelector(selectMemoizedCurrentUser);
     const posts = useSelector(selectMemoizedPosts);
     const status = useSelector(selectUserFetchStatus);
     const error = useSelector(selectUserFetchError);
 
-    const [lastSearchQuery, setLastSearchQuery] = React.useState(initialUserId);
+    const [lastSearchQuery, setLastSearchQuery] = useState(initialUserId);
 
-    /**
-     * Efecto de sincronización para cargar la lista de usuarios en caché.
-     * Necesaria para la resolución de nombres de usuario en el Thunk.
-     */
     useEffect(() => {
         dispatch(fetchUsersList());
     }, [dispatch]);
 
-    /**
-     * Sincronización inicial del usuario basada en el parámetro initialUserId.
-     */
     useEffect(() => {
         if (initialUserId) {
             dispatch(fetchUserAndPosts(initialUserId));
@@ -71,54 +62,28 @@ export const useUserSearch = (initialUserId) => {
         }
     }, [dispatch, initialUserId]);
 
-    /**
-     * Orquesta la búsqueda de un usuario. Delega la resolución de la identidad
-     * (ID vs Nombre) al Thunk de Redux para mantener la lógica fuera del componente.
-     *
-     * @function performSearch
-     * @param {string|number} input - Término de búsqueda (ID o Nombre).
-     */
     const performSearch = useCallback(
         (input) => {
             if (!input) return;
-
-            // El Thunk fetchUserAndPosts ahora maneja internamente la resolución vía search-engine.js
             dispatch(fetchUserAndPosts(input));
             setLastSearchQuery(input);
         },
         [dispatch],
     );
 
-    /**
-     * Reintenta la búsqueda actual utilizando el último término registrado.
-     * @function handleRetry
-     */
     const handleRetry = useCallback(() => {
         if (lastSearchQuery) {
             performSearch(lastSearchQuery);
         }
     }, [performSearch, lastSearchQuery]);
 
-    // Memoizamos el objeto de retorno para evitar que los componentes que consumen
-    // este hook se re-rendericen a menos que cambie una de las dependencias.
-    return useMemo(
-        () => ({
-            user,
-            posts,
-            status,
-            error,
-            lastSearchQuery,
-            performSearch,
-            handleRetry,
-        }),
-        [
-            user,
-            posts,
-            status,
-            error,
-            lastSearchQuery,
-            performSearch,
-            handleRetry,
-        ],
-    );
+    return {
+        user,
+        posts,
+        status,
+        error,
+        lastSearchQuery,
+        performSearch,
+        handleRetry,
+    };
 };

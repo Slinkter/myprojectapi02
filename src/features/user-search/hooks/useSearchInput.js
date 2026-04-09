@@ -7,8 +7,8 @@
  * @category Hooks
  */
 
-import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import { SEARCH_LIMITS, UX_CONFIG } from "@/shared/config/constants";
+import { useState, useCallback, useMemo } from "react";
+import { SEARCH_LIMITS } from "@/shared/config/constants";
 
 /**
  * Hook para controlar el estado y validación del campo de búsqueda.
@@ -26,12 +26,11 @@ import { SEARCH_LIMITS, UX_CONFIG } from "@/shared/config/constants";
  */
 export const useSearchInput = (initialSearch = "") => {
     const [searchValue, setSearchValue] = useState(initialSearch.toString());
-    const [helperMessage, setHelperMessage] = useState("");
-    const [hasError, setHasError] = useState(false);
-    const debounceRef = useRef(null);
 
     /**
      * Ejecuta la lógica de validación y retorna el estado del input.
+     * Se computa durante el render para evitar efectos innecesarios.
+     * 
      * @param {string} value - Valor a validar.
      * @returns {{message: string, error: boolean}} Resultado de la validación.
      */
@@ -56,39 +55,24 @@ export const useSearchInput = (initialSearch = "") => {
         return { message: "Buscando por nombre o usuario.", error: false };
     }, []);
 
+    // Derivación de estado durante el render:
+    // Evitamos usar useState + useEffect para la validación ya que es una operación síncrona y barata.
+    const { helperMessage, hasError } = useMemo(() => validate(searchValue), [searchValue, validate]);
+
     /**
      * Maneja los cambios en el input de búsqueda.
-     * Actualiza el valor de forma inmediata para mantener la UI reactiva y 
-     * dispara la validación debounced para evitar re-renders excesivos.
-     *
      * @function onInputChange
      * @param {React.ChangeEvent<HTMLInputElement>} event - Evento de cambio nativo.
      */
     const onInputChange = useCallback((event) => {
-        const value = event.target.value;
-        setSearchValue(value);
-
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-
-        debounceRef.current = setTimeout(() => {
-            const { message, error } = validate(value);
-            setHelperMessage(message);
-            setHasError(error);
-        }, UX_CONFIG.DEBOUNCE_DELAY);
-    }, [validate]);
-
-    useEffect(() => {
-        return () => {
-            if (debounceRef.current) clearTimeout(debounceRef.current);
-        };
+        setSearchValue(event.target.value);
     }, []);
 
-    return useMemo(() => ({
+    return {
         searchValue,
         helperMessage,
         hasError,
         onInputChange,
         setSearchValue,
-    }), [searchValue, helperMessage, hasError, onInputChange, setSearchValue]);
-
+    };
 };

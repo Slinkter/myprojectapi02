@@ -6,27 +6,27 @@
  * @module StateBoundary
  */
 
-import { memo } from "react";
+import { memo, Suspense } from "react";
 import PropTypes from "prop-types";
 import { cn } from "@/shared/lib/utils";
 import ErrorMessage from "@/shared/ui/ErrorMessage";
 import NotFoundCard from "@/shared/ui/NotFoundCard";
+import { Spinner } from "@/shared/ui/FormElements";
+
+const DefaultLoading = () => (
+    <div className="flex items-center justify-center p-8 animate-pulse text-slate-500 dark:text-slate-400">
+        <div className="flex flex-col items-center gap-2">
+            <Spinner />
+            <p className="text-sm font-medium">Cargando contenido...</p>
+        </div>
+    </div>
+);
 
 /**
  * Componente que orquesta el renderizado condicional basado en el estado de una petición.
- * Actúa como un coordinador de componentes presentacionales.
+ * Soporta composición con Suspense para React 19+ y patrones de renderizado declarativo.
  *
  * @component
- * @param {Object} props - Propiedades del componente.
- * @param {string} props.status - Estado actual de la operación asíncrona ("idle", "loading", "succeeded", "failed", "notFound").
- * @param {string} [props.error] - Mensaje de error opcional.
- * @param {function} [props.onRetry] - Callback para reintentar una operación fallida.
- * @param {React.ElementType} [props.loadingComponent] - Componente personalizado para el estado de carga.
- * @param {React.ElementType} [props.errorComponent] - Componente personalizado para el estado de error.
- * @param {React.ElementType} [props.notFoundComponent] - Componente personalizado para el estado no encontrado.
- * @param {string} [props.className] - Clase CSS adicional para el contenedor de éxito.
- * @param {React.ReactNode} props.children - Contenido para el estado de éxito.
- * @returns {JSX.Element|null} El componente correspondiente al estado actual o null.
  */
 const StateBoundary = memo(
     ({
@@ -39,36 +39,41 @@ const StateBoundary = memo(
         className = "",
         children,
     }) => {
-        switch (status) {
-            case "loading":
-                return Loading ? (
-                    <Loading />
-                ) : (
-                    <div className={cn("flex items-center justify-center p-8 animate-pulse text-slate-500 dark:text-slate-400")}>
-                        <div className="flex flex-col items-center gap-2">
-                            <div className="w-8 h-8 border-4 border-slate-300 dark:border-slate-600 border-t-blue-600 rounded-full animate-spin" />
-                            <p className="text-sm font-medium">Cargando contenido...</p>
-                        </div>
-                    </div>
-                );
+        const renderContent = () => {
+            switch (status) {
+                case "loading":
+                    return Loading ? (
+                        <Loading />
+                    ) : (
+                        <DefaultLoading />
+                    );
 
-            case "failed": {
-                const ErrorUI = ErrorComp || ErrorMessage;
-                return <ErrorUI message={error} onRetry={onRetry} />;
+                case "failed": {
+                    const ErrorUI = ErrorComp || ErrorMessage;
+                    return <ErrorUI message={error} onRetry={onRetry} />;
+                }
+
+                case "notFound": {
+                    const NotFoundUI = NotFound || NotFoundCard;
+                    return <NotFoundUI attemptedId={error} />;
+                }
+
+                case "succeeded":
+                    return children;
+
+                case "idle":
+                default:
+                    return null;
             }
+        };
 
-            case "notFound": {
-                const NotFoundUI = NotFound || NotFoundCard;
-                return <NotFoundUI attemptedId={error} />;
-            }
-
-            case "succeeded":
-                return <div className={cn(className)}>{children}</div>;
-
-            case "idle":
-            default:
-                return null;
-        }
+        return (
+            <Suspense fallback={Loading ? <Loading /> : <DefaultLoading />}>
+                <div className={cn(status === "succeeded" && className)}>
+                    {renderContent()}
+                </div>
+            </Suspense>
+        );
     },
 );
 

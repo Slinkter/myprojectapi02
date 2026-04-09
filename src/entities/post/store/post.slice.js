@@ -6,7 +6,7 @@
  * @module post-slice
  */
 
-import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getPostsByUser } from "@/entities/post/api/post.api";
 import { fetchUserAndPosts } from "@/entities/user/store/userSlice";
 

@@ -6,7 +6,7 @@
  */
 
 // Exportación de la página principal de la funcionalidad.
-export { default as UserSearchPage } from "@/features/user-search/UserSearchPage";
+export { default as UserSearchPage } from "@/pages/user-search/UserSearchPage";
 
 // Exportación de los hooks especializados para consumo externo o pruebas.
 export { useSearchInput } from "@/features/user-search/hooks/useSearchInput";

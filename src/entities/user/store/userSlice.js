@@ -7,11 +7,7 @@
  * @module user-slice
  */
 
-import {
-    createSlice,
-    createAsyncThunk,
-    createSelector,
-} from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
     fetchUserProfileById,
     fetchAllUsers,
@@ -37,13 +33,10 @@ import { resolveSearchQuery } from "@/features/user-search/services/search-engin
 export const fetchUserAndPosts = createAsyncThunk(
     "user/fetchById",
     async (searchQuery, { rejectWithValue, signal, getState }) => {
-        console.log("[DEBUG: userSlice] fetchUserAndPosts started. Query:", searchQuery);
         const { user } = getState();
         const resolvedId = resolveSearchQuery(searchQuery, user.cachedUserList);
-        console.log("[DEBUG: userSlice] resolvedId:", resolvedId);
 
         if (!resolvedId) {
-            console.warn("[DEBUG: userSlice] No resolvedId found. Returning 404.");
             return rejectWithValue({
                 status: 404,
                 message: "user.notFoundTitle",
@@ -97,7 +90,6 @@ export const fetchUsersList = createAsyncThunk(
  * @property {FetchStatus} listStatus - Estado de la petición de la lista de usuarios.
  * @property {string|null} error - Mensaje de error o clave de traducción.
  * @property {Object|null} currentUser - Entidad del usuario actual mapeada al dominio.
- * @property {Array<Object>} currentUserPosts - Publicaciones asociadas al usuario actual.
  * @property {Array<Object>} cachedUserList - Caché de usuarios para búsqueda instantánea.
  */
 
@@ -120,7 +112,6 @@ const userSlice = createSlice({
         resetUserState: (state) => {
             state.fetchStatus = "idle";
             state.currentUser = null;
-            state.currentUserPosts = [];
             state.error = null;
         },
     },
@@ -179,11 +170,6 @@ export const selectUserFetchStatus = (state) => state.user.fetchStatus;
  * Selector para el error de carga del usuario.
  */
 export const selectUserFetchError = (state) => state.user.error;
-
-/**
- * Selector para la lista de usuarios en caché.
- */
-const selectRawUserList = (state) => state.user.cachedUserList;
 
 /**
  * Selector memoizado para la lista de usuarios.
