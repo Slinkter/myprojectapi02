@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useSearchInput } from "@/features/user-search/hooks/useSearchInput";
 
@@ -21,16 +21,11 @@ describe("useSearchInput", () => {
   });
 
   it("should set helperMessage and hasError after debounce delay", async () => {
-    vi.useFakeTimers();
     const { result } = renderHook(() => useSearchInput());
     
-    // Valid Numeric ID
+    // Valid Numeric ID (within range 1-10)
     act(() => {
-      result.current.onInputChange({ target: { value: "123" } });
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(500); // UX_CONFIG.DEBOUNCE_DELAY is usually around 300-500ms
+      result.current.onInputChange({ target: { value: "5" } });
     });
 
     expect(result.current.helperMessage).toBe("Buscando por ID numérico.");
@@ -38,11 +33,7 @@ describe("useSearchInput", () => {
 
     // Invalid Numeric ID (out of range)
     act(() => {
-      result.current.onInputChange({ target: { value: "9999999" } });
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(500);
+      result.current.onInputChange({ target: { value: "99" } });
     });
 
     expect(result.current.hasError).toBe(true);
@@ -53,35 +44,24 @@ describe("useSearchInput", () => {
       result.current.onInputChange({ target: { value: "John Doe" } });
     });
 
-    act(() => {
-      vi.advanceTimersByTime(500);
-    });
-
     expect(result.current.helperMessage).toBe("Buscando por nombre o usuario.");
     expect(result.current.hasError).toBe(false);
-
-    vi.useRealTimers();
   });
 
   it("should clear helperMessage and hasError when input is empty", async () => {
-    vi.useFakeTimers();
     const { result } = renderHook(() => useSearchInput());
 
     act(() => {
-      result.current.onInputChange({ target: { value: "123" } });
+      result.current.onInputChange({ target: { value: "5" } });
     });
-    act(() => { vi.advanceTimersByTime(500); });
     expect(result.current.helperMessage).not.toBe("");
 
     act(() => {
       result.current.onInputChange({ target: { value: "" } });
     });
-    act(() => { vi.advanceTimersByTime(500); });
 
     expect(result.current.helperMessage).toBe("");
     expect(result.current.hasError).toBe(false);
-
-    vi.useRealTimers();
   });
 
   it("should update searchValue manually using setSearchValue", () => {

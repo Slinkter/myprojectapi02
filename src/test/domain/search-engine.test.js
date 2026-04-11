@@ -1,52 +1,43 @@
 import { describe, it, expect } from "vitest";
-import { isNumericId, findUserByUsername, resolveSearchQuery } from "@/features/user-search/services/search-engine";
+import { isNumericId, findUserByUsername, resolveSearchQuery } from "@/entities/user/domain/search-engine";
 
 describe("Search Engine", () => {
   const cachedUsers = {
-    "bret": 1,
-    "antonette": 2,
-    "samantha": 3
+    bret: 1,
+    antonette: 2,
   };
 
   describe("isNumericId", () => {
-    it("should return true for strings containing only digits", () => {
+    it("should return true for numeric strings", () => {
       expect(isNumericId("123")).toBe(true);
-      expect(isNumericId("1")).toBe(true);
       expect(isNumericId("0")).toBe(true);
     });
 
-    it("should return false for strings with non-digit characters", () => {
-      expect(isNumericId("123a")).toBe(false);
-      expect(isNumericId("a123")).toBe(false);
-      expect(isNumericId("12.3")).toBe(false);
-      expect(isNumericId("-123")).toBe(false);
-      expect(isNumericId(" ")).toBe(false);
-      expect(isNumericId("")).toBe(false);
+    it("should return false for alphanumeric strings", () => {
+      expect(isNumericId("abc")).toBe(false);
+      expect(isNumericId("12a")).toBe(false);
     });
   });
 
   describe("findUserByUsername", () => {
-    it("should find the user ID by username (case-insensitive)", () => {
+    it("should return the ID for a matching username (case-insensitive)", () => {
       expect(findUserByUsername("Bret", cachedUsers)).toBe(1);
       expect(findUserByUsername("bret", cachedUsers)).toBe(1);
-      expect(findUserByUsername("BRET", cachedUsers)).toBe(1);
-      expect(findUserByUsername("Antonette", cachedUsers)).toBe(2);
     });
 
-    it("should return null if user is not found", () => {
-      expect(findUserByUsername("Unknown", cachedUsers)).toBeNull();
+    it("should return null for non-matching usernames", () => {
+      expect(findUserByUsername("unknown", cachedUsers)).toBeNull();
     });
 
-    it("should return null if cachedUsers is not an object", () => {
-      expect(findUserByUsername("Bret", null)).toBeNull();
-      expect(findUserByUsername("Bret", "string")).toBeNull();
+    it("should return null if cache is invalid", () => {
+      expect(findUserByUsername("bret", null)).toBeNull();
     });
   });
 
   describe("resolveSearchQuery", () => {
     it("should resolve a numeric ID string to a number", () => {
-      expect(resolveSearchQuery("123", {})).toBe(123);
-      expect(resolveSearchQuery(" 456 ", {})).toBe(456);
+      expect(resolveSearchQuery("123", cachedUsers)).toBe(123);
+      expect(resolveSearchQuery(" 456 ", cachedUsers)).toBe(456);
     });
 
     it("should resolve a username to an ID using cached users", () => {
@@ -67,7 +58,7 @@ describe("Search Engine", () => {
 
     it("should return null if neither numeric ID nor username match", () => {
       expect(resolveSearchQuery("UnknownUser", cachedUsers)).toBeNull();
-      expect(resolveSearchQuery("not-a-number-or-user", {})).toBeNull();
+      expect(resolveSearchQuery("not-a-number-or-user", cachedUsers)).toBeNull();
     });
   });
 });

@@ -10,12 +10,11 @@
 import { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    fetchUserAndPosts,
-    fetchUsersList,
     selectMemoizedCurrentUser,
     selectUserFetchStatus,
     selectUserFetchError,
 } from "@/entities/user/store/userSlice";
+import { fetchUserAndPosts, fetchUsersList } from "@/entities/user/store/user.thunks";
 import { selectMemoizedPosts } from "@/entities/post/store/post.slice";
 
 /**
@@ -25,21 +24,6 @@ import { selectMemoizedPosts } from "@/entities/post/store/post.slice";
  *
  * @hook
  * @param {number|string} initialUserId - Identificador inicial para cargar datos al montar el componente.
- * @returns {Object} Un objeto con el estado y controladores de búsqueda:
- * @returns {Object|null} returns.user - Datos del perfil del usuario encontrado.
- * @returns {Array} returns.posts - Lista de publicaciones del usuario.
- * @returns {string} returns.status - Estado de la petición ('idle', 'loading', 'succeeded', 'failed', 'notFound').
- * @returns {string|null} returns.error - Mensaje de error si la búsqueda falla.
- * @returns {number|string} returns.lastSearchQuery - El último ID o término buscado.
- * @returns {Function} returns.performSearch - Función para iniciar una nueva búsqueda.
- * @returns {Function} returns.handleRetry - Función para reintentar la última búsqueda fallida.
- *
- * @example
- * ```tsx
- * const { user, status, performSearch } = useUserSearch(1);
- *
- * const onSearch = (term) => performSearch(term);
- * ```
  */
 export const useUserSearch = (initialUserId) => {
     const dispatch = useDispatch();

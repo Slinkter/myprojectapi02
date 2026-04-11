@@ -39,19 +39,13 @@ export const findUserByUsername = (username, cachedUsersByUsername = {}) => {
  * @param {string} input - El término de búsqueda ingresado por el usuario.
  * @param {Record<string, number>} cachedUsersByUsername - Mapa de nombres a IDs.
  * @returns {number|null} El ID del usuario resuelto o null si no es posible determinar la identidad.
- * 
- * @example
- * resolveSearchQuery("123", {}) -> 123
- * resolveSearchQuery("john_doe", {"john doe": 10}) -> 10
- * resolveSearchQuery("unknown", {}) -> null
- * resolveSearchQuery("", {}) -> null
  */
 export const resolveSearchQuery = (input, cachedUsersByUsername = {}) => {
   console.log("[DEBUG: search-engine] resolveSearchQuery input:", input);
   
-  if (input === null || input === undefined) return null;
+  if (typeof input !== "string") return null;
   
-  const stringInput = String(input).trim();
+  const stringInput = input.trim();
   if (!stringInput) return null;
   
   // Caso 1: El input es un ID numérico directo

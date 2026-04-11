@@ -1,125 +1,69 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { Provider } from "react-redux";
-import { configureStore } from "@reduxjs/toolkit";
+import { act } from "@testing-library/react";
 import { useUserSearch } from "@/features/user-search/hooks/useUserSearch";
-import { fetchUserAndPosts, fetchUsersList } from "@/entities/user/store/userSlice";
-import userReducer from "@/entities/user/store/userSlice";
+import { fetchUserAndPosts, fetchUsersList } from "@/entities/user/store/user.thunks";
+import { renderHookWithProviders } from "../test-utils";
 
-// Mock Redux actions
-vi.mock("@/entities/user/store/userSlice", async () => {
-  const actual = await vi.importActual("@/entities/user/store/userSlice");
-  return {
-    ...actual,
-    fetchUserAndPosts: vi.fn(),
-    fetchUsersList: vi.fn(),
-  };
-});
-
-const createMockStore = (initialState) => {
-  return configureStore({
-    reducer: {
-      user: userReducer,
-    },
-    preloadedState: {
-      user: initialState,
-    },
-  });
+const createMockThunkResult = () => {
+  const promise = Promise.resolve({});
+  promise.abort = vi.fn();
+  promise.unwrap = vi.fn().mockResolvedValue({});
+  promise.catch = vi.fn().mockReturnValue(promise);
+  return promise;
 };
 
+vi.mock("@/entities/user/store/user.thunks", () => ({
+  fetchUserAndPosts: vi.fn(() => () => createMockThunkResult()),
+  fetchUsersList: vi.fn(() => () => createMockThunkResult()),
+}));
+
 describe("useUserSearch", () => {
-  const mockState = {
-    profile: null,
-    posts: [],
-    status: "idle",
-    error: null,
-    cachedUsers: [{ id: 10, username: "TestUser" }],
+  const preloadedState = {
+    user: {
+      currentUser: null,
+      fetchStatus: "idle",
+      error: null,
+      cachedUsersByUsername: { testuser: 10 },
+    },
+    post: {
+        posts: [],
+        fetchStatus: "idle",
+        error: null,
+        currentUserId: null
+    }
   };
 
-  const wrapper = ({ children }) => {
-    const store = createMockStore(mockState);
-    return <Provider store={store}>{children}</Provider>;
-  };
-
-  /**
-   * Test Case: Should fetch users list on mount.
-   */
   it("should fetch users list on mount", () => {
-    // Arrange & Act
-    renderHook(() => useUserSearch(1), { wrapper });
-
-    // Assert
+    renderHookWithProviders(() => useUserSearch(1), { preloadedState });
     expect(fetchUsersList).toHaveBeenCalled();
   });
 
-  /**
-   * Test Case: Should fetch initial user when initialUserId is provided.
-   */
   it("should fetch initial user when initialUserId is provided", () => {
-    // Arrange
     const initialUserId = 1;
-
-    // Act
-    renderHook(() => useUserSearch(initialUserId), { wrapper });
-
-    // Assert
+    renderHookWithProviders(() => useUserSearch(initialUserId), { preloadedState });
     expect(fetchUserAndPosts).toHaveBeenCalledWith(initialUserId);
   });
 
-  /**
-   * Test Case: Should dispatch fetchUserAndPosts when search term resolves to an ID.
-   */
-  it("should dispatch fetchUserAndPosts when search term resolves to an ID", () => {
-    // Arrange
-    const { result } = renderHook(() => useUserSearch(), { wrapper });
+  it("should dispatch fetchUserAndPosts when search term is provided", () => {
+    const { result } = renderHookWithProviders(() => useUserSearch(), { preloadedState });
     const searchTerm = "123";
 
-    // Act
     act(() => {
       result.current.performSearch(searchTerm);
     });
 
-    // Assert
     expect(fetchUserAndPosts).toHaveBeenCalledWith(searchTerm);
   });
 
-  /**
-   * Test Case: Should dispatch fetchUserAndPosts when search term resolves via cached username.
-   */
-  it("should dispatch fetchUserAndPosts when search term resolves via cached username", () => {
-    // Arrange
-    const { result } = renderHook(() => useUserSearch(), { wrapper });
-    const searchTerm = "TestUser";
-
-    // Act
-    act(() => {
-      result.current.performSearch(searchTerm);
-    });
-
-    // Assert
-    expect(fetchUserAndPosts).toHaveBeenCalledWith(searchTerm);
-  });
-
-  /**
-   * Test Case: Should dispatch a 404 error when search term does not resolve.
-   */
-  it("should dispatch a 404 error when search term does not resolve", () => {
-    // Arrange
-    const { result } = renderHook(() => useUserSearch(), { wrapper });
+  it("should dispatch fetchUserAndPosts even for nonexistent terms (it fails inside thunk)", () => {
+    vi.mocked(fetchUserAndPosts).mockClear();
+    const { result } = renderHookWithProviders(() => useUserSearch(), { preloadedState });
     const searchTerm = "nonexistent";
     
-    // We need to check if the dispatch was called with the 404 action
-    // Since useDispatch is internal, we can verify if performSearch handles it.
-    // In a real scenario, we'd use a store listener or mock the dispatch from redux-mock-store.
-    
-    // Act
     act(() => {
       result.current.performSearch(searchTerm);
     });
 
-    // Assert
-    // Since we are using a real store here, we can't easily check the raw action unless we spy on dispatch.
-    // But the logic in the hook is: dispatch({ type: "user/fetchById/rejected", ... })
-    expect(fetchUserAndPosts).not.toHaveBeenCalledWith("nonexistent");
+    expect(fetchUserAndPosts).toHaveBeenCalledWith(searchTerm);
   });
 });

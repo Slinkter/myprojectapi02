@@ -20,7 +20,7 @@ import { SEARCH_LIMITS } from "@/shared/config/constants";
  * @returns {Object} Un objeto con el estado del input y sus manejadores:
  * @returns {string} returns.searchValue - El valor actual del input.
  * @returns {string} returns.helperMessage - Mensaje de ayuda basado en la validación actual.
- * @returns {boolean} returns.hasError - `true` si la validación actual ha fallado.
+ * @returns {boolean} returns.hasError - \`true\` si la validación actual ha fallado.
  * @returns {Function} returns.onInputChange - Manejador de evento para cambios en el input.
  * @returns {Function} returns.setSearchValue - Función para actualizar el valor manualmente.
  */
@@ -32,10 +32,10 @@ export const useSearchInput = (initialSearch = "") => {
      * Se computa durante el render para evitar efectos innecesarios.
      * 
      * @param {string} value - Valor a validar.
-     * @returns {{message: string, error: boolean}} Resultado de la validación.
+     * @returns {{helperMessage: string, hasError: boolean}} Resultado de la validación.
      */
     const validate = useCallback((value) => {
-        if (!value) return { message: "", error: false };
+        if (!value) return { helperMessage: "", hasError: false };
 
         // Validación de ID Numérico (Rango Dinámico)
         if (/^\d+$/.test(value)) {
@@ -43,16 +43,16 @@ export const useSearchInput = (initialSearch = "") => {
 
             if (numericId < SEARCH_LIMITS.MIN_ID || numericId > SEARCH_LIMITS.MAX_ID) {
                 return {
-                    message: `La API solo soporta IDs del ${SEARCH_LIMITS.MIN_ID} al ${SEARCH_LIMITS.MAX_ID}.`,
-                    error: true,
+                    helperMessage: `La API solo soporta IDs del ${SEARCH_LIMITS.MIN_ID} al ${SEARCH_LIMITS.MAX_ID}.`,
+                    hasError: true,
                 };
             }
 
-            return { message: "Buscando por ID numérico.", error: false };
+            return { helperMessage: "Buscando por ID numérico.", hasError: false };
         }
 
         // Feedback para búsqueda por Texto (Nombre/Username)
-        return { message: "Buscando por nombre o usuario.", error: false };
+        return { helperMessage: "Buscando por nombre o usuario.", hasError: false };
     }, []);
 
     // Derivación de estado durante el render:

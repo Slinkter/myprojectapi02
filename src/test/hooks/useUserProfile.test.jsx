@@ -1,39 +1,29 @@
 import { describe, it, expect, vi } from "vitest";
-import { renderHook } from "@testing-library/react";
-import { Provider } from "react-redux";
-import { configureStore } from "@reduxjs/toolkit";
 import { useUserProfile } from "@/features/user-profile/hooks/useUserProfile";
-import userReducer from "@/entities/user/store/userSlice";
-import postReducer from "@/entities/post/store/post.slice";
-import { fetchUserAndPosts } from "@/entities/user/store/userSlice";
+import { fetchUserAndPosts } from "@/entities/user/store/user.thunks";
+import { renderHookWithProviders } from "../test-utils";
 
-vi.mock("@/entities/user/store/userSlice", async () => {
-  const actual = await vi.importActual("@/entities/user/store/userSlice");
-  return {
-    ...actual,
-    fetchUserAndPosts: vi.fn(),
-  };
-});
-
-const createMockStore = (initialState) => {
-  return configureStore({
-    reducer: {
-      user: userReducer,
-      post: postReducer,
-    },
-    preloadedState: initialState,
-  });
+// Helper to create a mock RTK thunk result
+const createMockThunkResult = () => {
+  const promise = Promise.resolve({});
+  promise.abort = vi.fn();
+  promise.unwrap = vi.fn().mockResolvedValue({});
+  promise.catch = vi.fn().mockReturnValue(promise);
+  return promise;
 };
 
-describe("useUserProfile", () => {
-  const wrapper = ({ children, state }) => {
-    const store = createMockStore(state);
-    return <Provider store={store}>{children}</Provider>;
-  };
+// Mock the thunk directly
+vi.mock("@/entities/user/store/user.thunks", () => ({
+  fetchUserAndPosts: vi.fn(() => () => createMockThunkResult()),
+}));
 
+describe("useUserProfile", () => {
   it("should return empty state if no userId is provided", () => {
-    const { result } = renderHook(() => useUserProfile(null), { 
-      wrapper: ({ children }) => wrapper({ children, state: {} }) 
+    const { result } = renderHookWithProviders(() => useUserProfile(null), { 
+      preloadedState: {
+          user: { currentUser: null, fetchStatus: 'idle', error: null },
+          post: { posts: [], fetchStatus: 'idle', error: null }
+      }
     });
 
     expect(result.current).toEqual({
@@ -47,34 +37,37 @@ describe("useUserProfile", () => {
 
   it("should dispatch fetchUserAndPosts on mount when userId is provided", () => {
     const userId = 1;
-    renderHook(() => useUserProfile(userId), { 
-      wrapper: ({ children }) => wrapper({ children, state: { user: { profile: null, status: 'idle' }, post: { posts: [], status: 'idle' } } }) 
+    renderHookWithProviders(() => useUserProfile(userId), { 
+      preloadedState: { 
+          user: { currentUser: null, fetchStatus: 'idle' }, 
+          post: { posts: [], fetchStatus: 'idle' } 
+      } 
     });
 
     expect(fetchUserAndPosts).toHaveBeenCalledWith(userId);
   });
 
   it("should correctly derive isLoading state", () => {
-    const state = {
-      user: { profile: null, status: 'loading', error: null },
-      post: { posts: [], status: 'idle', error: null },
+    const preloadedState = {
+      user: { currentUser: null, fetchStatus: 'loading', error: null },
+      post: { posts: [], fetchStatus: 'idle', error: null },
     };
 
-    const { result } = renderHook(() => useUserProfile(1), { 
-      wrapper: ({ children }) => wrapper({ children, state }) 
+    const { result } = renderHookWithProviders(() => useUserProfile(1), { 
+        preloadedState 
     });
 
     expect(result.current.isLoading).toBe(true);
   });
 
   it("should correctly derive isNotFound state", () => {
-    const state = {
-      user: { profile: null, status: 'notFound', error: 'Not Found' },
-      post: { posts: [], status: 'idle', error: null },
+    const preloadedState = {
+      user: { currentUser: null, fetchStatus: 'notFound', error: 'Not Found' },
+      post: { posts: [], fetchStatus: 'idle', error: null },
     };
 
-    const { result } = renderHook(() => useUserProfile(1), { 
-      wrapper: ({ children }) => wrapper({ children, state }) 
+    const { result } = renderHookWithProviders(() => useUserProfile(1), { 
+        preloadedState 
     });
 
     expect(result.current.isNotFound).toBe(true);
@@ -82,34 +75,34 @@ describe("useUserProfile", () => {
 
   it("should correctly derive error state from either user or post errors", () => {
     const userErrorState = {
-      user: { profile: null, status: 'failed', error: 'User Error' },
-      post: { posts: [], status: 'idle', error: null },
+      user: { currentUser: null, fetchStatus: 'failed', error: 'User Error' },
+      post: { posts: [], fetchStatus: 'idle', error: null },
     };
 
-    const { result: resultUser } = renderHook(() => useUserProfile(1), { 
-      wrapper: ({ children }) => wrapper({ children, state: userErrorState }) 
+    const { result: resultUser } = renderHookWithProviders(() => useUserProfile(1), { 
+        preloadedState: userErrorState 
     });
     expect(resultUser.current.error).toBe('User Error');
 
     const postErrorState = {
-      user: { profile: { id: 1 }, status: 'succeeded', error: null },
-      post: { posts: [], status: 'failed', error: 'Posts Error' },
+      user: { currentUser: { id: 1 }, fetchStatus: 'succeeded', error: null },
+      post: { posts: [], fetchStatus: 'failed', error: 'Posts Error' },
     };
 
-    const { result: resultPost } = renderHook(() => useUserProfile(1), { 
-      wrapper: ({ children }) => wrapper({ children, state: postErrorState }) 
+    const { result: resultPost } = renderHookWithProviders(() => useUserProfile(1), { 
+        preloadedState: postErrorState 
     });
     expect(resultPost.current.error).toBe('Posts Error');
   });
 
   it("should return user and posts from store", () => {
-    const state = {
-      user: { profile: { id: 1, name: 'Test User' }, status: 'succeeded', error: null },
-      post: { posts: [{ id: 101, title: 'Test Post' }], status: 'succeeded', error: null },
+    const preloadedState = {
+      user: { currentUser: { id: 1, name: 'Test User' }, fetchStatus: 'succeeded', error: null },
+      post: { posts: [{ id: 101, title: 'Test Post' }], fetchStatus: 'succeeded', error: null },
     };
 
-    const { result } = renderHook(() => useUserProfile(1), { 
-      wrapper: ({ children }) => wrapper({ children, state }) 
+    const { result } = renderHookWithProviders(() => useUserProfile(1), { 
+        preloadedState 
     });
 
     expect(result.current.user).toEqual({ id: 1, name: 'Test User' });
