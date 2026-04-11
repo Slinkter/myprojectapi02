@@ -37,3 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Infrastructure Refactoring:** Complete isolation of the external API (`api.config.js` migrated to `api-client.js`).
 - **Error Management:** Implemented error handling based on HTTP status codes to protect the domain.
 - **Clean Code Standardization:** Applied systematic use of **Early Returns** and universal `camelCase`/`PascalCase` naming conventions to reduce cognitive load.
+
+## [0.1.0] - 2026-04-11
+### Added
+- Implemented local development security layer with Husky and Lint-staged.
+- Configured pre-commit hooks for linting and pre-push hooks for testing.
+- Created GitHub Actions CI/CD pipeline for automated security audits, builds, testing, and deployment to GitHub Pages.
+- Added caching support to CI/CD pipeline for faster execution.
