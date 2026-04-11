@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with: { version: 9 }
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with: { node-version: 22, cache: 'pnpm' }
       - run: pnpm audit --prod
 
   build-and-test:
@@ -20,10 +20,10 @@ jobs:
     needs: security-audit
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with: { version: 9 }
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with: { node-version: 22, cache: 'pnpm' }
       - run: pnpm install
       - run: pnpm build
       - run: pnpm test
@@ -35,9 +35,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with: { version: 9 }
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+        with: { node-version: 22, cache: 'pnpm' }
       - run: pnpm install
       - run: pnpm run deploy
