@@ -67,16 +67,32 @@ body {
     box-shadow: var(--glass-shadow);
 }
 
-/* Animaciones Personalizadas */
+/* Animaciones Personalizadas Optimizadas para GPU */
 @keyframes loading {
     0% {
-        transform: translateX(-100%);
+        transform: translateX(-100%) translateZ(0);
     }
     100% {
-        transform: translateX(300%);
+        transform: translateX(300%) translateZ(0);
     }
 }
 
 .animate-loading {
     animation: loading 2s infinite ease-in-out;
+    will-change: transform; /* Hardware Acceleration */
+}
+
+/* Desactivar efectos costosos en dispositivos de gama baja o con preferencias de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .glass {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
 }

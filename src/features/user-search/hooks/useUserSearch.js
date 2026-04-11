@@ -52,13 +52,15 @@ export const useUserSearch = (initialUserId) => {
     const [lastSearchQuery, setLastSearchQuery] = useState(initialUserId);
 
     useEffect(() => {
-        dispatch(fetchUsersList());
+        const promise = dispatch(fetchUsersList());
+        return () => promise.abort();
     }, [dispatch]);
 
     useEffect(() => {
         if (initialUserId) {
-            dispatch(fetchUserAndPosts(initialUserId));
+            const promise = dispatch(fetchUserAndPosts(initialUserId));
             setLastSearchQuery(initialUserId);
+            return () => promise.abort();
         }
     }, [dispatch, initialUserId]);
 

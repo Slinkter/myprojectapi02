@@ -8,7 +8,7 @@ describe("resolveSearchQuery", () => {
   it("should resolve a numeric input as a user ID", () => {
     // Arrange
     const input = "123";
-    const cachedUsers = [];
+    const cachedUsers = {};
 
     // Act
     const result = resolveSearchQuery(input, cachedUsers);
@@ -23,10 +23,10 @@ describe("resolveSearchQuery", () => {
   it("should resolve a username to a user ID when the user is in the cache", () => {
     // Arrange
     const input = "JohnDoe";
-    const cachedUsers = [
-      { id: 1, username: "JaneDoe" },
-      { id: 2, username: "JohnDoe" },
-    ];
+    const cachedUsers = {
+      janedoe: 1,
+      johndoe: 2,
+    };
 
     // Act
     const result = resolveSearchQuery(input, cachedUsers);
@@ -41,7 +41,7 @@ describe("resolveSearchQuery", () => {
   it("should resolve a username regardless of casing when in cache", () => {
     // Arrange
     const input = "johndoe";
-    const cachedUsers = [{ id: 2, username: "JohnDoe" }];
+    const cachedUsers = { johndoe: 2 };
 
     // Act
     const result = resolveSearchQuery(input, cachedUsers);
@@ -56,7 +56,7 @@ describe("resolveSearchQuery", () => {
   it("should return null if the input is empty or whitespace", () => {
     // Arrange
     const input = "   ";
-    const cachedUsers = [];
+    const cachedUsers = {};
 
     // Act
     const result = resolveSearchQuery(input, cachedUsers);
@@ -71,7 +71,7 @@ describe("resolveSearchQuery", () => {
   it("should return null if the username is not found in the cache", () => {
     // Arrange
     const input = "UnknownUser";
-    const cachedUsers = [{ id: 1, username: "JaneDoe" }];
+    const cachedUsers = { janedoe: 1 };
 
     // Act
     const result = resolveSearchQuery(input, cachedUsers);

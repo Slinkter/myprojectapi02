@@ -13,6 +13,7 @@ import {
     fetchAllUsers,
 } from "@/entities/user/services/user-service";
 import { resolveSearchQuery } from "@/features/user-search/services/search-engine";
+import { normalizeText } from "@/shared/lib/utils";
 
 /**
  * Estados posibles para las peticiones de usuario.
@@ -34,7 +35,7 @@ export const fetchUserAndPosts = createAsyncThunk(
     "user/fetchById",
     async (searchQuery, { rejectWithValue, signal, getState }) => {
         const { user } = getState();
-        const resolvedId = resolveSearchQuery(searchQuery, user.cachedUserList);
+        const resolvedId = resolveSearchQuery(searchQuery, user.cachedUsersByUsername);
 
         if (!resolvedId) {
             return rejectWithValue({
@@ -90,7 +91,8 @@ export const fetchUsersList = createAsyncThunk(
  * @property {FetchStatus} listStatus - Estado de la petición de la lista de usuarios.
  * @property {string|null} error - Mensaje de error o clave de traducción.
  * @property {Object|null} currentUser - Entidad del usuario actual mapeada al dominio.
- * @property {Array<Object>} cachedUserList - Caché de usuarios para búsqueda instantánea.
+ * @property {Record<number, Object>} cachedUsersById - Caché de usuarios indexados por ID.
+ * @property {Record<string, number>} cachedUsersByUsername - Caché O(1) de mapeo de username normalizado a ID.
  */
 
 const initialState = {
@@ -98,7 +100,8 @@ const initialState = {
     listStatus: "idle",
     error: null,
     currentUser: null,
-    cachedUserList: [],
+    cachedUsersById: {},
+    cachedUsersByUsername: {},
 };
 
 const userSlice = createSlice({
@@ -143,11 +146,19 @@ const userSlice = createSlice({
             })
             .addCase(fetchUsersList.fulfilled, (state, { payload }) => {
                 state.listStatus = "succeeded";
-                state.cachedUserList = payload;
+                state.cachedUsersById = payload.reduce((acc, user) => {
+                    if (user && user.id) acc[user.id] = user;
+                    return acc;
+                }, {});
+                state.cachedUsersByUsername = payload.reduce((acc, user) => {
+                    if (user && user.username) acc[normalizeText(user.username)] = user.id;
+                    return acc;
+                }, {});
             })
             .addCase(fetchUsersList.rejected, (state) => {
                 state.listStatus = "failed";
-                state.cachedUserList = [];
+                state.cachedUsersById = {};
+                state.cachedUsersByUsername = {};
             });
     },
 });
@@ -175,7 +186,7 @@ export const selectUserFetchError = (state) => state.user.error;
  * Selector memoizado para la lista de usuarios.
  * Garantiza que la UI no se re-renderice a menos que la lista cambie realmente.
  */
-export const selectMemoizedUserList = (state) => state.user.cachedUserList ?? [];
+export const selectMemoizedUserList = (state) => Object.values(state.user.cachedUsersById || {});
  
 /**
  * Selector memoizado para el perfil del usuario actual.

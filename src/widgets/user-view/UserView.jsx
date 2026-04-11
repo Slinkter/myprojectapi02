@@ -74,7 +74,7 @@ UserView.displayName = "UserView";
 
 UserView.propTypes = {
   /** ID del usuario para cargar el perfil y posts. */
-  userId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  userId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default UserView;

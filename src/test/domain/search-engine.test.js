@@ -2,11 +2,11 @@ import { describe, it, expect } from "vitest";
 import { isNumericId, findUserByUsername, resolveSearchQuery } from "@/features/user-search/services/search-engine";
 
 describe("Search Engine", () => {
-  const cachedUsers = [
-    { id: 1, username: "Bret" },
-    { id: 2, username: "Antonette" },
-    { id: 3, username: "Samantha" }
-  ];
+  const cachedUsers = {
+    "bret": 1,
+    "antonette": 2,
+    "samantha": 3
+  };
 
   describe("isNumericId", () => {
     it("should return true for strings containing only digits", () => {
@@ -37,21 +37,16 @@ describe("Search Engine", () => {
       expect(findUserByUsername("Unknown", cachedUsers)).toBeNull();
     });
 
-    it("should return null if cachedUsers is not an array", () => {
+    it("should return null if cachedUsers is not an object", () => {
       expect(findUserByUsername("Bret", null)).toBeNull();
-      expect(findUserByUsername("Bret", {})).toBeNull();
-    });
-
-    it("should handle users in cache that are null or undefined", () => {
-      const messyCache = [null, { id: 1, username: "Bret" }, undefined];
-      expect(findUserByUsername("Bret", messyCache)).toBe(1);
+      expect(findUserByUsername("Bret", "string")).toBeNull();
     });
   });
 
   describe("resolveSearchQuery", () => {
     it("should resolve a numeric ID string to a number", () => {
-      expect(resolveSearchQuery("123", [])).toBe(123);
-      expect(resolveSearchQuery(" 456 ", [])).toBe(456);
+      expect(resolveSearchQuery("123", {})).toBe(123);
+      expect(resolveSearchQuery(" 456 ", {})).toBe(456);
     });
 
     it("should resolve a username to an ID using cached users", () => {
@@ -72,7 +67,7 @@ describe("Search Engine", () => {
 
     it("should return null if neither numeric ID nor username match", () => {
       expect(resolveSearchQuery("UnknownUser", cachedUsers)).toBeNull();
-      expect(resolveSearchQuery("not-a-number-or-user", [])).toBeNull();
+      expect(resolveSearchQuery("not-a-number-or-user", {})).toBeNull();
     });
   });
 });

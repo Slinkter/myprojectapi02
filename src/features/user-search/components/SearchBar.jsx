@@ -12,7 +12,7 @@ import { Input, Button } from "@/shared/ui/FormElements";
 
 const SearchBar = memo(({ onSearch, onPrefetch, isLoading }) => {
     const [isPending, startTransition] = useTransition();
-    const { searchValue, onInputChange, helperMessage, hasError } = useSearchInput();
+    const { searchValue, onInputChange, helperMessage, hasError } = useSearchInput("1");
 
     const handleSearch = () => {
         if (searchValue && !hasError) {

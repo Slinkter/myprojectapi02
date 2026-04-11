@@ -7,6 +7,7 @@
  */
 
 import { fetchFromApi } from "@/shared/api/api-client";
+import { mapRawPosts } from "@/entities/post/domain/post.mappers";
 
 /**
  * Obtiene todas las publicaciones de un usuario específico.
@@ -32,6 +33,6 @@ import { fetchFromApi } from "@/shared/api/api-client";
 export const getPostsByUser = async (userId, options = {}) => {
   if (!userId) return [];
 
-  const posts = await fetchFromApi(`posts?userId=${userId}`, options);
-  return Array.isArray(posts) ? posts : [];
+  const rawPosts = await fetchFromApi(`posts?userId=${userId}`, options);
+  return mapRawPosts(rawPosts);
 };

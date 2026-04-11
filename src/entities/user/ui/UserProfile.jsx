@@ -77,8 +77,8 @@ const UserProfile = memo(({ user }) => {
     <Card className="mb-golden-md lg:mb-0 border-slate-200 dark:border-slate-700">
       {/* Cabecera */}
       <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 text-white p-golden-base lg:p-golden-md flex flex-col lg:flex-row items-center lg:items-start gap-golden-base text-center lg:text-left relative overflow-hidden">
-        <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
-        <div className="p-golden-sm bg-white/20 backdrop-blur-md rounded-2xl shadow-inner border border-white/30 relative z-10">
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-2xl sm:blur-3xl opacity-50 sm:opacity-100" />
+        <div className="p-golden-sm bg-white/20 backdrop-blur-sm sm:backdrop-blur-md rounded-2xl shadow-inner border border-white/30 relative z-10">
           <UserIcon className="h-12 w-12" aria-hidden="true" />
         </div>
         <div className="relative z-10">
@@ -101,7 +101,7 @@ const UserProfile = memo(({ user }) => {
 UserProfile.displayName = "UserProfile";
 
 UserProfile.propTypes = {
-  user: PropTypes.shape(zodToPropTypes(UserSchema)).isRequired,
+  user: PropTypes.shape(zodToPropTypes(UserSchema)),
 };
 
 export default UserProfile;

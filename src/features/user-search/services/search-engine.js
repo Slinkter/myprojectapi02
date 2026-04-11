@@ -16,40 +16,37 @@ import { normalizeText } from "@/shared/lib/utils";
 export const isNumericId = (input) => /^\d+$/.test(input);
 
 /**
- * Busca un usuario en la lista de caché basándose en la normalización del nombre de usuario.
+ * Busca un usuario en la lista de caché usando un Hash Map O(1).
  * 
  * @param {string} username - Nombre de usuario a buscar.
- * @param {Array<Object>} cachedUsers - Lista de usuarios cargados en el estado global.
+ * @param {Record<string, number>} cachedUsersByUsername - Mapa de usuarios indexados por username normalizado.
  * @returns {number|null} El ID del usuario si se encuentra, de lo contrario null.
  */
-export const findUserByUsername = (username, cachedUsers = []) => {
-  if (!Array.isArray(cachedUsers)) return null;
+export const findUserByUsername = (username, cachedUsersByUsername = {}) => {
+  if (typeof cachedUsersByUsername !== "object" || cachedUsersByUsername === null) return null;
 
   const normalizedInput = normalizeText(username);
-  const foundUser = cachedUsers.find(user => 
-    user && normalizeText(user.username) === normalizedInput
-  );
-
-  return foundUser ? foundUser.id : null;
+  // Búsqueda O(1) en el diccionario
+  return cachedUsersByUsername[normalizedInput] || null;
 };
 
 /**
  * Resuelve el valor de búsqueda ingresado por el usuario a un ID numérico.
  * 
  * Implementa una lógica de resolución priorizando IDs numéricos y luego
- * buscando en la caché de usuarios por nombre de usuario.
+ * buscando en la caché O(1) de usuarios por nombre de usuario.
  * 
  * @param {string} input - El término de búsqueda ingresado por el usuario.
- * @param {Array<Object>} cachedUsers - Lista de usuarios en caché para resolución por nombre.
+ * @param {Record<string, number>} cachedUsersByUsername - Mapa de nombres a IDs.
  * @returns {number|null} El ID del usuario resuelto o null si no es posible determinar la identidad.
  * 
  * @example
- * resolveSearchQuery("123", []) -> 123
- * resolveSearchQuery("john_doe", [{username: "John Doe", id: 10}]) -> 10
- * resolveSearchQuery("unknown", []) -> null
- * resolveSearchQuery("", []) -> null
+ * resolveSearchQuery("123", {}) -> 123
+ * resolveSearchQuery("john_doe", {"john doe": 10}) -> 10
+ * resolveSearchQuery("unknown", {}) -> null
+ * resolveSearchQuery("", {}) -> null
  */
-export const resolveSearchQuery = (input, cachedUsers = []) => {
+export const resolveSearchQuery = (input, cachedUsersByUsername = {}) => {
   console.log("[DEBUG: search-engine] resolveSearchQuery input:", input);
   
   if (input === null || input === undefined) return null;
@@ -64,8 +61,8 @@ export const resolveSearchQuery = (input, cachedUsers = []) => {
     return id;
   }
   
-  // Caso 2: El input es un nombre de usuario que debe resolverse contra la caché
-  const resolved = findUserByUsername(stringInput, cachedUsers);
+  // Caso 2: El input es un nombre de usuario que debe resolverse contra la caché O(1)
+  const resolved = findUserByUsername(stringInput, cachedUsersByUsername);
   console.log("[DEBUG: search-engine] Cache resolution result:", resolved);
   return resolved;
 };
