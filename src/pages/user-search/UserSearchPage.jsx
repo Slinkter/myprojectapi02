@@ -99,7 +99,7 @@ const UserSearchPage = memo(() => {
             <main className={cn("min-h-100")}>
                 <StateBoundary
                     status={status}
-                    error={error}
+                    error={lastSearchQuery !== 1 && error}
                     onRetry={handleRetry}
                     loadingComponent={LoadingView}
                     errorComponent={ErrorMessage}

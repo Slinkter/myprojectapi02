@@ -13,7 +13,7 @@ export const UserSchema = z.object({
   website: z.string(),
   company: z.object({
     name: z.string(),
-    catchPhrase: z.string(),
+    catchPhrase: z.string().optional(),
     ceo: z.string().optional(),
   }),
   address: z.object({

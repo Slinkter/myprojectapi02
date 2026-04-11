@@ -58,9 +58,11 @@ export const useUserSearch = (initialUserId) => {
 
     useEffect(() => {
         if (initialUserId) {
-            const promise = dispatch(fetchUserAndPosts(initialUserId));
+            // Carga silenciosa para el ID inicial: no bloqueamos la UI con errores si falla
+            dispatch(fetchUserAndPosts(initialUserId)).catch(() => {
+                console.info("Silent load: Initial user data failed to fetch.");
+            });
             setLastSearchQuery(initialUserId);
-            return () => promise.abort();
         }
     }, [dispatch, initialUserId]);
 
